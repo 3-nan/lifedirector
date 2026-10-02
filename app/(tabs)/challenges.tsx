@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import {
     CATEGORY_EMOJI,
     CATEGORY_LABEL,
@@ -11,8 +11,10 @@ import {
     SIZE_LABEL,
     SIZE_ORDER,
 } from '../../lib/challenges';
+import { monthKey } from '../../lib/period';
 import { supabase } from '../../lib/supabase';
 import { Challenge, ChallengeStatus } from '../../types/challenge';
+import { MonthlyGoal } from '../../types/monthlyGoal';
 
 const ACCENT = '#34c759';
 const ACCENT_BLUE = '#007aff';
@@ -33,6 +35,9 @@ const STATUS_COLOR: Record<ChallengeStatus, string> = {
 export default function ChallengesScreen() {
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [statusMap, setStatusMap] = useState<Record<string, ChallengeStatus>>({});
+  const [goals, setGoals] = useState<MonthlyGoal[]>([]);
+  const [newGoalTitle, setNewGoalTitle] = useState('');
+  const [addingGoal, setAddingGoal] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
@@ -41,12 +46,15 @@ export default function ChallengesScreen() {
       .from('challenges').select('*').eq('active', true).order('created_at', { ascending: true });
     const { data: progressData } = await supabase
       .from('challenge_progress').select('challenge_id, status');
+    const { data: goalData } = await supabase
+      .from('monthly_goals').select('*').eq('month_key', monthKey()).order('created_at', { ascending: true });
 
     const map: Record<string, ChallengeStatus> = {};
     progressData?.forEach((p) => { map[p.challenge_id] = p.status as ChallengeStatus; });
 
     setChallenges(challengeData ?? []);
     setStatusMap(map);
+    setGoals(goalData ?? []);
     setLoading(false);
   }, []);
 
@@ -84,6 +92,26 @@ export default function ChallengesScreen() {
     );
   }
 
+  async function toggleGoal(goal: MonthlyGoal) {
+    const newDone = !goal.done;
+    setGoals((prev) => prev.map((g) => (g.id === goal.id ? { ...g, done: newDone } : g)));
+    await supabase.from('monthly_goals').update({
+      done: newDone,
+      completed_at: newDone ? new Date().toISOString() : null,
+    }).eq('id', goal.id);
+  }
+
+  async function addGoal() {
+    const title = newGoalTitle.trim();
+    if (!title) return;
+    setAddingGoal(true);
+    const { error } = await supabase.from('monthly_goals').insert({ title, month_key: monthKey() });
+    setAddingGoal(false);
+    if (error) { Alert.alert('Fehler', error.message); return; }
+    setNewGoalTitle('');
+    load();
+  }
+
   const doneCount = challenges.filter((c) => statusOf(c.id) === 'done').length;
   const activeCount = challenges.filter((c) => statusOf(c.id) === 'active').length;
 
@@ -114,6 +142,46 @@ export default function ChallengesScreen() {
         <View style={styles.statCard}>
           <Text style={styles.statValue}>{challenges.length}</Text>
           <Text style={styles.statLabel}>Gesamt</Text>
+        </View>
+      </View>
+
+      <View style={styles.tintedSection}>
+        <Text style={styles.sectionTitle}>Monatsziele</Text>
+        <View style={{ gap: 8, marginBottom: 12 }}>
+          {goals.map((goal) => {
+            const checked = goal.done;
+            return (
+              <TouchableOpacity
+                key={goal.id}
+                style={styles.goalCard}
+                onPress={() => toggleGoal(goal)}
+                activeOpacity={0.7}
+              >
+                <Ionicons
+                  name={checked ? 'checkmark-circle' : 'ellipse-outline'}
+                  size={22}
+                  color={checked ? ACCENT : '#c7c7cc'}
+                />
+                <Text style={[styles.cardTitle, checked && styles.cardTitleDone]}>{goal.title}</Text>
+              </TouchableOpacity>
+            );
+          })}
+          {goals.length === 0 && <Text style={styles.empty}>Noch kein Monatsziel eingetragen.</Text>}
+
+          <View style={styles.addRow}>
+            <TextInput
+              style={styles.addInput}
+              placeholder="Neues Monatsziel…"
+              placeholderTextColor={MUTED}
+              value={newGoalTitle}
+              onChangeText={setNewGoalTitle}
+              onSubmitEditing={addGoal}
+              returnKeyType="done"
+            />
+            <TouchableOpacity style={styles.addButton} onPress={addGoal} disabled={addingGoal} activeOpacity={0.7}>
+              <Ionicons name="add" size={20} color="#fff" />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
 
@@ -184,4 +252,9 @@ const styles = StyleSheet.create({
   badgeRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
   badge: { fontSize: 11, color: MUTED, backgroundColor: '#ececee', borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 },
   empty: { color: MUTED, marginTop: 20, lineHeight: 20 },
+  tintedSection: { backgroundColor: '#eef6ef', borderRadius: 12, padding: 14, marginBottom: 20 },
+  goalCard: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#fff', borderRadius: 10, paddingVertical: 14, paddingHorizontal: 14 },
+  addRow: { flexDirection: 'row', gap: 8 },
+  addInput: { flex: 1, backgroundColor: '#fff', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, fontSize: 14 },
+  addButton: { backgroundColor: ACCENT, width: 44, height: 44, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
 });
