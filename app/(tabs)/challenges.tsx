@@ -8,6 +8,7 @@ import {
     currentMonthCategory,
     drawChallenge,
     nextStatus,
+    setChallengeStatus,
     SIZE_LABEL,
     SIZE_ORDER,
 } from '../../lib/challenges';
@@ -64,14 +65,7 @@ export default function ChallengesScreen() {
 
   async function setStatus(challenge: Challenge, status: ChallengeStatus) {
     setStatusMap((prev) => ({ ...prev, [challenge.id]: status }));
-    const patch: Record<string, unknown> = {
-      challenge_id: challenge.id,
-      status,
-      updated_at: new Date().toISOString(),
-      started_at: status === 'active' ? new Date().toISOString() : status === 'open' ? null : undefined,
-      completed_at: status === 'done' ? new Date().toISOString() : status === 'open' ? null : undefined,
-    };
-    await supabase.from('challenge_progress').upsert(patch, { onConflict: 'challenge_id' });
+    await setChallengeStatus(challenge.id, status);
   }
 
   const monthCategory = useMemo(() => currentMonthCategory(), []);

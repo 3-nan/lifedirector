@@ -11,6 +11,7 @@ create table if not exists public.habits (
   icon text,
   active boolean not null default true,
   sort_order integer not null default 0,
+  target_per_week integer not null default 7 check (target_per_week between 1 and 7),
   created_at timestamptz not null default now()
 );
 
