@@ -66,7 +66,11 @@ Fortschritt statt Perfektion (kein harter Streak-Reset), Identitäts-Framing
   **Grenze:** der Text wird nur beim nächsten App-Öffnen neu berechnet, nicht
   live zur Zustellzeit — lokale Notifications können das ohne Server nicht.
 
-## Accounts / Multi-User (in Arbeit, 2026-10-05)
+## Accounts / Multi-User (Basis live seit 2026-10-05)
+Stand: anonyme Accounts + RLS laufen, alle drei Migrationen ausgeführt,
+bisherige Daten erfolgreich auf den Account der neuen APK übertragen.
+Offen: "Konto sichern" (siehe unten).
+
 Ziel: andere Leute können die App mit eigenen Habits/Zielen/Challenges/
 Träumen nutzen. Grundsatz: **so bequem wie möglich — kein Login-Zwang.**
 
