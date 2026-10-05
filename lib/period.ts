@@ -13,3 +13,14 @@ export function isoWeekKey(date: Date = new Date()): string {
 export function monthKey(date: Date = new Date()): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 }
+
+export function todayStr(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+/** ISO-Datum (YYYY-MM-DD) für "heute minus n Tage". */
+export function daysAgoStr(n: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return d.toISOString().slice(0, 10);
+}

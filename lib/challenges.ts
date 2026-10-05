@@ -1,4 +1,5 @@
 // lib/challenges.ts
+import { supabase } from './supabase';
 import { Challenge, ChallengeCategory, ChallengeSize, ChallengeStatus } from '../types/challenge';
 
 // Reihenfolge, in der die Kategorien rotieren ("jeden Monat eine Kategorie").
@@ -37,6 +38,20 @@ export function nextStatus(current: ChallengeStatus): ChallengeStatus {
   if (current === 'open') return 'active';
   if (current === 'active') return 'done';
   return 'open';
+}
+
+/** Schreibt den Status einer Challenge in `challenge_progress` (ein Row pro Nutzer und Challenge). */
+export async function setChallengeStatus(challengeId: string, status: ChallengeStatus) {
+  const { data: { session } } = await supabase.auth.getSession();
+  const patch: Record<string, unknown> = {
+    user_id: session?.user.id,
+    challenge_id: challengeId,
+    status,
+    updated_at: new Date().toISOString(),
+    started_at: status === 'active' ? new Date().toISOString() : status === 'open' ? null : undefined,
+    completed_at: status === 'done' ? new Date().toISOString() : status === 'open' ? null : undefined,
+  };
+  return supabase.from('challenge_progress').upsert(patch, { onConflict: 'user_id,challenge_id' });
 }
 
 /**

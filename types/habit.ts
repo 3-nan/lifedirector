@@ -4,6 +4,7 @@ export type Habit = {
   name: string;
   icon: string | null;
   active: boolean;
+  target_per_week: number; // 7 = täglich, 1–6 = Mal pro Woche
   created_at: string;
 };
 
