@@ -1,8 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { CelebrationOverlay, CelebrationPayload } from '../../components/celebration';
+import { isSecured } from '../../lib/account';
 import { CATEGORY_EMOJI, CATEGORY_LABEL, CATEGORY_ROTATION, setChallengeStatus } from '../../lib/challenges';
 import {
   celebrationLine,
@@ -33,6 +35,11 @@ const MUTED = '#9a9a9e';
 
 const MOMENTUM_WINDOW_DAYS = 60;
 
+// "Konto sichern"-Hinweis erst nach einer Woche Nutzung — vorher wäre es
+// Reibung, bevor man überhaupt weiß, ob man die App behalten will.
+const SECURE_NUDGE_AFTER_DAYS = 7;
+const SECURE_NUDGE_DISMISSED_KEY = 'secureNudgeDismissed';
+
 const MILESTONE_EMOJI: Record<Milestone, string> = {
   3: '🔥',
   7: '⭐',
@@ -61,6 +68,17 @@ function promptCategory(onPick: (category: ChallengeCategory) => void) {
   );
 }
 
+/** Hinweis nur für ungesicherte Accounts, ab einer Woche Nutzung, bis "Später" getippt wurde. */
+async function shouldShowSecureNudge(habits: Habit[]): Promise<boolean> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session || isSecured(session)) return false;
+  const dismissed = await AsyncStorage.getItem(SECURE_NUDGE_DISMISSED_KEY).catch(() => null);
+  if (dismissed) return false;
+  const starts = [new Date(session.user.created_at).getTime(), ...habits.map((h) => new Date(h.created_at).getTime())];
+  const daysSinceStart = (Date.now() - Math.min(...starts)) / (24 * 3600 * 1000);
+  return daysSinceStart >= SECURE_NUDGE_AFTER_DAYS;
+}
+
 export default function TodayScreen() {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [doneMap, setDoneMap] = useState<Record<string, boolean>>({});
@@ -71,6 +89,8 @@ export default function TodayScreen() {
   const [activeChallenges, setActiveChallenges] = useState<Challenge[]>([]);
   const [loading, setLoading] = useState(true);
   const [celebration, setCelebration] = useState<CelebrationPayload | null>(null);
+  const [showSecureNudge, setShowSecureNudge] = useState(false);
+  const router = useRouter();
   const celebrationKey = useRef(0);
 
   const load = useCallback(async () => {
@@ -105,6 +125,7 @@ export default function TodayScreen() {
     setHistoryMap(history);
     setTasks(tasksData ?? []);
     setActiveChallenges(active);
+    setShowSecureNudge(await shouldShowSecureNudge(habitsData ?? []));
     setLoading(false);
   }, []);
 
@@ -113,6 +134,11 @@ export default function TodayScreen() {
   useEffect(() => {
     setupDailyReminder();
   }, []);
+
+  function dismissSecureNudge() {
+    setShowSecureNudge(false);
+    AsyncStorage.setItem(SECURE_NUDGE_DISMISSED_KEY, '1').catch(() => {});
+  }
 
   function celebrate(milestone: Milestone, habit: Habit) {
     celebrationKey.current += 1;
@@ -213,9 +239,43 @@ export default function TodayScreen() {
   return (
     <View style={{ flex: 1 }}>
       <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
-        <Text style={styles.dateLabel}>{formatDateDE(todayStr())}</Text>
-        <Text style={styles.header}>Heute</Text>
+        <View style={styles.headerRow}>
+          <View>
+            <Text style={styles.dateLabel}>{formatDateDE(todayStr())}</Text>
+            <Text style={styles.header}>Heute</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.settingsButton}
+            onPress={() => router.push('/settings')}
+            accessibilityLabel="Einstellungen"
+            hitSlop={6}
+          >
+            <Ionicons name="settings-outline" size={22} color={MUTED} />
+          </TouchableOpacity>
+        </View>
         <Text style={styles.encouragement}>{encouragement}</Text>
+
+        {showSecureNudge && (
+          <View style={styles.nudgeCard}>
+            <View style={styles.nudgeTop}>
+              <Ionicons name="shield-checkmark-outline" size={22} color="#007aff" />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.nudgeTitle}>Sichere deinen Fortschritt</Text>
+                <Text style={styles.nudgeText}>
+                  Eine Woche dabei — stark. Gerade hängen deine Daten nur an diesem Handy. Mit deiner E-Mail bleiben sie auch bei Handywechsel erhalten.
+                </Text>
+              </View>
+            </View>
+            <View style={styles.nudgeActions}>
+              <TouchableOpacity style={styles.nudgeLater} onPress={dismissSecureNudge}>
+                <Text style={styles.nudgeLaterText}>Später</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.nudgeSecure} onPress={() => router.push('/settings')} activeOpacity={0.7}>
+                <Text style={styles.nudgeSecureText}>Jetzt sichern</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
 
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
@@ -336,6 +396,17 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, paddingTop: 60, backgroundColor: '#fff' },
   center: { flex: 1, justifyContent: 'center' },
   dateLabel: { fontSize: 13, color: MUTED, marginBottom: 2 },
+  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  settingsButton: { width: 44, height: 44, marginTop: -6, marginRight: -10, justifyContent: 'center', alignItems: 'center' },
+  nudgeCard: { backgroundColor: '#eaf2ff', borderRadius: 12, padding: 14, gap: 10, marginBottom: 20 },
+  nudgeTop: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
+  nudgeTitle: { fontSize: 15, fontWeight: '600' },
+  nudgeText: { fontSize: 13, color: '#444', lineHeight: 19, marginTop: 3 },
+  nudgeActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8 },
+  nudgeLater: { minHeight: 40, paddingHorizontal: 14, justifyContent: 'center' },
+  nudgeLaterText: { fontSize: 14, color: '#555' },
+  nudgeSecure: { minHeight: 40, paddingHorizontal: 16, borderRadius: 10, backgroundColor: '#007aff', justifyContent: 'center' },
+  nudgeSecureText: { fontSize: 14, fontWeight: '600', color: '#fff' },
   header: { fontSize: 22, fontWeight: '600', marginBottom: 6 },
   encouragement: { fontSize: 13, color: '#555', lineHeight: 18, marginBottom: 20 },
   statsRow: { flexDirection: 'row', gap: 8, marginBottom: 20 },

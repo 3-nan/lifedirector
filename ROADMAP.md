@@ -84,17 +84,19 @@ Träumen nutzen. Grundsatz: **so bequem wie möglich — kein Login-Zwang.**
   bei Handywechsel/Neuinstallation. Sanft anstoßen statt erzwingen, z.B. nach
   der ersten Woche oder dem ersten Celebration-Moment.
   **Risiko ohne Sicherung:** App löschen = anonymer Account weg.
-  **Offene Entscheidungen dazu:**
-  1. *Wann anstoßen?* Vorschlag: nach 7 Tagen Nutzung oder dem ersten
-     Streak-Meilenstein, als wegklickbare Karte auf `Today` (kein Popup,
-     kein Zwang). Alternative: dauerhafter, dezenter Eintrag nur in einem
-     Einstellungs-/Profil-Bereich.
-  2. *Nur E-Mail-Code oder auch Google?* Vorschlag: erst nur E-Mail-Code
-     (läuft ohne neue native Dependency). Google-Login braucht Google-Cloud-
-     Konfiguration + nativen Build; auf iOS dann auch Sign in with Apple.
-  3. *CAPTCHA gegen Missbrauch der anonymen Anmeldung?* Nicht dringend,
-     solange nur Bekannte die APK haben — aber Pflicht vor einem
-     Play-Store-Release.
+  **Umgesetzt (2026-10-05, Branch `konto-sichern`), nach Mockup:**
+  Zahnrad oben rechts auf `Today` → `app/settings.tsx` (eigener Screen, kein
+  Tab) mit Konto-Status, "Mit E-Mail sichern" (6-stelliger Code, kein
+  Passwort), "Schon gesichert? Hier anmelden" (ersetzt ungesicherte Daten
+  auf dem Gerät, mit Warnung vorher), "Abmelden" und "Alle meine Daten
+  löschen" (Bestätigung durch Eintippen von LÖSCHEN, RPC `delete_my_account`
+  in `supabase/delete_account.sql`). Hinweis-Karte auf `Today` nach 7 Tagen
+  für ungesicherte Accounts, "Später" blendet sie dauerhaft aus. Logik in
+  `lib/account.ts`.
+  Entschieden: nur E-Mail-Code (kein Google vorerst); CAPTCHA vor dem
+  geschlossenen Play-Test; beim Anmelden ersetzen statt zusammenführen.
+  Voraussetzung in Supabase: Mail-Vorlagen "Magic Link" und "Change Email
+  Address" mit `{{ .Token }}`; für fremde Adressen (Tester) eigener SMTP.
   Bis das steht: Datenumzug auf einen neuen Account (neues Gerät/neuer
   Build) per `supabase/auth_3_move_data_to_new_account.sql`.
 - **Datenbank:** `user_id` (Default `auth.uid()`) auf `habits`, `logs`,
@@ -108,6 +110,54 @@ Träumen nutzen. Grundsatz: **so bequem wie möglich — kein Login-Zwang.**
   SMTP-Anbieter (Resend o.ä.) für die Code-Mails, Abmelden + "Account
   löschen" (Play-Store-Pflicht), Aufräumen alter ungesicherter Accounts.
 - Neue Tabellen (z.B. `dreams`) bekommen `user_id` + RLS von Anfang an.
+
+## Play-Store-Release (geplant, 2026-10-05)
+Ziel: LifeDirector öffentlich im Google Play Store. Größter Zeitfaktor ist
+der Pflicht-Testlauf für neue private Entwicklerkonten — deshalb früh
+anfangen und parallel an der App arbeiten.
+
+**1. Entwicklerkonto** (zuerst, läuft im Hintergrund)
+- Google Play Console: 25 $ einmalig + Identitätsprüfung (dauert Tage).
+- Neue private Konten: geschlossener Test mit mind. 12 Testern, 14 Tage am
+  Stück, bevor Produktionszugang beantragt werden kann (Zahlen in der
+  Console gegenprüfen, Google ändert das gelegentlich). Tester früh suchen.
+
+**2. App-Voraussetzungen**
+- [ ] Package-Name final festlegen — aktuell `com.franzmotzkus.habittracker`,
+      nach dem ersten Upload unveränderbar. Ggf. `…lifedirector`; auf dem
+      eigenen Handy dann neue App → Daten einmal per `auth_3`-Skript umziehen.
+- [ ] "Account/Daten löschen": in der App erledigt (Einstellungen); fehlt
+      noch die Web-Seite für Löschanfragen (Play-Pflicht).
+- [ ] CAPTCHA (Cloudflare Turnstile) für die anonyme Anmeldung in Supabase.
+- [x] "Konto sichern" (siehe Accounts) — Code steht, Branch `konto-sichern`.
+- [ ] Supabase-Plan prüfen: Free-Projekte pausieren nach 7 Tagen Inaktivität,
+      nur einfache Backups → mit echten Nutzern Pro (~25 $/Monat) erwägen.
+
+**3. Build & Upload**
+- `npx eas-cli build --platform android --profile production` → AAB statt
+  APK (`autoIncrement` für versionCode steht schon in `eas.json`).
+- Ersten Build manuell in der Play Console hochladen; danach
+  `npx eas-cli submit --platform android` (braucht einmalig einen Google-
+  Service-Account-Key). Signing: Play App Signing, EAS-Key bleibt Upload-Key.
+
+**4. Store-Eintrag & Formulare**
+- [ ] Texte: Name, Kurzbeschreibung (≤ 80 Zeichen), Beschreibung (≤ 4000);
+      Deutsch zuerst, Englisch später.
+- [ ] Grafiken: Icon 512×512, Feature-Grafik 1024×500, ≥ 2 Handy-Screenshots
+      (echte Screenshots, `docs/mockup.png` als Stil-Vorlage).
+- [ ] Datenschutzerklärung (öffentliche URL, DSGVO): was in Supabase
+      gespeichert wird, Region des Projekts, wie man löscht.
+- [ ] Formulare: Datensicherheit, Altersfreigabe, Zielgruppe, Werbung
+      (keine), App-Zugriff (kein Login nötig).
+
+**5. Release-Weg**
+Interner Test (nur ich) → geschlossener Test (≥ 12 Tester, 14 Tage) →
+Produktionszugang beantragen → Review (meist wenige Tage) → live.
+
+**Reihenfolge:** Konto jetzt eröffnen → parallel App-Voraussetzungen
+(Löschen, CAPTCHA, idealerweise Konto sichern, Package-Name) →
+Datenschutz/Texte/Screenshots → Production-Build + interner Test →
+geschlossener Test starten → nach 14 Tagen Produktion beantragen.
 
 ## Träume / Lebensziele (geplant, 2026-10-05)
 Idee: eine "Bucket List" für Dinge, die man irgendwann im Leben machen will
