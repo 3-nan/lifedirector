@@ -126,3 +126,12 @@ export async function nextStepToWeeklyTask(dream: Dream) {
   if (stepError) return { error: stepError };
   return touch(dream.id, { next_step: null });
 }
+
+/** Auswahl beim Anlegen/Bearbeiten — bewusst kuratiert statt kompletter Emoji-Tastatur. */
+export const DREAM_EMOJIS = [
+  '✨', '✈️', '🌴', '🏔️', '🌊', '🏄', '🌌', '🏃', '🚴', '🧗', '⛵', '🏕️',
+  '🎸', '🎹', '🎨', '📚', '🍳', '🪚', '🏡', '🐶', '🌍', '🗣️', '🎤', '❤️',
+];
+
+/** Stufe, die als Nächstes gefeiert wird — `null`, wenn es kein "Weiter" gibt. */
+export type CelebratedStage = 'explored' | 'planned' | 'committed' | 'fulfilled';

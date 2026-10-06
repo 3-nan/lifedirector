@@ -171,8 +171,13 @@ Leben noch machen will ("Surfen lernen", "Reise nach Thailand", "Marathon").
 Die App soll Träume nicht nur sammeln, sondern **präsent halten** und zum
 **nächsten kleinen Schritt** schubsen, statt sie auf "irgendwann" zu schieben.
 
-> Status: **Beschreibung dessen, was gebaut werden soll — keine fixe
-> Entscheidung.** Vor der Umsetzung: HTML-Mockup, dann nochmal abstimmen.
+> Status: **v1 umgesetzt (2026-10-06, Branch `dreams`)** nach abgestimmtem
+> Mockup: Tab `app/(tabs)/dreams.tsx` (Board), `app/dream/new.tsx`,
+> `app/dream/[id].tsx` (Detail mit nächstem Schritt, Stufen, Loslassen,
+> Erfüllen mit "Wie war's?"), `app/dream/memories.tsx` (Erinnerungswand),
+> "Traum der Woche"-Karte + Traum-Badge auf Wochen-Tasks in `Today`,
+> Celebrations bei Schritt/Stufenwechsel/Erfüllung. `supabase/dreams.sql`
+> ist ausgeführt. Der Rest dieses Abschnitts bleibt Ideensammlung für später.
 
 **Schon entschieden (2026-10-06):**
 - Eigener Tab "Träume" (nicht im `Challenges`-Hub) — emotional etwas anderes

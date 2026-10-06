@@ -26,6 +26,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="dreams"
+        options={{
+          title: 'Träume',
+          tabBarIcon: ({ color, size }) => <Ionicons name="planet-outline" size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="review"
         options={{
           title: 'Review',

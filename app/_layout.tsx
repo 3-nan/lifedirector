@@ -52,6 +52,9 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ headerShown: false }} />
+        <Stack.Screen name="dream/new" options={{ headerShown: false, presentation: 'modal' }} />
+        <Stack.Screen name="dream/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="dream/memories" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
       </Stack>
       <StatusBar style="auto" />

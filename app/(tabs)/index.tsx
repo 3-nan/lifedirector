@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { CelebrationOverlay, CelebrationPayload } from '../../components/celebration';
 import { isSecured } from '../../lib/account';
+import { dreamColor, nextStepToWeeklyTask, pickDreamOfWeek, updateDream } from '../../lib/dreams';
 import { CATEGORY_EMOJI, CATEGORY_LABEL, CATEGORY_ROTATION, setChallengeStatus } from '../../lib/challenges';
 import {
   celebrationLine,
@@ -14,6 +15,7 @@ import {
   computeWeekMomentum,
   computeWeekStreak,
   dailyEncouragement,
+  dreamStepLine,
   doneThisWeek,
   hitMilestone,
   Milestone,
@@ -25,6 +27,7 @@ import { setupDailyReminder } from '../../lib/notifications';
 import { daysAgoStr, isoWeekKey, todayStr } from '../../lib/period';
 import { supabase } from '../../lib/supabase';
 import { Challenge, ChallengeCategory, ChallengeStatus } from '../../types/challenge';
+import { Dream } from '../../types/dream';
 import { Habit } from '../../types/habit';
 import { Task } from '../../types/task';
 
@@ -84,6 +87,8 @@ export default function TodayScreen() {
   const [doneMap, setDoneMap] = useState<Record<string, boolean>>({});
   const [historyMap, setHistoryMap] = useState<Record<string, Set<string>>>({});
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [dreams, setDreams] = useState<Dream[]>([]);
+  const [dreamStepInput, setDreamStepInput] = useState('');
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [addingTask, setAddingTask] = useState(false);
   const [activeChallenges, setActiveChallenges] = useState<Challenge[]>([]);
@@ -101,6 +106,7 @@ export default function TodayScreen() {
       .from('logs').select('habit_id, date, done').eq('date', todayStr());
     const { data: historyData } = await supabase
       .from('logs').select('habit_id, date, done').gte('date', daysAgoStr(MOMENTUM_WINDOW_DAYS)).eq('done', true);
+    const { data: dreamsData } = await supabase.from('dreams').select('*');
     const { data: tasksData } = await supabase
       .from('tasks').select('*').eq('week_key', isoWeekKey()).order('created_at', { ascending: true });
     const { data: challengesData } = await supabase
@@ -124,6 +130,7 @@ export default function TodayScreen() {
     setDoneMap(map);
     setHistoryMap(history);
     setTasks(tasksData ?? []);
+    setDreams(dreamsData ?? []);
     setActiveChallenges(active);
     setShowSecureNudge(await shouldShowSecureNudge(habitsData ?? []));
     setLoading(false);
@@ -185,10 +192,35 @@ export default function TodayScreen() {
   async function toggleTask(task: Task) {
     const newDone = !task.done;
     setTasks((prev) => prev.map((t) => (t.id === task.id ? { ...t, done: newDone } : t)));
+    const dream = task.dream_id ? dreams.find((d) => d.id === task.dream_id) : undefined;
+    if (newDone && dream) {
+      celebrationKey.current += 1;
+      setCelebration({
+        key: celebrationKey.current,
+        emoji: dream.emoji,
+        title: 'Ein Schritt näher!',
+        line: dreamStepLine(dream.title, task.id),
+        durationMs: 3500,
+      });
+    }
+    // Der zugehörige Traum-Schritt wird per DB-Trigger mit abgehakt.
     await supabase.from('tasks').update({
       done: newDone,
       completed_at: newDone ? new Date().toISOString() : null,
     }).eq('id', task.id);
+  }
+
+  async function saveDreamOfWeekStep(dream: Dream) {
+    const title = dreamStepInput.trim();
+    if (!title) return;
+    await updateDream(dream.id, { next_step: title });
+    setDreamStepInput('');
+    load();
+  }
+
+  async function dreamOfWeekToTask(dream: Dream) {
+    await nextStepToWeeklyTask(dream);
+    load();
   }
 
   async function completeChallenge(challenge: Challenge) {
@@ -235,6 +267,8 @@ export default function TodayScreen() {
   const dueCount = habits.filter(isDueToday).length;
   const doneCount = habits.filter((h) => doneMap[h.id]).length;
   const encouragement = dailyEncouragement(doneCount, dueCount, todayStr());
+  const dreamOfWeek = pickDreamOfWeek(dreams);
+  const dreamsById = Object.fromEntries(dreams.map((d) => [d.id, d]));
 
   return (
     <View style={{ flex: 1 }}>
@@ -312,6 +346,74 @@ export default function TodayScreen() {
           </>
         )}
 
+        {dreamOfWeek && (() => {
+          const color = dreamColor(dreamOfWeek.color);
+          const stepThisWeek = tasks.find((t) => t.dream_id === dreamOfWeek.id);
+          return (
+            <View style={[styles.dreamCard, { backgroundColor: color.bg }]}>
+              <View style={styles.dreamTop}>
+                <Text style={styles.dreamEmoji}>{dreamOfWeek.emoji}</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.dreamLabel, { color: color.accent }]}>TRAUM DER WOCHE</Text>
+                  <Text style={styles.dreamTitle}>{dreamOfWeek.title}</Text>
+                  <Text style={styles.dreamText}>
+                    {stepThisWeek
+                      ? stepThisWeek.done
+                        ? 'Diese Woche schon einen Schritt gemacht. Stark.'
+                        : 'Ein Schritt steht diese Woche an — unten bei „Diese Woche“.'
+                      : dreamOfWeek.next_step
+                        ? 'Bereit für den nächsten kleinen Schritt?'
+                        : 'Was ist dein nächster kleiner Schritt dahin?'}
+                  </Text>
+                </View>
+              </View>
+              {!stepThisWeek && dreamOfWeek.next_step && (
+                <View style={styles.dreamStepBox}>
+                  <Text style={styles.dreamStepText}>{dreamOfWeek.next_step}</Text>
+                </View>
+              )}
+              {!stepThisWeek && !dreamOfWeek.next_step && (
+                <TextInput
+                  style={styles.dreamStepInput}
+                  placeholder="z.B. 3 Angebote vergleichen"
+                  placeholderTextColor={MUTED}
+                  value={dreamStepInput}
+                  onChangeText={setDreamStepInput}
+                  onSubmitEditing={() => saveDreamOfWeekStep(dreamOfWeek)}
+                  returnKeyType="done"
+                />
+              )}
+              <View style={styles.dreamActions}>
+                <TouchableOpacity
+                  style={styles.dreamLink}
+                  onPress={() => router.push({ pathname: '/dream/[id]', params: { id: dreamOfWeek.id } })}
+                >
+                  <Text style={styles.dreamLinkText}>Zum Traum</Text>
+                </TouchableOpacity>
+                {!stepThisWeek && dreamOfWeek.next_step && (
+                  <TouchableOpacity
+                    style={[styles.dreamButton, { backgroundColor: color.accent }]}
+                    onPress={() => dreamOfWeekToTask(dreamOfWeek)}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.dreamButtonText}>In diese Woche</Text>
+                  </TouchableOpacity>
+                )}
+                {!stepThisWeek && !dreamOfWeek.next_step && (
+                  <TouchableOpacity
+                    style={[styles.dreamButton, { backgroundColor: color.accent }, !dreamStepInput.trim() && { opacity: 0.4 }]}
+                    onPress={() => saveDreamOfWeekStep(dreamOfWeek)}
+                    disabled={!dreamStepInput.trim()}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.dreamButtonText}>Festlegen</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            </View>
+          );
+        })()}
+
         <Text style={styles.sectionTitle}>Diese Woche</Text>
         <View style={{ gap: 8, marginBottom: 20 }}>
           {tasks.map((item) => {
@@ -326,6 +428,11 @@ export default function TodayScreen() {
                   <View style={styles.badgeRow}>
                     {item.category && (
                       <Text style={styles.badge}>{CATEGORY_EMOJI[item.category]} {CATEGORY_LABEL[item.category]}</Text>
+                    )}
+                    {item.dream_id && dreamsById[item.dream_id] && (
+                      <Text style={[styles.badge, { color: dreamColor(dreamsById[item.dream_id].color).accent, backgroundColor: dreamColor(dreamsById[item.dream_id].color).bg }]}>
+                        {dreamsById[item.dream_id].emoji} Traum: {dreamsById[item.dream_id].title}
+                      </Text>
                     )}
                   </View>
                 </View>
@@ -408,6 +515,20 @@ const styles = StyleSheet.create({
   nudgeLater: { minHeight: 40, paddingHorizontal: 14, justifyContent: 'center' },
   nudgeLaterText: { fontSize: 14, color: '#555' },
   nudgeSecure: { minHeight: 40, paddingHorizontal: 16, borderRadius: 10, backgroundColor: '#007aff', justifyContent: 'center' },
+  dreamCard: { borderRadius: 14, padding: 14, gap: 10, marginBottom: 20 },
+  dreamTop: { flexDirection: 'row', gap: 12, alignItems: 'flex-start' },
+  dreamEmoji: { fontSize: 34 },
+  dreamLabel: { fontSize: 11, fontWeight: '700', letterSpacing: 0.4 },
+  dreamTitle: { fontSize: 16, fontWeight: '600', marginTop: 2 },
+  dreamText: { fontSize: 13, color: '#444', lineHeight: 18, marginTop: 4 },
+  dreamStepBox: { backgroundColor: '#fff', borderRadius: 10, paddingVertical: 10, paddingHorizontal: 12 },
+  dreamStepText: { fontSize: 14 },
+  dreamStepInput: { backgroundColor: '#fff', borderRadius: 10, paddingVertical: 10, paddingHorizontal: 12, fontSize: 14 },
+  dreamActions: { flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', gap: 8 },
+  dreamLink: { minHeight: 40, paddingHorizontal: 12, justifyContent: 'center' },
+  dreamLinkText: { fontSize: 14, color: '#444' },
+  dreamButton: { minHeight: 40, paddingHorizontal: 16, borderRadius: 10, justifyContent: 'center' },
+  dreamButtonText: { fontSize: 14, fontWeight: '600', color: '#fff' },
   nudgeSecureText: { fontSize: 14, fontWeight: '600', color: '#fff' },
   header: { fontSize: 22, fontWeight: '600', marginBottom: 6 },
   encouragement: { fontSize: 13, color: '#555', lineHeight: 18, marginBottom: 20 },

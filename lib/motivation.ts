@@ -305,3 +305,37 @@ export function weekGoalLine(habitName: string, weekStreak: number, seed: string
   const streakPart = weekStreak >= 2 ? ` ${weekStreak}. Woche in Folge.` : '';
   return `${habitName}: ${line}${streakPart}`;
 }
+
+const DREAM_STEP_LINES = [
+  'Ein Schritt näher. Träume werden genau so wahr — nicht auf einmal, sondern Schritt für Schritt.',
+  'Nicht nur geträumt, sondern etwas dafür getan. Das unterscheidet Wünsche von Plänen.',
+  'Kleiner Schritt, echte Bewegung. Du bist jemand, der seine Träume ernst nimmt.',
+] as const;
+
+/** Satz, wenn ein Schritt zu einem Traum erledigt wurde. */
+export function dreamStepLine(dreamTitle: string, seed: string): string {
+  return `${dreamTitle}: ${pickForDay(DREAM_STEP_LINES, seed)}`;
+}
+
+const STAGE_UP_LINES: Record<'explored' | 'planned' | 'committed' | 'fulfilled', readonly string[]> = {
+  explored: [
+    'Du weißt jetzt mehr als gestern. Aus einem vagen Wunsch wird ein Bild.',
+    'Erkundet. Der Traum hat jetzt Konturen.',
+  ],
+  planned: [
+    'Es gibt einen Plan. Ab hier ist es nur noch eine Frage des Wann.',
+    'Geplant. Du hast aus "irgendwann" ein "so geht es" gemacht.',
+  ],
+  committed: [
+    'Angemeldet ist angemeldet. Ab jetzt ist es kein Traum mehr, sondern ein Termin.',
+    'Fest zugesagt — der mutigste Schritt ist gemacht.',
+  ],
+  fulfilled: [
+    'Du hast es wirklich getan. Das nimmt dir niemand mehr.',
+    'Erfüllt. Aus einem Traum ist eine Erinnerung geworden.',
+  ],
+};
+
+export function stageUpLine(stage: 'explored' | 'planned' | 'committed' | 'fulfilled', seed: string): string {
+  return pickForDay(STAGE_UP_LINES[stage], seed);
+}
