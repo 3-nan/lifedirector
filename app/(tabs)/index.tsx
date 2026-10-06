@@ -2,8 +2,9 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { CelebrationOverlay, CelebrationPayload } from '../../components/celebration';
+import { KeyboardAwareScroll } from '../../components/keyboard-aware';
 import { isSecured } from '../../lib/account';
 import { dreamColor, nextStepToWeeklyTask, pickDreamOfWeek, updateDream } from '../../lib/dreams';
 import { CATEGORY_EMOJI, CATEGORY_LABEL, CATEGORY_ROTATION, setChallengeStatus } from '../../lib/challenges';
@@ -272,7 +273,7 @@ export default function TodayScreen() {
 
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
+      <KeyboardAwareScroll style={styles.container} contentContainerStyle={styles.content}>
         <View style={styles.headerRow}>
           <View>
             <Text style={styles.dateLabel}>{formatDateDE(todayStr())}</Text>
@@ -494,7 +495,7 @@ export default function TodayScreen() {
           })}
           {habits.length === 0 && <Text style={styles.empty}>Noch keine Habits angelegt.</Text>}
         </View>
-      </ScrollView>
+      </KeyboardAwareScroll>
 
       <CelebrationOverlay payload={celebration} onDismiss={() => setCelebration(null)} />
     </View>
@@ -502,7 +503,9 @@ export default function TodayScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, paddingTop: 60, backgroundColor: '#fff' },
+  // Abstände im Inhalt statt am ScrollView selbst — sonst schneidet Android unten ab.
+  container: { flex: 1, backgroundColor: '#fff' },
+  content: { padding: 20, paddingTop: 60, paddingBottom: 40 },
   center: { flex: 1, justifyContent: 'center' },
   dateLabel: { fontSize: 13, color: MUTED, marginBottom: 2 },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },

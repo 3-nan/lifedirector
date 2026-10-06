@@ -3,9 +3,6 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -14,6 +11,7 @@ import {
 } from 'react-native';
 import { CelebrationOverlay, CelebrationPayload } from '../../components/celebration';
 import { DreamDraft, DreamForm, draftToRow } from '../../components/dream-form';
+import { KeyboardAwareScroll } from '../../components/keyboard-aware';
 import {
   CelebratedStage,
   completeNextStep,
@@ -211,8 +209,7 @@ export default function DreamDetailScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView contentContainerStyle={{ paddingBottom: 48 }} keyboardShouldPersistTaps="handled">
+      <KeyboardAwareScroll contentContainerStyle={{ paddingBottom: 48 }}>
           <View style={[styles.hero, { backgroundColor: color.bg }]}>
             <View style={styles.heroNav}>
               <TouchableOpacity style={styles.navButton} onPress={() => router.back()} hitSlop={8}>
@@ -464,8 +461,7 @@ export default function DreamDetailScreen() {
               </>
             )}
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+      </KeyboardAwareScroll>
       <CelebrationOverlay payload={celebration} onDismiss={() => setCelebration(null)} />
     </View>
   );

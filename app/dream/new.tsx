@@ -1,7 +1,8 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { DreamDraft, DreamForm, draftToRow, EMPTY_DRAFT } from '../../components/dream-form';
+import { KeyboardAwareScroll } from '../../components/keyboard-aware';
 import { supabase } from '../../lib/supabase';
 
 export default function NewDreamScreen() {
@@ -28,8 +29,7 @@ export default function NewDreamScreen() {
   }
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: '#fff' }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+    <KeyboardAwareScroll style={styles.container} contentContainerStyle={styles.content}>
         <TouchableOpacity style={styles.cancel} onPress={() => router.back()} hitSlop={8}>
           <Text style={styles.cancelText}>Abbrechen</Text>
         </TouchableOpacity>
@@ -42,8 +42,7 @@ export default function NewDreamScreen() {
             <Text style={styles.saveText}>Traum anlegen</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardAwareScroll>
   );
 }
 

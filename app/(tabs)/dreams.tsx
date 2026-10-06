@@ -30,7 +30,7 @@ export default function DreamsScreen() {
   const closedCount = dreams.length - open.length;
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40, gap: 14 }}>
+    <ScrollView style={styles.container} contentContainerStyle={[styles.content, { gap: 14 }]}>
       <View style={styles.headerRow}>
         <Text style={styles.header}>Träume</Text>
         <TouchableOpacity
@@ -107,7 +107,9 @@ export default function DreamsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, paddingTop: 60, backgroundColor: '#fff' },
+  // Abstände im Inhalt statt am ScrollView selbst — sonst schneidet Android unten ab.
+  container: { flex: 1, backgroundColor: '#fff' },
+  content: { padding: 20, paddingTop: 60, paddingBottom: 40 },
   center: { flex: 1, justifyContent: 'center' },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   header: { fontSize: 22, fontWeight: '600' },

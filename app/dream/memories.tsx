@@ -37,7 +37,7 @@ export default function MemoriesScreen() {
   const open = (id: string) => router.push({ pathname: '/dream/[id]', params: { id } });
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40, gap: 14 }}>
+    <ScrollView style={styles.container} contentContainerStyle={[styles.content, { gap: 14 }]}>
       <TouchableOpacity style={styles.back} onPress={() => router.back()} hitSlop={8}>
         <Ionicons name="chevron-back" size={22} color="#007aff" />
         <Text style={styles.backText}>Träume</Text>
@@ -87,7 +87,9 @@ export default function MemoriesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, paddingTop: 52, backgroundColor: '#fff' },
+  // Abstände im Inhalt statt am ScrollView selbst — sonst schneidet Android unten ab.
+  container: { flex: 1, backgroundColor: '#fff' },
+  content: { padding: 20, paddingTop: 52, paddingBottom: 40 },
   center: { flex: 1, justifyContent: 'center' },
   back: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start', marginLeft: -6, minHeight: 44, marginBottom: -12 },
   backText: { color: '#007aff', fontSize: 16 },
