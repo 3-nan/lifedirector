@@ -2,9 +2,8 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { WidgetConfigurationScreenProps, WidgetPreview } from 'react-native-android-widget';
 import { dreamColor, isOpen } from '../lib/dreams';
-import { Dream } from '../types/dream';
 import { DreamWidget, DreamWidgetMode } from './DreamWidget';
-import { getWidgetConfig, loadDreams, resolveDream, saveWidgetConfig } from './dream-widget-data';
+import { getWidgetConfig, loadDreams, resolveDream, saveWidgetConfig, WidgetData } from './dream-widget-data';
 
 const BLUE = '#007aff';
 const MUTED = '#6b6b70';
@@ -15,32 +14,32 @@ const MUTED = '#6b6b70';
  * Läuft als eigener Screen außerhalb des expo-router-Baums.
  */
 export function DreamWidgetConfig({ widgetInfo, renderWidget, setResult }: WidgetConfigurationScreenProps) {
-  const [dreams, setDreams] = useState<Dream[] | null | undefined>(undefined);
+  const [data, setData] = useState<WidgetData | null | undefined>(undefined);
   const [mode, setMode] = useState<DreamWidgetMode>('rotate');
   const [dreamId, setDreamId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     Promise.all([loadDreams(), getWidgetConfig(widgetInfo.widgetId)]).then(([loaded, config]) => {
-      setDreams(loaded);
+      setData(loaded);
       setMode(config.mode);
       setDreamId(config.dreamId);
     });
   }, [widgetInfo.widgetId]);
 
-  const openDreams = (dreams ?? []).filter(isOpen);
+  const openDreams = (data?.dreams ?? []).filter(isOpen);
   const selectedId = dreamId ?? openDreams[0]?.id;
   const config = mode === 'fixed' ? { mode, dreamId: selectedId } : { mode };
-  const preview = resolveDream(dreams ?? null, config);
+  const preview = resolveDream(data ?? null, config);
   const previewWidth = Math.min(widgetInfo.width || 320, 320);
   const previewHeight = Math.min(widgetInfo.height || 154, 180);
 
   async function confirm() {
     await saveWidgetConfig(widgetInfo.widgetId, config);
-    renderWidget(<DreamWidget dream={preview.dream} mode={mode} state={preview.state} width={widgetInfo.width} />);
+    renderWidget(<DreamWidget dream={preview.dream} step={preview.step} mode={mode} state={preview.state} width={widgetInfo.width} />);
     setResult('ok');
   }
 
-  if (dreams === undefined) return <ActivityIndicator style={styles.center} />;
+  if (data === undefined) return <ActivityIndicator style={styles.center} />;
 
   return (
     <View style={styles.screen}>
@@ -62,13 +61,13 @@ export function DreamWidgetConfig({ widgetInfo, renderWidget, setResult }: Widge
             : 'Immer derselbe Traum. Du kannst mehrere Widgets mit verschiedenen Träumen platzieren.'}
         </Text>
 
-        {dreams === null && (
+        {data === null && (
           <Text style={styles.lead}>Öffne LifeDirector einmal, damit das Widget deine Träume laden kann.</Text>
         )}
 
         {mode === 'fixed' && (
           <View style={{ gap: 8 }}>
-            {openDreams.length === 0 && dreams !== null && <Text style={styles.lead}>Noch keine offenen Träume.</Text>}
+            {openDreams.length === 0 && data !== null && <Text style={styles.lead}>Noch keine offenen Träume.</Text>}
             {openDreams.map((d) => {
               const selected = d.id === selectedId;
               return (
@@ -90,7 +89,7 @@ export function DreamWidgetConfig({ widgetInfo, renderWidget, setResult }: Widge
           <WidgetPreview
             width={previewWidth}
             height={previewHeight}
-            renderWidget={() => <DreamWidget dream={preview.dream} mode={mode} state={preview.state} width={previewWidth} />}
+            renderWidget={() => <DreamWidget dream={preview.dream} step={preview.step} mode={mode} state={preview.state} width={previewWidth} />}
           />
         </View>
       </ScrollView>

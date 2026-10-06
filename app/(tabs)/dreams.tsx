@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { dreamColor, HORIZON_LABEL, HORIZON_ORDER, isOpen, STAGE_LABEL } from '../../lib/dreams';
+import { currentStep, dreamColor, HORIZON_LABEL, HORIZON_ORDER, isOpen, loadStepsThisWeek, STAGE_LABEL } from '../../lib/dreams';
 import { supabase } from '../../lib/supabase';
 import { Dream } from '../../types/dream';
 
@@ -13,11 +13,16 @@ const MUTED = '#6b6b70';
 export default function DreamsScreen() {
   const router = useRouter();
   const [dreams, setDreams] = useState<Dream[]>([]);
+  const [stepsThisWeek, setStepsThisWeek] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
-    const { data } = await supabase.from('dreams').select('*').order('created_at', { ascending: true });
+    const [{ data }, steps] = await Promise.all([
+      supabase.from('dreams').select('*').order('created_at', { ascending: true }),
+      loadStepsThisWeek(),
+    ]);
     setDreams(data ?? []);
+    setStepsThisWeek(steps);
     setLoading(false);
   }, []);
 
@@ -65,6 +70,7 @@ export default function DreamsScreen() {
             <View style={styles.grid}>
               {group.map((dream) => {
                 const color = dreamColor(dream.color);
+                const step = currentStep(dream, stepsThisWeek);
                 return (
                   <TouchableOpacity
                     key={dream.id}
@@ -77,8 +83,10 @@ export default function DreamsScreen() {
                     <Text style={[styles.stagePill, { color: color.accent }]}>
                       {STAGE_LABEL[dream.stage]}{dream.target_label ? ` · ${dream.target_label}` : ''}
                     </Text>
-                    {dream.next_step ? (
-                      <Text style={styles.nextStep} numberOfLines={2}>Weiter: {dream.next_step}</Text>
+                    {step ? (
+                      <Text style={styles.nextStep} numberOfLines={2}>
+                        {step.thisWeek ? 'Diese Woche' : 'Weiter'}: {step.title}
+                      </Text>
                     ) : (
                       <Text style={styles.missingStep}>Nächster Schritt fehlt</Text>
                     )}

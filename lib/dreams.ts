@@ -162,3 +162,32 @@ export function pickDreamOfDay(dreams: Dream[], date: Date = new Date()): Dream 
   }
   return open[dayIndex % open.length];
 }
+
+/**
+ * Offene Traum-Schritte dieser Woche (als Wochen-Task übernommen, noch nicht
+ * abgehakt), je Traum. Wichtig: beim Übernehmen wird `next_step` geleert —
+ * ohne diese Abfrage sähe ein Traum mit laufendem Schritt aus, als fehle er.
+ */
+export async function loadStepsThisWeek(): Promise<Record<string, string>> {
+  const { data } = await supabase
+    .from('tasks')
+    .select('dream_id, title')
+    .not('dream_id', 'is', null)
+    .eq('week_key', isoWeekKey())
+    .eq('done', false);
+  const byDream: Record<string, string> = {};
+  (data ?? []).forEach((t) => {
+    if (t.dream_id) byDream[t.dream_id] = t.title;
+  });
+  return byDream;
+}
+
+/** Der aktuell relevante Schritt eines Traums: festgelegt oder diese Woche in Arbeit. */
+export function currentStep(
+  dream: Dream,
+  stepsThisWeek: Record<string, string>
+): { title: string; thisWeek: boolean } | null {
+  if (dream.next_step) return { title: dream.next_step, thisWeek: false };
+  const weekStep = stepsThisWeek[dream.id];
+  return weekStep ? { title: weekStep, thisWeek: true } : null;
+}

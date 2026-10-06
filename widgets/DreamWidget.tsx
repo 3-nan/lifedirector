@@ -18,11 +18,14 @@ const MEDIUM_MIN_WIDTH = 220;
 
 export function DreamWidget({
   dream,
+  step,
   mode,
   state,
   width,
 }: {
   dream: Dream | null;
+  /** Festgelegter nächster Schritt oder der Schritt, der diese Woche läuft. */
+  step: string | null;
   mode: DreamWidgetMode;
   state: DreamWidgetState;
   width: number;
@@ -55,10 +58,10 @@ export function DreamWidget({
         )}
         <FlexWidget style={{ flex: 1 }} />
         <TextWidget
-          text={dream.next_step ? `Weiter: ${dream.next_step}` : 'Nächster Schritt? →'}
+          text={step ? `Weiter: ${step}` : 'Nächster Schritt? →'}
           maxLines={1}
           truncate="END"
-          style={{ fontSize: 11, color: dream.next_step ? MUTED : accent, fontWeight: dream.next_step ? 'normal' : '700' }}
+          style={{ fontSize: 11, color: step ? MUTED : accent, fontWeight: step ? 'normal' : '700' }}
         />
       </FlexWidget>
     );
@@ -86,10 +89,10 @@ export function DreamWidget({
         </FlexWidget>
       </FlexWidget>
       <FlexWidget style={{ flex: 1 }} />
-      {dream.next_step ? (
+      {step ? (
         <FlexWidget style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#ffffff', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 7, width: 'match_parent' }}>
           <TextWidget text="WEITER" style={{ fontSize: 10, fontWeight: '700', color: accent }} />
-          <TextWidget text={dream.next_step} maxLines={1} truncate="END" style={{ fontSize: 13, color: TEXT, marginLeft: 8 }} />
+          <TextWidget text={step} maxLines={1} truncate="END" style={{ fontSize: 13, color: TEXT, marginLeft: 8 }} />
         </FlexWidget>
       ) : (
         <FlexWidget style={{ borderRadius: 12, borderWidth: 1, borderColor: accent, borderStyle: 'dashed', paddingHorizontal: 10, paddingVertical: 7, width: 'match_parent' }}>

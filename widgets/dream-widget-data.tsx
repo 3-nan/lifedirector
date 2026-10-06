@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { requestWidgetUpdate, WidgetInfo, WidgetTaskHandler } from 'react-native-android-widget';
-import { isOpen, pickDreamOfDay } from '../lib/dreams';
+import { currentStep, isOpen, loadStepsThisWeek, pickDreamOfDay } from '../lib/dreams';
 import { supabase } from '../lib/supabase';
 import { Dream } from '../types/dream';
 import { DreamWidget, DreamWidgetMode, DreamWidgetState } from './DreamWidget';
@@ -33,31 +33,34 @@ async function removeWidgetConfig(widgetId: number) {
   await AsyncStorage.removeItem(configKey(widgetId)).catch(() => {});
 }
 
+export type WidgetData = { dreams: Dream[]; stepsThisWeek: Record<string, string> };
+
 /** `null` = keine Session auf diesem Gerät. */
-export async function loadDreams(): Promise<Dream[] | null> {
+export async function loadDreams(): Promise<WidgetData | null> {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) return null;
-  const { data } = await supabase.from('dreams').select('*');
-  return data ?? [];
+  const [{ data }, stepsThisWeek] = await Promise.all([supabase.from('dreams').select('*'), loadStepsThisWeek()]);
+  return { dreams: data ?? [], stepsThisWeek };
 }
 
 export function resolveDream(
-  dreams: Dream[] | null,
+  data: WidgetData | null,
   config: DreamWidgetConfig
-): { dream: Dream | null; state: DreamWidgetState } {
-  if (dreams === null) return { dream: null, state: 'signed-out' };
+): { dream: Dream | null; step: string | null; state: DreamWidgetState } {
+  if (data === null) return { dream: null, step: null, state: 'signed-out' };
+  const withStep = (dream: Dream) => ({ dream, step: currentStep(dream, data.stepsThisWeek)?.title ?? null, state: 'ok' as const });
   if (config.mode === 'fixed' && config.dreamId) {
-    const dream = dreams.find((d) => d.id === config.dreamId);
-    return dream && isOpen(dream) ? { dream, state: 'ok' } : { dream: null, state: 'missing' };
+    const dream = data.dreams.find((d) => d.id === config.dreamId);
+    return dream && isOpen(dream) ? withStep(dream) : { dream: null, step: null, state: 'missing' };
   }
-  const dream = pickDreamOfDay(dreams);
-  return dream ? { dream, state: 'ok' } : { dream: null, state: 'no-dreams' };
+  const dream = pickDreamOfDay(data.dreams);
+  return dream ? withStep(dream) : { dream: null, step: null, state: 'no-dreams' };
 }
 
-async function buildWidget(info: WidgetInfo, dreams?: Dream[] | null) {
+async function buildWidget(info: WidgetInfo, data?: WidgetData | null) {
   const config = await getWidgetConfig(info.widgetId);
-  const { dream, state } = resolveDream(dreams === undefined ? await loadDreams() : dreams, config);
-  return <DreamWidget dream={dream} mode={config.mode} state={state} width={info.width} />;
+  const { dream, step, state } = resolveDream(data === undefined ? await loadDreams() : data, config);
+  return <DreamWidget dream={dream} step={step} mode={config.mode} state={state} width={info.width} />;
 }
 
 export const dreamWidgetTaskHandler: WidgetTaskHandler = async ({ widgetInfo, widgetAction, renderWidget }) => {
@@ -72,9 +75,9 @@ export const dreamWidgetTaskHandler: WidgetTaskHandler = async ({ widgetInfo, wi
 
 /** Von der App aus: alle platzierten Traum-Widgets mit aktuellen Daten neu zeichnen. */
 export async function refreshDreamWidgetsNow() {
-  const dreams = await loadDreams();
+  const data = await loadDreams();
   await requestWidgetUpdate({
     widgetName: DREAM_WIDGET_NAME,
-    renderWidget: (info) => buildWidget(info, dreams),
+    renderWidget: (info) => buildWidget(info, data),
   });
 }
