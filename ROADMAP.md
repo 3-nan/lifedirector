@@ -123,9 +123,13 @@ anfangen und parallel an der App arbeiten.
   Console gegenprüfen, Google ändert das gelegentlich). Tester früh suchen.
 
 **2. App-Voraussetzungen**
-- [ ] Package-Name final festlegen — aktuell `com.franzmotzkus.habittracker`,
-      nach dem ersten Upload unveränderbar. Ggf. `…lifedirector`; auf dem
-      eigenen Handy dann neue App → Daten einmal per `auth_3`-Skript umziehen.
+- [x] Package-Name festgelegt (2026-10-06): `com.lifedirector.app` (Android
+      + iOS-Bundle-ID, Scheme `lifedirector`) — neutral statt Klarname, weil
+      der Package-Name öffentlich im Play-Store-Link steht. Vorher
+      `com.franzmotzkus.habittracker`; neue App auf dem Handy → einmal mit
+      E-Mail anmelden, alte App deinstallieren. Für volle Neutralität beim
+      Release zusätzlich: eigene App-E-Mail (Support-Kontakt + SMTP-Absender)
+      und "LifeDirector" als Entwicklername in Play.
 - [ ] "Account/Daten löschen": in der App erledigt (Einstellungen); fehlt
       noch die Web-Seite für Löschanfragen (Play-Pflicht).
 - [ ] CAPTCHA (Cloudflare Turnstile) für die anonyme Anmeldung in Supabase.

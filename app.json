@@ -5,13 +5,14 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "habittracker",
+    "scheme": "lifedirector",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.lifedirector.app"
     },
     "android": {
-      "package": "com.franzmotzkus.habittracker",
+      "package": "com.lifedirector.app",
       "adaptiveIcon": {
         "backgroundColor": "#080c17",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
