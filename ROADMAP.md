@@ -382,6 +382,14 @@ Technik:
 - Grenzen: neues natives Modul → neuer Build, nicht in Expo Go; feste
   Größen, eingeschränkte Layout-Elemente, keine Animationen.
 
+**v1 umgesetzt (2026-10-06, Branch `widgets`):** Widget "Traum" (`widgets/`),
+Modi "Wechselnd"/"Fester Traum" per Einrichtungs-Screen, zeigt Vision
+(Gefühls-Satz) + nächsten Schritt, Tippen öffnet den Traum
+(`lifedirector://dream/<id>`). Tagesauswahl `pickDreamOfDay` in
+`lib/dreams.ts`. Widget-Code wird nur in echten Android-Builds geladen
+(`lib/widget-bridge.ts`, Einstieg `index.ts`), Expo Go bleibt lauffähig.
+Die App zeichnet Widgets nach Traum-Änderungen und beim Start neu.
+
 Vorschlag v1: Traum-Widget mit beiden Modi ("Wechselnd" täglich + "Fester
 Traum" mit Gefühls-Satz), Tippen öffnet. Schritt-erledigt-Button, Traum-Board und
 "Mein Monat" danach. Vor der Umsetzung: Mockup der Widget-Größen.

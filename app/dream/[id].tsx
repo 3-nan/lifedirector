@@ -29,6 +29,7 @@ import {
 import { dreamStepLine, stageUpLine } from '../../lib/motivation';
 import { isoWeekKey } from '../../lib/period';
 import { supabase } from '../../lib/supabase';
+import { refreshDreamWidgets } from '../../lib/widget-bridge';
 import { Dream, DreamStep } from '../../types/dream';
 import { Task } from '../../types/task';
 
@@ -197,6 +198,7 @@ export default function DreamDetailScreen() {
       setError(deleteError.message);
       return;
     }
+    refreshDreamWidgets();
     router.back();
   }
 

@@ -4,6 +4,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { DreamDraft, DreamForm, draftToRow, EMPTY_DRAFT } from '../../components/dream-form';
 import { KeyboardAwareScroll } from '../../components/keyboard-aware';
 import { supabase } from '../../lib/supabase';
+import { refreshDreamWidgets } from '../../lib/widget-bridge';
 
 export default function NewDreamScreen() {
   const router = useRouter();
@@ -24,6 +25,7 @@ export default function NewDreamScreen() {
       setError(insertError?.message ?? 'Speichern fehlgeschlagen.');
       return;
     }
+    refreshDreamWidgets();
     // Direkt in die Detailansicht, damit Warum/Hindernis/nächster Schritt gleich ergänzt werden können.
     router.replace({ pathname: '/dream/[id]', params: { id: data.id, fresh: '1' } });
   }

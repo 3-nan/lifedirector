@@ -5,6 +5,7 @@ import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'rea
 import 'react-native-reanimated';
 import { KeyboardAwareProvider } from '../components/keyboard-aware';
 import { ensureSession } from '../lib/supabase';
+import { refreshDreamWidgets } from '../lib/widget-bridge';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -16,7 +17,11 @@ export default function RootLayout() {
 
   const connect = useCallback(() => {
     ensureSession()
-      .then(() => setReady(true))
+      .then(() => {
+        setReady(true);
+        // Widgets beim App-Start auffrischen (z.B. nach Änderungen auf einem anderen Gerät).
+        refreshDreamWidgets();
+      })
       .catch((e) => setError(e instanceof Error ? e.message : String(e)));
   }, []);
 
