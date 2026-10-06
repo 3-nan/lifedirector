@@ -339,6 +339,47 @@ Offene Fragen: Jede Woche ein Fokus oder nur jede zweite/auf Wunsch (sonst
 Vorschlag nach schwächstem Bereich? Wie lang/kurz darf der Selbst-Check
 sein, damit er nicht nervt? — Vor der Umsetzung: HTML-Mockup.
 
+## Home-Screen-Widgets: Träume & Ziele (geplant, 2026-10-06)
+Idee: Widgets auf dem Startbildschirm — bewusst **für Träume und größere
+Ziele, nicht für tägliche Habits**. Habits sieht man beim Öffnen der App
+ohnehin; Träume rutschen im Alltag aus dem Blick. Ein Widget ist ein Vision
+Board, das man 50-mal am Tag sieht.
+
+Widget-Ideen:
+1. **"Traum der Woche"** (klein/mittel) — Emoji + Farbe des Traums als
+   Hintergrund, Titel, nächster Schritt. Wechselt wöchentlich (gleiche Logik
+   wie `pickDreamOfWeek` auf `Today`). Tippen öffnet den Traum in der App.
+2. **"Mein Traum"** (ein Traum pro Widget, beim Platzieren ausgewählt über
+   einen Konfigurations-Screen) — zeigt den **Gefühls-Satz** ("Die erste
+   Welle stehen …") + nächsten Schritt: lebendiges Bild + konkreter Schritt,
+   genau die Kombination, die laut Forschung motiviert. Mehrere platzierbar.
+3. **Traum-Board** (mittel/groß) — 2–4 Träume als Mini-Karten; mit Fotos
+   (später) ein echtes Vision Board auf dem Startbildschirm.
+4. **"Mein Monat"** — aktuelle Challenge + Monatsziele mit Fortschritt (1/3).
+
+Interaktion:
+- v1: **Tippen öffnet** den Traum/das Ziel (Deep Link über Scheme
+  `lifedirector://`).
+- Später: **"Schritt erledigt ✓" direkt im Widget** → markiert den
+  nächsten Schritt erledigt, Widget fragt dann "Was ist dein nächster
+  Schritt?" → Tippen öffnet die App zum Eintragen.
+
+Technik:
+- Android: `react-native-android-widget` (Widgets in JSX beschrieben, wird
+  in natives Widget-Layout übersetzt, Expo-Config-Plugin → läuft mit EAS
+  Build). Ein Task-Handler (JS im Hintergrund) lädt die Daten aus Supabase
+  mit der gespeicherten Session; die App stößt nach Änderungen an Träumen
+  ein Widget-Update an, zusätzlich aktualisiert Android periodisch (≥ 30 Min
+  — für Träume, die sich selten ändern, mehr als genug).
+- iOS (nur falls je relevant): WidgetKit in Swift/SwiftUI als zusätzliches
+  Target (z.B. `@bacons/apple-targets`), Daten über App Group.
+- Grenzen: neues natives Modul → neuer Build, nicht in Expo Go; feste
+  Größen, eingeschränkte Layout-Elemente, keine Animationen.
+
+Vorschlag v1: "Traum der Woche" mit Tippen-öffnet, dann "Mein Traum" mit
+Traum-Auswahl und Gefühls-Satz. Schritt-erledigt-Button, Traum-Board und
+"Mein Monat" danach. Vor der Umsetzung: Mockup der Widget-Größen.
+
 ## Now
 - Core-Habit-Tracking (`Today` / `Habits` / `Review`) — steht, läuft gegen Supabase.
 - Challenges-Tab (`app/(tabs)/challenges.tsx`) — Code steht, Seed-Daten in
