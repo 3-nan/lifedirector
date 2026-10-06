@@ -190,6 +190,66 @@ ermutigen, ohne zu nerven? Schlägt die App selbst erste Schritte vor
 (vorgefertigte Ideen pro Traum-Typ) oder nur der Nutzer? — Vor der
 Umsetzung: erst HTML-Mockup, wie bei anderen größeren UI-Änderungen.
 
+## Fokus-Wochen (geplant, 2026-10-05)
+Idee: Eine Woche lang steht ein Lebensbereich im Mittelpunkt, in dem man
+**Souveränität** gewinnen will — also nicht nur "mehr machen", sondern den
+Bereich im Griff haben, verstehen und bewusst gestalten. Die App stößt an,
+über konkrete Schritte nachzudenken, und schiebt Richtung Verbesserung.
+
+Mögliche Bereiche (Katalog, wie bei `challenges` in Supabase statt im Code):
+- **Finanzen** — Überblick Ein-/Ausgaben, Abos ausmisten, Notgroschen,
+  Altersvorsorge/ETF verstehen, Versicherungen prüfen
+- **Kleidung & Stil** — Kleiderschrank ausmisten, Lücken erkennen, eigener Stil
+- **Zuhause & Ordnung** — eine Ecke/ein Raum, Reparaturen, Wohlfühlen
+- **Gesundheit & Vorsorge** — Vorsorgetermine, Zahnarzt, Impfpass, Hausapotheke
+- **Ernährung** — Kochen statt Bestellen, Wochenplanung, Einkauf
+- **Schlaf & Erholung** — Abendroutine, Schlafumgebung, Pausen
+- **Bewegung & Körper** — über die Habits hinaus: Ziel, Plan, Technik
+- **Beziehungen & Freundschaften** — wem man sich lange nicht gemeldet hat,
+  Treffen planen, Familie
+- **Beruf & Karriere** — Ziele, Gehalt, Weiterbildung, Netzwerk
+- **Lernen & Wissen** — ein Thema verstehen, Buch, Kurs
+- **Digitales Leben** — Passwortmanager, Backups, Bildschirmzeit, Datenschutz
+- **Papierkram & Verwaltung** — Verträge, Dokumente ordnen, Steuern
+- **Notfallvorsorge** — Notfallkontakte, Vollmachten, wichtige Unterlagen
+  griffbereit
+- **Mobilität** — Auto/Fahrrad in Schuss, Alternativen, Kosten
+- **Kopf & Achtsamkeit** — Stress-Auslöser, Journaling, Grenzen setzen
+- **Nachhaltigkeit** — Konsum, Energie, Müll
+
+Kernmechanik (Vorschlag, noch nicht entschieden):
+- **Start der Woche (Montag):** Bereich wählen (oder Vorschlag: der Bereich,
+  der am längsten nicht dran war bzw. beim letzten Mal am schwächsten
+  eingeschätzt wurde). Push: "Diese Woche: Finanzen — wie souverän fühlst du
+  dich da gerade?"
+- **Kurzer Selbst-Check:** 3–5 Fragen pro Bereich, je 1–5 ("Ich weiß, wofür
+  ich im Monat Geld ausgebe"). Ergibt einen Souveränitäts-Wert pro Bereich.
+- **Schritte überlegen statt vorgeben:** die App schlägt passende Schritte
+  aus einer Ideen-Bibliothek vor ("Kontoauszüge der letzten 3 Monate
+  durchgehen", "3 Abos prüfen"), man wählt 1–3 oder formuliert eigene →
+  werden zu Wochen-Tasks in `Today` (Abschnitt "Diese Woche").
+- **Unter der Woche:** sanfte Erinnerung, ermutigend statt mahnend (gleiches
+  Prinzip wie Motivational Core); Fokus-Bereich sichtbar oben auf `Today`.
+- **Ende der Woche (Sonntag):** kurze Reflexion ("Was hat sich verändert?"),
+  Selbst-Check wiederholen → Fortschritt sichtbar, Celebration bei
+  Verbesserung.
+- **Langfristig:** Bereiche alle paar Monate wiederholen; im `Review` ein
+  Überblick ("Souveränitäts-Radar") über alle Bereiche und ihre Entwicklung.
+
+Verknüpfungen: passt zur Drei-Horizonte-Struktur (Fokus-Woche speist die
+Wochen-Tasks), zu Träumen (Fokus "Finanzen" kann Schritte für "Reise nach
+Thailand" enthalten) und Challenges.
+
+Datenmodell-Skizze: `focus_areas` (Katalog: Titel, Emoji, Selbst-Check-
+Fragen, Schritt-Ideen) + `focus_weeks` (user_id, week_key, area_id,
+check_before, check_after, reflection) + `tasks.focus_week_id`. Neue
+Tabellen mit `user_id` + RLS von Anfang an.
+
+Offene Fragen: Jede Woche ein Fokus oder nur jede zweite/auf Wunsch (sonst
+Überforderung neben Habits + Challenge)? Feste Rotation vs. freie Wahl vs.
+Vorschlag nach schwächstem Bereich? Wie lang/kurz darf der Selbst-Check
+sein, damit er nicht nervt? — Vor der Umsetzung: HTML-Mockup.
+
 ## Now
 - Core-Habit-Tracking (`Today` / `Habits` / `Review`) — steht, läuft gegen Supabase.
 - Challenges-Tab (`app/(tabs)/challenges.tsx`) — Code steht, Seed-Daten in
