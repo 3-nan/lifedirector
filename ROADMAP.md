@@ -345,14 +345,20 @@ Ziele, nicht für tägliche Habits**. Habits sieht man beim Öffnen der App
 ohnehin; Träume rutschen im Alltag aus dem Blick. Ein Widget ist ein Vision
 Board, das man 50-mal am Tag sieht.
 
-Widget-Ideen:
-1. **"Traum der Woche"** (klein/mittel) — Emoji + Farbe des Traums als
-   Hintergrund, Titel, nächster Schritt. Wechselt wöchentlich (gleiche Logik
-   wie `pickDreamOfWeek` auf `Today`). Tippen öffnet den Traum in der App.
-2. **"Mein Traum"** (ein Traum pro Widget, beim Platzieren ausgewählt über
-   einen Konfigurations-Screen) — zeigt den **Gefühls-Satz** ("Die erste
-   Welle stehen …") + nächsten Schritt: lebendiges Bild + konkreter Schritt,
-   genau die Kombination, die laut Forschung motiviert. Mehrere platzierbar.
+Widget-Ideen (Entscheidung 2026-10-06: **ein** Traum-Widget mit zwei Modi,
+beim Platzieren gewählt):
+1. **Modus "Wechselnd" = "Traum des Tages"** (Default; klein/mittel) — jeden
+   Tag ein anderer offener Traum: deterministische Tagesrotation durch alle
+   offenen Träume, vernachlässigte und nahe Horizonte etwas öfter (gleiche
+   Gewichtung wie `pickDreamOfWeek`). Emoji + Farbe als Hintergrund, Titel,
+   nächster Schritt. Tippen öffnet den Traum. Bewusst getrennt vom "Traum der
+   Woche" auf `Today`, der wöchentlich bleibt: Widget = Inspiration (alle
+   Träume präsent), `Today` = Fokus (ein Traum bekommt diese Woche einen
+   Schritt).
+2. **Modus "Fester Traum"** — ein ausgewählter Traum pro Widget, zeigt den
+   **Gefühls-Satz** ("Die erste Welle stehen …") + nächsten Schritt:
+   lebendiges Bild + konkreter Schritt, genau die Kombination, die laut
+   Forschung motiviert. Mehrere platzierbar.
 3. **Traum-Board** (mittel/groß) — 2–4 Träume als Mini-Karten; mit Fotos
    (später) ein echtes Vision Board auf dem Startbildschirm.
 4. **"Mein Monat"** — aktuelle Challenge + Monatsziele mit Fortschritt (1/3).
@@ -376,8 +382,8 @@ Technik:
 - Grenzen: neues natives Modul → neuer Build, nicht in Expo Go; feste
   Größen, eingeschränkte Layout-Elemente, keine Animationen.
 
-Vorschlag v1: "Traum der Woche" mit Tippen-öffnet, dann "Mein Traum" mit
-Traum-Auswahl und Gefühls-Satz. Schritt-erledigt-Button, Traum-Board und
+Vorschlag v1: Traum-Widget mit beiden Modi ("Wechselnd" täglich + "Fester
+Traum" mit Gefühls-Satz), Tippen öffnet. Schritt-erledigt-Button, Traum-Board und
 "Mein Monat" danach. Vor der Umsetzung: Mockup der Widget-Größen.
 
 ## Now
