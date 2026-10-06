@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { KeyboardAwareScroll } from '../../components/keyboard-aware';
 import {
     CATEGORY_EMOJI,
     CATEGORY_LABEL,
@@ -112,7 +113,7 @@ export default function ChallengesScreen() {
   if (loading) return <ActivityIndicator style={styles.center} />;
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
+    <KeyboardAwareScroll style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.header}>Challenges</Text>
 
       <View style={styles.monthCard}>
@@ -221,12 +222,14 @@ export default function ChallengesScreen() {
           );
         })
       )}
-    </ScrollView>
+    </KeyboardAwareScroll>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, paddingTop: 60, backgroundColor: '#fff' },
+  // Abstände im Inhalt statt am ScrollView selbst — sonst schneidet Android unten ab.
+  container: { flex: 1, backgroundColor: '#fff' },
+  content: { padding: 20, paddingTop: 60, paddingBottom: 40 },
   center: { flex: 1, justifyContent: 'center' },
   header: { fontSize: 22, fontWeight: '600', marginBottom: 20 },
   monthCard: { backgroundColor: CARD_BG, borderRadius: 12, padding: 16, marginBottom: 16, alignItems: 'center' },

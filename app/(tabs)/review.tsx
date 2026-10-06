@@ -115,7 +115,7 @@ export default function ReviewScreen() {
     : 0;
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.header}>Wochenreview</Text>
 
       {habits.length === 0 ? (
@@ -218,7 +218,9 @@ export default function ReviewScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, paddingTop: 60, backgroundColor: '#fff' },
+  // Abstände im Inhalt statt am ScrollView selbst — sonst schneidet Android unten ab.
+  container: { flex: 1, backgroundColor: '#fff' },
+  content: { padding: 20, paddingTop: 60, paddingBottom: 40 },
   center: { flex: 1, justifyContent: 'center' },
   header: { fontSize: 22, fontWeight: '600', marginBottom: 20 },
   statsRow: { flexDirection: 'row', gap: 8, marginBottom: 24 },

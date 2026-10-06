@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import 'react-native-reanimated';
+import { KeyboardAwareProvider } from '../components/keyboard-aware';
 import { ensureSession } from '../lib/supabase';
 
 export const unstable_settings = {
@@ -48,7 +49,7 @@ export default function RootLayout() {
   }
 
   return (
-    <>
+    <KeyboardAwareProvider>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ headerShown: false }} />
@@ -58,7 +59,7 @@ export default function RootLayout() {
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
       </Stack>
       <StatusBar style="auto" />
-    </>
+    </KeyboardAwareProvider>
   );
 }
 

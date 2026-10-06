@@ -5,10 +5,7 @@ import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -26,6 +23,7 @@ import {
   verifySignInCode,
 } from '../lib/account';
 import { supabase } from '../lib/supabase';
+import { KeyboardAwareScroll } from '../components/keyboard-aware';
 
 const BLUE = '#007aff';
 const GREEN_TEXT = '#1f7a35';
@@ -224,8 +222,7 @@ export default function SettingsScreen() {
   const version = Constants.expoConfig?.version ?? '';
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: '#fff' }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+    <KeyboardAwareScroll style={styles.container} contentContainerStyle={styles.content}>
         <TouchableOpacity style={styles.back} onPress={onBack} hitSlop={8} disabled={busy}>
           <Ionicons name="chevron-back" size={22} color={BLUE} />
           <Text style={styles.backText}>{backLabel}</Text>
@@ -419,8 +416,7 @@ export default function SettingsScreen() {
             <Text style={styles.footnote}>Danach startet die App leer neu, mit einem frischen Konto.</Text>
           </>
         )}
-      </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardAwareScroll>
   );
 }
 
