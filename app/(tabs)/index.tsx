@@ -324,7 +324,9 @@ export default function TodayScreen() {
                 <View style={{ flex: 1 }}>
                   <Text style={[styles.label, checked && styles.labelDone]}>{item.title}</Text>
                   <View style={styles.badgeRow}>
-                    <Text style={styles.badge}>{CATEGORY_EMOJI[item.category]} {CATEGORY_LABEL[item.category]}</Text>
+                    {item.category && (
+                      <Text style={styles.badge}>{CATEGORY_EMOJI[item.category]} {CATEGORY_LABEL[item.category]}</Text>
+                    )}
                   </View>
                 </View>
               </TouchableOpacity>

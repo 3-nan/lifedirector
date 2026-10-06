@@ -96,7 +96,9 @@ Träumen nutzen. Grundsatz: **so bequem wie möglich — kein Login-Zwang.**
   Entschieden: nur E-Mail-Code (kein Google vorerst); CAPTCHA vor dem
   geschlossenen Play-Test; beim Anmelden ersetzen statt zusammenführen.
   Voraussetzung in Supabase: Mail-Vorlagen "Magic Link" und "Change Email
-  Address" mit `{{ .Token }}`; für fremde Adressen (Tester) eigener SMTP.
+  Address" mit `{{ .Token }}`; Email-OTP-Länge auf **6** (die App erwartet
+  6 Ziffern, Supabase-Default war 8); SMTP aktuell über Gmail
+  (App-Passwort) — vor einem Release besser Resend mit eigener Domain.
   Bis das steht: Datenumzug auf einen neuen Account (neues Gerät/neuer
   Build) per `supabase/auth_3_move_data_to_new_account.sql`.
 - **Datenbank:** `user_id` (Default `auth.uid()`) auf `habits`, `logs`,
@@ -163,36 +165,114 @@ Produktionszugang beantragen → Review (meist wenige Tage) → live.
 Datenschutz/Texte/Screenshots → Production-Build + interner Test →
 geschlossener Test starten → nach 14 Tagen Produktion beantragen.
 
-## Träume / Lebensziele (geplant, 2026-10-05)
-Idee: eine "Bucket List" für Dinge, die man irgendwann im Leben machen will
-— z.B. "Surfen lernen", "Reise nach Thailand", "Marathon laufen". Die App
-soll diese Träume nicht nur sammeln, sondern aktiv dazu ermutigen, **den
-ersten konkreten Schritt** zu gehen, statt sie ewig auf "irgendwann" zu
-schieben.
+## Träume / Lebensziele (geplant, Konzept 2026-10-06)
+Idee: eine Mischung aus Vision Board und Bucket List für Dinge, die man im
+Leben noch machen will ("Surfen lernen", "Reise nach Thailand", "Marathon").
+Die App soll Träume nicht nur sammeln, sondern **präsent halten** und zum
+**nächsten kleinen Schritt** schubsen, statt sie auf "irgendwann" zu schieben.
 
-Kernmechanik (Vorschlag, noch nicht entschieden):
-- Traum anlegen: Titel, optional Kategorie (körperlich/kreativ/sozial/
-  handwerklich) und ein "Warum ist mir das wichtig?"-Satz.
-- **Nächster Schritt:** zu jedem Traum ein kleiner, konkreter erster Schritt
-  ("Surfschulen in Portugal vergleichen", "Flugpreise BKK checken"). Der
-  lässt sich mit einem Tipp als Wochen-Task (`tasks`) oder Monatsziel
-  (`monthly_goals`) übernehmen — das wäre die bisher zurückgestellte
-  `source_id`-Verknüpfung, jetzt mit echtem Anlass.
-- **Ermutigung:** regelmäßig (z.B. in der Wochen-/Monatsplanung oder als
-  Push) einen Traum hochholen, an dem lange nichts passiert ist, mit
-  identitäts-geframtem Satz ("Du bist jemand, der Thailand nicht nur
-  plant") statt Mahnung — gleiches Prinzip wie im Motivational Core.
-- Fortschritt sichtbar: erledigte Schritte pro Traum, Traum als "erfüllt"
-  markieren → Celebration-Overlay + Eintrag im `Review`.
+> Status: **Beschreibung dessen, was gebaut werden soll — keine fixe
+> Entscheidung.** Vor der Umsetzung: HTML-Mockup, dann nochmal abstimmen.
 
-Datenmodell-Skizze: `dreams` (id, title, category, why, status
-open/in_progress/fulfilled, fulfilled_at, created_at) + Verknüpfung
-`tasks.dream_id` / `monthly_goals.dream_id` für die Schritte.
+**Schon entschieden (2026-10-06):**
+- Eigener Tab "Träume" (nicht im `Challenges`-Hub) — emotional etwas anderes
+  als Challenges, und ein Tab hält sie präsent.
+- Keine Begrenzung der Anzahl Träume. Gegen Überforderung hilft stattdessen
+  der wöchentliche Fokus auf *einen* Traum (siehe "Traum der Woche").
+- Fotos nicht in v1, aber als spätere Erweiterung vorgesehen.
 
-Offene Fragen: eigener Tab oder Teil des `Challenges`-Hubs? Wie oft
-ermutigen, ohne zu nerven? Schlägt die App selbst erste Schritte vor
-(vorgefertigte Ideen pro Traum-Typ) oder nur der Nutzer? — Vor der
-Umsetzung: erst HTML-Mockup, wie bei anderen größeren UI-Änderungen.
+**Psychologischer Grundsatz:** Reines Schwärmen (Vision Board nur anschauen)
+senkt laut Forschung (Oettingen, "WOOP"/Mental Contrasting) eher die
+Handlungsenergie. Wirksamer: Traum lebendig vorstellen → ehrlich das
+Hindernis benennen → konkreten nächsten Schritt festlegen, ideal als
+Wenn-dann-Plan. Die App verbindet deshalb das Emotionale eines Vision Boards
+mit dem Konkreten eines Plans.
+
+### Darstellung
+- **Board statt Liste:** jeder Traum als Karte (v1: großes Emoji + Farbe,
+  Titel, Horizont, Stufe; später: eigenes Foto). Gruppiert nach Horizont:
+  *Dieses Jahr* / *In 1–3 Jahren* / *5+ Jahre* / *Irgendwann*.
+- **"Erfüllt"-Bereich als Erinnerungswand:** erfüllte Träume mit kurzer
+  Notiz ("Wie war's?") — motiviert mehr als jede offene Liste.
+- **Stufen statt nur offen/erledigt:** Traum → Erkundet → Geplant → Fest
+  zugesagt → Erfüllt (plus "Losgelassen"). Fortschritt wird sichtbar, lange
+  bevor ein Traum erfüllt ist.
+- **Detailansicht:** Warum ist mir das wichtig? · Wie wird es sich anfühlen
+  (ein lebendiger Satz)? · Was hält mich bisher ab (Hindernis)? · nächster
+  Schritt · bisherige Schritte.
+
+### Zeitkomponente
+- **Weiche Horizonte statt harter Deadlines** — eine verpasste Deadline bei
+  einem Traum erzeugt Schuldgefühl. Optional ein konkretes "Bis …" (z.B.
+  "vor meinem 40." oder "Sommer 2027").
+- **Beste Zeit / Saison** (später): z.B. Thailand Nov–Feb → rechtzeitig ein
+  Hinweis "Wenn du im Februar fliegen willst, wäre jetzt die Zeit, Flüge
+  anzuschauen".
+- **Jährlicher Traum-Review** (später, z.B. Januar oder Geburtstag):
+  Horizonte neu sortieren, Träume nach vorne holen — und Träume bewusst
+  loslassen dürfen. "Losgelassen" ist ein legitimer Abschluss, kein Scheitern.
+
+### Wie die App zum nächsten Schritt schubst
+1. **Jeder aktive Traum hat genau einen nächsten Schritt** — klein (≤ 30 Min).
+   "Surfcamps in Portugal vergleichen" statt "Surfen lernen".
+2. **Schritt-Vorschläge nach Stufe** (später auch aus einer Ideen-
+   Bibliothek): *Erkunden* (recherchieren, mit jemandem reden, der es schon
+   gemacht hat) → *Planen* (Budget, Zeitraum, Ausrüstung) → *Fest zusagen*
+   (buchen, anmelden, anzahlen — der stärkste Hebel).
+3. **Ein Tipp: Schritt als Wochen-Task übernehmen** → landet in `Today`
+   unter "Diese Woche" (verknüpft über `tasks.dream_id`).
+4. **"Traum der Woche" auf `Today`:** einmal pro Woche holt die App einen
+   Traum nach vorne — den, an dem am längsten nichts passiert ist, oder
+   dessen Horizont/Saison näher rückt — mit der Frage "Was ist dein nächster
+   kleiner Schritt?". Ersetzt die (bewusst weggelassene) Begrenzung.
+5. **Schritte feiern, nicht nur das Ziel:** kleine Celebration bei
+   erledigtem Schritt, größere bei Stufenwechsel, volle bei "Erfüllt".
+6. **Verknüpfung mit Fokus-Wochen:** z.B. Fokus "Finanzen" schlägt "Sparplan
+   für Thailand anlegen" vor. Später optional ein Sparziel mit
+   Fortschrittsbalken für Träume, die Geld kosten.
+7. **Push sparsam:** höchstens einer pro Woche zu Träumen, ermutigend statt
+   mahnend (Prinzip Motivational Core).
+
+### Vorschlag v1 vs. später
+- **v1:** Tab mit Board (Emoji + Farbe, nach Horizont gruppiert, Erfüllt-
+  Bereich); pro Traum Titel, Warum, Hindernis, Horizont, Stufe, ein nächster
+  Schritt; "Als Wochen-Task übernehmen"; "Traum der Woche"-Karte auf
+  `Today`; Celebrations bei Stufenwechsel/Erfüllung.
+- **Später:** Fotos (Bild-Upload, Supabase Storage, native Bildauswahl →
+  neuer Build), Saison-Hinweise, Sparziel, jährlicher Traum-Review,
+  Schritt-Vorschläge aus der App, Erinnerungs-Notiz beim Erfüllen mit Foto.
+
+### Datenmodell (umgesetzt in `supabase/dreams.sql`, Branch `dreams`)
+Grundsatz: wenig Aufwand beim Anlegen — **nur der Titel ist Pflicht**, der
+Rest wird nach und nach ergänzt (die App fragt beim ersten Öffnen nach).
+
+`dreams` — vom Nutzer eingegeben:
+- `title` (Pflicht) · `emoji` + `color` (Default von der App) · `horizon`
+  (Default *Irgendwann*) · `target_label` (optionales "Bis …", frei:
+  "Sommer 2027") · `why` · `feeling` · `obstacle` · `next_step` (die App
+  fragt immer wieder danach)
+
+`dreams` — von der App verwaltet (Nutzer ändert per Tipp):
+- `stage` (dream → explored → planned → committed → fulfilled, plus
+  let_go) · `last_activity_at` (Basis für "Traum der Woche") ·
+  `fulfilled_at` + `fulfilled_note` ("Wie war's?" für die Erinnerungswand) ·
+  `created_at` / `updated_at`
+
+`dream_steps` — Historie pro Traum: `title`, `done_at`, optional `task_id`
+(wenn als Wochen-Task übernommen; Abhaken des Tasks markiert den Schritt per
+DB-Trigger `tasks_sync_dream_step` als erledigt).
+
+`tasks`: neue Spalte `dream_id`; `category` ist dafür jetzt optional (Traum-
+Tasks zeigen den Traum statt einer der vier Kategorien).
+
+Später: `image_path` (Foto), beste Saison, Sparziel + gespart, Lebensbereich/
+Tags (Brücke zu Fokus-Wochen), "mit wem" (Brücke zu Freund-als-Co-Pilot).
+Bewusst weggelassen: Priorität/Ranking, Fortschritt in Prozent, harte
+Deadlines mit Erinnerungen.
+
+Logik in `lib/dreams.ts` (Labels, Stufen, `pickDreamOfWeek`,
+`nextStepToWeeklyTask`, `completeNextStep`, `setStage`), Typen in
+`types/dream.ts`.
 
 ## Fokus-Wochen (geplant, 2026-10-05)
 Idee: Eine Woche lang steht ein Lebensbereich im Mittelpunkt, in dem man
