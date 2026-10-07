@@ -38,7 +38,14 @@ Ideen (noch nicht entschieden):
    Wochen-Prioritäten; mehr ist möglich, aber die App weist freundlich darauf
    hin, dass weniger oft mehr bringt.
 
-Offene Fragen: Wochenplanung als Pflicht-Ritual oder optional? Wo landen
+Entschieden (2026-10-07):
+- Wochenplanung ist **optional**, kein Pflicht-Ritual.
+- **Habits bleiben vorerst immer auf `Today` sichtbar** (nicht hinter "Heute
+  zählt"/"Alles anzeigen" versteckt).
+- Wie genau sich UI und Nutzung ändern (was wann wo gezeigt wird),
+  wird später entschieden — bis dahin keine Umsetzung, nur Konzept.
+
+Offene Fragen: Wo landen
 Dinge, die nicht in die Top 3 kommen (eigener Backlog-Bereich vs. bleiben
 einfach in ihrem Tab)? Welche Bausteine sind für Fokus-Wochen-Monate
 pausiert? — Vor einer Umsetzung: Mockup eines entschlackten `Today` +
