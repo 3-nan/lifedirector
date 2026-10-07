@@ -25,6 +25,7 @@ import {
 } from '../../lib/motivation';
 import { isDaily, targetOf } from '../../lib/habits';
 import { setupDailyReminder } from '../../lib/notifications';
+import { refreshDreamWidgets } from '../../lib/widget-bridge';
 import { daysAgoStr, isoWeekKey, todayStr } from '../../lib/period';
 import { supabase } from '../../lib/supabase';
 import { Challenge, ChallengeCategory, ChallengeStatus } from '../../types/challenge';
@@ -209,6 +210,7 @@ export default function TodayScreen() {
       done: newDone,
       completed_at: newDone ? new Date().toISOString() : null,
     }).eq('id', task.id);
+    if (task.dream_id) refreshDreamWidgets();
   }
 
   async function saveDreamOfWeekStep(dream: Dream) {

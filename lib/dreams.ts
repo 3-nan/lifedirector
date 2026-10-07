@@ -4,6 +4,7 @@
 import { Dream, DreamHorizon, DreamStage } from '../types/dream';
 import { isoWeekKey } from './period';
 import { supabase } from './supabase';
+import { refreshDreamWidgets } from './widget-bridge';
 
 export const HORIZON_ORDER: DreamHorizon[] = ['this_year', '1_3_years', '5_plus', 'someday'];
 
@@ -83,7 +84,9 @@ export function pickDreamOfWeek(dreams: Dream[], weekKey: string = isoWeekKey())
 
 async function touch(dreamId: string, patch: Partial<Dream> = {}) {
   const now = new Date().toISOString();
-  return supabase.from('dreams').update({ ...patch, last_activity_at: now, updated_at: now }).eq('id', dreamId);
+  const result = await supabase.from('dreams').update({ ...patch, last_activity_at: now, updated_at: now }).eq('id', dreamId);
+  refreshDreamWidgets();
+  return result;
 }
 
 export async function updateDream(dreamId: string, patch: Partial<Dream>) {
@@ -135,3 +138,56 @@ export const DREAM_EMOJIS = [
 
 /** Stufe, die als Nächstes gefeiert wird — `null`, wenn es kein "Weiter" gibt. */
 export type CelebratedStage = 'explored' | 'planned' | 'committed' | 'fulfilled';
+
+/**
+ * "Traum des Tages" fürs Widget: rotiert täglich reihum durch alle offenen
+ * Träume (stabile Reihenfolge nach Anlage), damit alle präsent bleiben. Jeden
+ * dritten Tag kommt stattdessen der Traum, der gerade am meisten Aufmerksamkeit
+ * braucht (gleiche Gewichtung wie der "Traum der Woche") — so erscheinen
+ * vernachlässigte und nahe Träume etwas öfter. Bewusst getrennt vom
+ * wöchentlichen Fokus auf `Today`.
+ */
+export function pickDreamOfDay(dreams: Dream[], date: Date = new Date()): Dream | null {
+  const open = dreams.filter(isOpen).sort((a, b) => a.created_at.localeCompare(b.created_at));
+  if (open.length === 0) return null;
+  const dayIndex = Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / (24 * 3600 * 1000));
+  if (open.length > 2 && dayIndex % 3 === 0) {
+    const horizonWeight: Record<DreamHorizon, number> = { this_year: 3, '1_3_years': 2, '5_plus': 1, someday: 1 };
+    const neediest = [...open].sort((a, b) => {
+      const score = (d: Dream) =>
+        horizonWeight[d.horizon] * (1 + Math.min((Date.now() - new Date(d.last_activity_at).getTime()) / (24 * 3600 * 1000), 90) / 30);
+      return score(b) - score(a);
+    });
+    return neediest[0];
+  }
+  return open[dayIndex % open.length];
+}
+
+/**
+ * Offene Traum-Schritte dieser Woche (als Wochen-Task übernommen, noch nicht
+ * abgehakt), je Traum. Wichtig: beim Übernehmen wird `next_step` geleert —
+ * ohne diese Abfrage sähe ein Traum mit laufendem Schritt aus, als fehle er.
+ */
+export async function loadStepsThisWeek(): Promise<Record<string, string>> {
+  const { data } = await supabase
+    .from('tasks')
+    .select('dream_id, title')
+    .not('dream_id', 'is', null)
+    .eq('week_key', isoWeekKey())
+    .eq('done', false);
+  const byDream: Record<string, string> = {};
+  (data ?? []).forEach((t) => {
+    if (t.dream_id) byDream[t.dream_id] = t.title;
+  });
+  return byDream;
+}
+
+/** Der aktuell relevante Schritt eines Traums: festgelegt oder diese Woche in Arbeit. */
+export function currentStep(
+  dream: Dream,
+  stepsThisWeek: Record<string, string>
+): { title: string; thisWeek: boolean } | null {
+  if (dream.next_step) return { title: dream.next_step, thisWeek: false };
+  const weekStep = stepsThisWeek[dream.id];
+  return weekStep ? { title: weekStep, thisWeek: true } : null;
+}
