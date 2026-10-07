@@ -1,3 +1,9 @@
+"use no memo";
+// ^ Pflicht: Die Widget-Bibliothek ruft diese Komponenten als normale
+// Funktionen auf (außerhalb von React). Der in app.json aktivierte React
+// Compiler würde sie sonst mit Hooks umschreiben → "Invalid hook call" →
+// "Error rendering widget" in der Vorschau und auf dem Startbildschirm.
+
 import { FlexWidget, TextWidget } from 'react-native-android-widget';
 import { dreamColor } from '../lib/dreams';
 import { Dream } from '../types/dream';
