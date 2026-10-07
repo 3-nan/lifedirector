@@ -5,6 +5,45 @@ Kein reiner Habit-Tracker, sondern eine Growth-App: tägliche Gewohnheiten
 im Griff behalten *und* regelmäßig Impulse setzen, die aus der Komfortzone
 holen (Challenges). Für den Eigenbedarf gebaut, keine Mehrbenutzer-App.
 
+## Grundsatz: Fokus statt Überladung (Gedanke 2026-10-07)
+Sorge: Habits + Wochen-Tasks + Challenges + Monatsziele + Träume + (geplant)
+Fokus-Wochen — zusammen kann das **zu viel** werden. Unerledigtes stapelt
+sich, die App wirkt dann eher wie eine Mahnliste als wie ein Antrieb, und
+`Today` zeigt viel zu viele Informationen statt weniger wichtiger Dinge.
+Ziel: alle Bausteine behalten, aber **nie alles gleichzeitig zeigen**.
+
+Ideen (noch nicht entschieden):
+1. **"Heute zählt" statt "alles für heute":** `Today` zeigt oben nur 1–3
+   wirklich wichtige Dinge (z.B. fällige Habits + die eine Wochen-Priorität),
+   alles Weitere eingeklappt hinter "Alles anzeigen".
+2. **Wochenplanung als einziger Eingang:** ein kurzes Ritual (Sonntag/
+   Montag, ~5 Min), in dem man aus allen Quellen — Traum-Schritte, Fokus-
+   Bereich, Challenge, eigene Ideen — **höchstens 3 Wochen-Prioritäten**
+   wählt. Alles andere bleibt im Hintergrund (Backlog/Träume-Tab) und
+   taucht nicht auf `Today` auf. Das ist der Hebel, der die vielen
+   Bausteine bündelt, statt sie zu addieren.
+3. **Fokus-Wochen nicht zusätzlich, sondern anstelle:** in einer Fokus-
+   Woche *sind* die Wochen-Prioritäten die Schritte des Fokus-Bereichs;
+   Challenge/Traum-Schritt pausieren in der Woche. Und Fokus-Wochen nicht
+   jede Woche, sondern z.B. **einmal im Monat** oder nur auf Wunsch.
+4. **Kein Schuld-Stapel:** Unerledigtes wird am Wochenende nicht "überfällig"
+   mitgeschleppt, sondern kurz entschieden: *Mitnehmen / Später / Loslassen*.
+   Keine roten Zähler für Verpasstes; Review zeigt vor allem, was geschafft
+   wurde (passt zu "Fortschritt statt Perfektion").
+5. **Module wählbar:** in den Einstellungen festlegen, welche Bausteine aktiv
+   sind (z.B. nur Habits + Träume). Neue Nutzer starten minimal; die App
+   schlägt weitere Bausteine erst vor, wenn das Bisherige läuft
+   ("progressive disclosure": z.B. nach 2 Wochen Habits den ersten Traum).
+6. **Sanfte Obergrenzen:** Empfehlung von ~3–5 aktiven Habits und 3
+   Wochen-Prioritäten; mehr ist möglich, aber die App weist freundlich darauf
+   hin, dass weniger oft mehr bringt.
+
+Offene Fragen: Wochenplanung als Pflicht-Ritual oder optional? Wo landen
+Dinge, die nicht in die Top 3 kommen (eigener Backlog-Bereich vs. bleiben
+einfach in ihrem Tab)? Welche Bausteine sind für Fokus-Wochen-Monate
+pausiert? — Vor einer Umsetzung: Mockup eines entschlackten `Today` +
+der Wochenplanung.
+
 ## Struktur: drei Zeithorizonte
 
 | Horizont | Was | Rhythmus | Kategorisiert? | Lebt wo? |
@@ -333,6 +372,10 @@ Datenmodell-Skizze: `focus_areas` (Katalog: Titel, Emoji, Selbst-Check-
 Fragen, Schritt-Ideen) + `focus_weeks` (user_id, week_key, area_id,
 check_before, check_after, reflection) + `tasks.focus_week_id`. Neue
 Tabellen mit `user_id` + RLS von Anfang an.
+
+Hinweis (2026-10-07): siehe "Grundsatz: Fokus statt Überladung" — Fokus-
+Wochen eher als Ersatz für die normalen Wochen-Prioritäten (nicht
+zusätzlich) und seltener (z.B. monatlich/auf Wunsch).
 
 Offene Fragen: Jede Woche ein Fokus oder nur jede zweite/auf Wunsch (sonst
 Überforderung neben Habits + Challenge)? Feste Rotation vs. freie Wahl vs.
