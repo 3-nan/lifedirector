@@ -12,6 +12,16 @@ import { Dream } from '../types/dream';
 // Modul, nicht in Expo Go). Layout siehe Mockup "Traum-Widgets".
 
 export type DreamWidgetMode = 'rotate' | 'fixed';
+
+/** Die Widget-Vorlagen im Widget-Picker (Namen = `name` in app.json). */
+export type DreamWidgetVariant = 'standard' | 'small' | 'row' | 'mini';
+
+export const WIDGET_VARIANTS: Record<string, DreamWidgetVariant> = {
+  Dream: 'standard',
+  DreamSmall: 'small',
+  DreamRow: 'row',
+  DreamMini: 'mini',
+};
 export type DreamWidgetState = 'ok' | 'no-dreams' | 'signed-out' | 'missing';
 
 type Hex = `#${string}`;
@@ -28,6 +38,7 @@ export function DreamWidget({
   mode,
   state,
   width,
+  variant = 'standard',
 }: {
   dream: Dream | null;
   /** Festgelegter nächster Schritt oder der Schritt, der diese Woche läuft. */
@@ -35,8 +46,11 @@ export function DreamWidget({
   mode: DreamWidgetMode;
   state: DreamWidgetState;
   width: number;
+  variant?: DreamWidgetVariant;
 }) {
-  if (state !== 'ok' || !dream) return <EmptyWidget state={state} />;
+  if (state !== 'ok' || !dream) {
+    return variant === 'mini' || variant === 'row' ? <EmptyMiniWidget /> : <EmptyWidget state={state} />;
+  }
 
   const color = dreamColor(dream.color);
   const bg = color.bg as Hex;
@@ -44,7 +58,40 @@ export function DreamWidget({
   const label = mode === 'rotate' ? 'TRAUM DES TAGES' : null;
   const uri = `lifedirector://dream/${dream.id}`;
 
-  if (width < MEDIUM_MIN_WIDTH) {
+  if (variant === 'mini') {
+    return (
+      <FlexWidget
+        clickAction="OPEN_URI"
+        clickActionData={{ uri }}
+        style={{ height: 'match_parent', width: 'match_parent', backgroundColor: bg, borderRadius: 18, justifyContent: 'center', alignItems: 'center' }}
+      >
+        <TextWidget text={dream.emoji} style={{ fontSize: 26 }} />
+      </FlexWidget>
+    );
+  }
+
+  if (variant === 'row') {
+    return (
+      <FlexWidget
+        clickAction="OPEN_URI"
+        clickActionData={{ uri }}
+        style={{ height: 'match_parent', width: 'match_parent', backgroundColor: bg, borderRadius: 18, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center' }}
+      >
+        <TextWidget text={dream.emoji} style={{ fontSize: 22 }} />
+        <FlexWidget style={{ flexDirection: 'column', marginLeft: 10, flex: 1 }}>
+          <TextWidget text={dream.title} maxLines={1} truncate="END" style={{ fontSize: 13, fontWeight: '700', color: TEXT }} />
+          <TextWidget
+            text={step ? `Weiter: ${step}` : dream.feeling ? `„${dream.feeling}“` : 'Nächster Schritt? →'}
+            maxLines={1}
+            truncate="END"
+            style={{ fontSize: 11, color: step ? MUTED : accent }}
+          />
+        </FlexWidget>
+      </FlexWidget>
+    );
+  }
+
+  if (variant === 'small' || width < MEDIUM_MIN_WIDTH) {
     return (
       <FlexWidget
         clickAction="OPEN_URI"
@@ -105,6 +152,31 @@ export function DreamWidget({
           <TextWidget text="Was ist dein nächster kleiner Schritt? →" maxLines={1} truncate="END" style={{ fontSize: 13, fontWeight: '700', color: accent }} />
         </FlexWidget>
       )}
+    </FlexWidget>
+  );
+}
+
+function EmptyMiniWidget() {
+  return (
+    <FlexWidget
+      clickAction="OPEN_URI"
+      clickActionData={{ uri: 'lifedirector://dreams' }}
+      style={{ height: 'match_parent', width: 'match_parent', backgroundColor: '#ffffff', borderRadius: 18, justifyContent: 'center', alignItems: 'center' }}
+    >
+      <TextWidget text="✨" style={{ fontSize: 24 }} />
+    </FlexWidget>
+  );
+}
+
+/** Diagnose: zeigt statt eines leeren/kaputten Widgets die Fehlermeldung. */
+export function ErrorWidget({ message }: { message: string }) {
+  return (
+    <FlexWidget
+      clickAction="OPEN_APP"
+      style={{ height: 'match_parent', width: 'match_parent', backgroundColor: '#ffffff', borderRadius: 18, padding: 10, flexDirection: 'column' }}
+    >
+      <TextWidget text="Widget-Fehler" style={{ fontSize: 11, fontWeight: '700', color: '#d70015' }} />
+      <TextWidget text={message} maxLines={4} truncate="END" style={{ fontSize: 10, color: MUTED }} />
     </FlexWidget>
   );
 }

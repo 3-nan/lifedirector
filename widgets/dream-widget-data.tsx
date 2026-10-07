@@ -3,13 +3,14 @@ import { requestWidgetUpdate, WidgetInfo, WidgetTaskHandler } from 'react-native
 import { currentStep, isOpen, loadStepsThisWeek, pickDreamOfDay } from '../lib/dreams';
 import { supabase } from '../lib/supabase';
 import { Dream } from '../types/dream';
-import { DreamWidget, DreamWidgetMode, DreamWidgetState } from './DreamWidget';
+import { DreamWidget, DreamWidgetMode, DreamWidgetState, ErrorWidget, WIDGET_VARIANTS } from './DreamWidget';
 
 // Läuft auch ohne geöffnete App (Headless-Task im Hintergrund). Legt deshalb
 // nie selbst einen Account an — ohne gespeicherte Session zeigt das Widget
 // nur einen Hinweis, die App einmal zu öffnen.
 
-export const DREAM_WIDGET_NAME = 'Dream';
+/** Alle Traum-Widget-Vorlagen (müssen zu den `name`s in app.json passen). */
+export const DREAM_WIDGET_NAMES = Object.keys(WIDGET_VARIANTS);
 
 export type DreamWidgetConfig = { mode: DreamWidgetMode; dreamId?: string };
 
@@ -58,9 +59,22 @@ export function resolveDream(
 }
 
 async function buildWidget(info: WidgetInfo, data?: WidgetData | null) {
-  const config = await getWidgetConfig(info.widgetId);
-  const { dream, step, state } = resolveDream(data === undefined ? await loadDreams() : data, config);
-  return <DreamWidget dream={dream} step={step} mode={config.mode} state={state} width={info.width} />;
+  try {
+    const config = await getWidgetConfig(info.widgetId);
+    const { dream, step, state } = resolveDream(data === undefined ? await loadDreams() : data, config);
+    return (
+      <DreamWidget
+        dream={dream}
+        step={step}
+        mode={config.mode}
+        state={state}
+        width={info.width}
+        variant={WIDGET_VARIANTS[info.widgetName] ?? 'standard'}
+      />
+    );
+  } catch (e) {
+    return <ErrorWidget message={e instanceof Error ? e.message : String(e)} />;
+  }
 }
 
 export const dreamWidgetTaskHandler: WidgetTaskHandler = async ({ widgetInfo, widgetAction, renderWidget }) => {
@@ -76,8 +90,9 @@ export const dreamWidgetTaskHandler: WidgetTaskHandler = async ({ widgetInfo, wi
 /** Von der App aus: alle platzierten Traum-Widgets mit aktuellen Daten neu zeichnen. */
 export async function refreshDreamWidgetsNow() {
   const data = await loadDreams();
-  await requestWidgetUpdate({
-    widgetName: DREAM_WIDGET_NAME,
-    renderWidget: (info) => buildWidget(info, data),
-  });
+  await Promise.all(
+    DREAM_WIDGET_NAMES.map((widgetName) =>
+      requestWidgetUpdate({ widgetName, renderWidget: (info) => buildWidget(info, data) })
+    )
+  );
 }

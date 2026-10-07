@@ -57,6 +57,42 @@
               "resizeMode": "horizontal|vertical",
               "widgetFeatures": "reconfigurable",
               "updatePeriodMillis": 1800000
+            },
+            {
+              "name": "DreamSmall",
+              "label": "Traum · klein",
+              "description": "Kompakter Traum (2×2) mit Vision und nächstem Schritt.",
+              "minWidth": "110dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 2,
+              "targetCellHeight": 2,
+              "resizeMode": "horizontal|vertical",
+              "widgetFeatures": "reconfigurable",
+              "updatePeriodMillis": 1800000
+            },
+            {
+              "name": "DreamRow",
+              "label": "Traum · Zeile",
+              "description": "Eine Zeile (4×1): Emoji, Titel und nächster Schritt.",
+              "minWidth": "180dp",
+              "minHeight": "40dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 1,
+              "resizeMode": "horizontal",
+              "widgetFeatures": "reconfigurable",
+              "updatePeriodMillis": 1800000
+            },
+            {
+              "name": "DreamMini",
+              "label": "Traum · Mini",
+              "description": "Nur das Emoji deines Traums (1×1) — Tippen öffnet ihn.",
+              "minWidth": "40dp",
+              "minHeight": "40dp",
+              "targetCellWidth": 1,
+              "targetCellHeight": 1,
+              "resizeMode": "none",
+              "widgetFeatures": "reconfigurable",
+              "updatePeriodMillis": 1800000
             }
           ]
         }

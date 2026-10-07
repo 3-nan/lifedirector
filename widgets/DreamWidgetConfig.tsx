@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { WidgetConfigurationScreenProps, WidgetPreview } from 'react-native-android-widget';
 import { dreamColor, isOpen } from '../lib/dreams';
-import { DreamWidget, DreamWidgetMode } from './DreamWidget';
+import { DreamWidget, DreamWidgetMode, WIDGET_VARIANTS } from './DreamWidget';
 import { getWidgetConfig, loadDreams, resolveDream, saveWidgetConfig, WidgetData } from './dream-widget-data';
 
 const BLUE = '#007aff';
@@ -17,6 +17,22 @@ export function DreamWidgetConfig({ widgetInfo, renderWidget, setResult }: Widge
   const [data, setData] = useState<WidgetData | null | undefined>(undefined);
   const [mode, setMode] = useState<DreamWidgetMode>('rotate');
   const [dreamId, setDreamId] = useState<string | undefined>(undefined);
+  const [previewError, setPreviewError] = useState<string | null>(null);
+  const variant = WIDGET_VARIANTS[widgetInfo.widgetName] ?? 'standard';
+
+  // Diagnose: WidgetPreview zeigt nur "Error rendering widget, see logs" und
+  // schreibt den echten Fehler per console.error — hier abfangen und anzeigen.
+  useEffect(() => {
+    const original = console.error;
+    console.error = (...args: unknown[]) => {
+      const first = args[0] as { message?: string } | undefined;
+      setPreviewError(String(first?.message ?? first));
+      original(...args);
+    };
+    return () => {
+      console.error = original;
+    };
+  }, []);
 
   useEffect(() => {
     Promise.all([loadDreams(), getWidgetConfig(widgetInfo.widgetId)]).then(([loaded, config]) => {
@@ -30,12 +46,15 @@ export function DreamWidgetConfig({ widgetInfo, renderWidget, setResult }: Widge
   const selectedId = dreamId ?? openDreams[0]?.id;
   const config = mode === 'fixed' ? { mode, dreamId: selectedId } : { mode };
   const preview = resolveDream(data ?? null, config);
-  const previewWidth = Math.min(widgetInfo.width || 320, 320);
-  const previewHeight = Math.min(widgetInfo.height || 154, 180);
+  const defaultSize = { standard: [320, 154], small: [154, 154], row: [320, 64], mini: [72, 72] }[variant];
+  const previewWidth = Math.round(Math.min(widgetInfo.width > 0 ? widgetInfo.width : defaultSize[0], 320));
+  const previewHeight = Math.round(Math.min(widgetInfo.height > 0 ? widgetInfo.height : defaultSize[1], 180));
 
   async function confirm() {
     await saveWidgetConfig(widgetInfo.widgetId, config);
-    renderWidget(<DreamWidget dream={preview.dream} step={preview.step} mode={mode} state={preview.state} width={widgetInfo.width} />);
+    renderWidget(
+      <DreamWidget dream={preview.dream} step={preview.step} mode={mode} state={preview.state} width={widgetInfo.width} variant={variant} />
+    );
     setResult('ok');
   }
 
@@ -89,9 +108,16 @@ export function DreamWidgetConfig({ widgetInfo, renderWidget, setResult }: Widge
           <WidgetPreview
             width={previewWidth}
             height={previewHeight}
-            renderWidget={() => <DreamWidget dream={preview.dream} step={preview.step} mode={mode} state={preview.state} width={previewWidth} />}
+            renderWidget={() => (
+              <DreamWidget dream={preview.dream} step={preview.step} mode={mode} state={preview.state} width={previewWidth} variant={variant} />
+            )}
           />
         </View>
+        {previewError && (
+          <Text selectable style={styles.diagnostic}>
+            Diagnose ({widgetInfo.widgetName}, {previewWidth}×{previewHeight}, Info {widgetInfo.width}×{widgetInfo.height}): {previewError}
+          </Text>
+        )}
       </ScrollView>
       <View style={styles.footer}>
         <TouchableOpacity style={styles.cancel} onPress={() => setResult('cancel')}>
@@ -123,4 +149,5 @@ const styles = StyleSheet.create({
   cancel: { minHeight: 48, paddingHorizontal: 12, justifyContent: 'center' },
   confirm: { flex: 1, minHeight: 50, borderRadius: 12, backgroundColor: BLUE, justifyContent: 'center', alignItems: 'center' },
   confirmText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  diagnostic: { fontSize: 11, color: '#d70015', lineHeight: 16 },
 });
