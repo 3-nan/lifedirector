@@ -394,6 +394,67 @@ Vorschlag v1: Traum-Widget mit beiden Modi ("Wechselnd" täglich + "Fester
 Traum" mit Gefühls-Satz), Tippen öffnet. Schritt-erledigt-Button, Traum-Board und
 "Mein Monat" danach. Vor der Umsetzung: Mockup der Widget-Größen.
 
+## Social: gemeinsame Challenges (geplant, 2026-10-08)
+Idee: Challenges mit einem Freund teilen — sich gegenseitig z.B. für 4
+Wochen herausfordern, Fortschritt teilen und den des anderen sehen. Ersetzt
+die frühere Idee "Freund-als-Co-Pilot". Soziale Verbindlichkeit ist einer
+der stärksten Motivatoren — entscheidend ist, dass es **motiviert statt
+Druck oder Konkurrenz** erzeugt.
+
+**Entschieden (2026-10-08):**
+- **Nur Duo** zum Start (zwei Personen), Gruppen später.
+- **Fortschritt des Freundes immer sichtbar**, direkt neben dem eigenen.
+- **Beliebige Challenges** — aus dem Katalog oder frei formuliert
+  ("4 Wochen kein Zucker").
+
+Grundprinzipien:
+- **Kooperativ statt kompetitiv:** "Wir schaffen das zusammen" statt
+  Rangliste — wer zurückfällt, wird mitgezogen statt abgehängt.
+- **Klein & privat:** sichtbar ist nur die gemeinsame Challenge, nichts
+  sonst aus der App des anderen. Kein Feed.
+- **Ermutigend statt beschämend:** verpasster Tag = "Pause", nicht
+  "gescheitert" (passt zu "Fortschritt statt Perfektion").
+
+Kernmechanik (v1):
+1. **Gemeinsam starten:** Challenge wählen oder frei formulieren, Dauer
+   (z.B. 4 Wochen) und Rhythmus (z.B. 3×/Woche) festlegen; Freund per
+   **6-stelligem Code** einladen. Beide notieren kurz ihr **Warum**.
+2. **Check-ins:** jeder hakt seine Einheiten ab, optional mit einer
+   Ein-Zeilen-Notiz ("5 km im Regen 💪").
+3. **Gemeinsame Ansicht:** beide Fortschritte nebeneinander + ein
+   **Team-Fortschritt** ("Zusammen 14/24 Einheiten") und eine
+   **Team-Streak** (läuft, solange beide im Wochenrhythmus bleiben).
+4. **Reaktionen:** ein Tipp auf den Check-in des anderen: 🙌 🔥 💪 — der
+   kleinste, aber stärkste Motivator ("meine Mühe wurde gesehen").
+5. **Gemeinsamer Abschluss:** geteilter Celebration-Screen + Eintrag
+   "Gemeinsam geschafft" auf beiden Erinnerungswänden, mit den Notizen der
+   4 Wochen als Rückblick.
+- Aktualisierung in v1 beim Öffnen der App (noch kein Push).
+
+Später:
+- **v2:** Push-Nachrichten (Check-in des Freundes, sanftes "Anstupsen"
+  max. 1×/Tag als "Lisa denkt an dich 👋", Anfeuern) — nur mit feinem
+  Opt-in; **Joker-Tage** (z.B. 2 pro Challenge, damit Krankheit/Reise die
+  Team-Streak nicht bricht); Halbzeit-Moment; optionaler Spaß-Einsatz
+  ("wer aussteigt, zahlt den Kaffee" — nie echtes Geld in der App).
+- **v3:** Gruppen (3–4), Foto-Nachweis bei Check-ins, gemeinsame Träume
+  ("Gemeinsam nach Thailand").
+
+Technik:
+- Beide brauchen ein **gesichertes Konto** (E-Mail, existiert bereits).
+- Neue Tabellen mit RLS "nur Teilnehmer sehen die gemeinsame Challenge":
+  `shared_challenges` (Titel, Beschreibung, Dauer, Rhythmus, Code,
+  Ersteller, Start/Ende), `shared_challenge_members` (user_id, Warum,
+  Anzeigename), `shared_checkins` (user_id, Datum, Notiz),
+  `shared_reactions` (checkin_id, user_id, Emoji). Beitritt per Code über
+  eine `security definer`-Funktion, damit niemand fremde Challenges
+  auflisten kann.
+- Anzeigename pro Teilnehmer (die App kennt bisher keine Namen).
+- Push zwischen Nutzern (v2) braucht Server-Logik (Supabase Edge Function +
+  Expo Push) — größter neuer Baustein, deshalb nicht in v1.
+- Vor der Umsetzung: Mockup (Einladen/Beitreten, gemeinsame Ansicht,
+  Abschluss).
+
 ## Now
 - Core-Habit-Tracking (`Today` / `Habits` / `Review`) — steht, läuft gegen Supabase.
 - Challenges-Tab (`app/(tabs)/challenges.tsx`) — Code steht, Seed-Daten in
@@ -430,9 +491,8 @@ Traum" mit Gefühls-Satz), Tippen öffnet. Schritt-erledigt-Button, Traum-Board 
   Monat → Woche → Tag), siehe oben — erst wenn sich der Bedarf zeigt.
 - Erinnerungen für aktive Challenges/offene Wochen-Tasks (analog
   `lib/notifications.ts`).
-- Freund-als-Co-Pilot als echtes Feature (gemeinsame Challenge-Instanz,
-  Einladungslink) — wird mit den Accounts möglich, braucht aber eigene
-  Sharing-Regeln in RLS.
+- ~~Freund-als-Co-Pilot~~ → konkretisiert als "Social: gemeinsame
+  Challenges" (siehe oben).
 - Explizite "Exploration"-Komponente, die aktiv neue Habits/Challenges
   vorschlägt (aus Phase-2-Prinzipien übrig, noch nicht umgesetzt) — die
   Challenge-Ziehen-Mechanik deckt das fürs Monatliche schon ab, fürs
