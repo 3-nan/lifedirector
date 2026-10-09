@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LifeDirector – Mockup Träume</title>
+<!--
+  Statisches Mockup: Träume-Board, Traum-Detail und Home-Screen-Widgets
+  (Stand 2026-10-09). Quelle für docs/mockup-dreams.png im README.
+  Die Fotos sind hier gezeichnete Platzhalter; in der App sind es echte
+  Unsplash-Fotos, die automatisch zum Traum gesucht werden.
+  Neu rendern:
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless \
+    --screenshot=docs/mockup-dreams.png --window-size=1160,1010 --hide-scrollbars \
+    --force-device-scale-factor=2 docs/mockup-dreams.html
+-->
+<style>
+  :root {
+    --page-bg: #eceeef; --bg: #ffffff; --card: #f7f7f8; --border: #e2e2e5;
+    --frame-border: #d7d7db; --muted: #9a9a9e; --muted-text: #6b6b70; --text: #1c1c1e;
+    --green: #34c759; --blue: #007aff;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page-bg); color: var(--text);
+    font: 14px -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 28px 24px; }
+  .frames { display: flex; gap: 24px; justify-content: center; align-items: flex-start; }
+  .col { width: 342px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+  .caption { font-size: 13px; font-weight: 600; }
+  .caption small { display: block; font-weight: 400; color: #6b6b70; text-align: center; margin-top: 2px; }
+  .phone { position: relative; width: 100%; height: 880px; background: var(--bg); border: 1px solid var(--frame-border);
+    border-radius: 34px; overflow: hidden; display: flex; flex-direction: column; }
+  .screen { flex: 1; padding: 22px 16px 0; display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
+  h2 { font-size: 21px; font-weight: 600; margin: 0; }
+  .lead { font-size: 12px; color: #555; line-height: 1.45; margin-top: -6px; }
+  .sec { font-size: 12px; font-weight: 600; color: var(--muted-text); }
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+  .card { position: relative; height: 190px; border-radius: 13px; overflow: hidden; }
+  .card svg.photo { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .panel { position: absolute; left: 5px; right: 5px; bottom: 5px; border-radius: 9px; padding: 7px 9px 9px; display: flex; flex-direction: column; gap: 3px; }
+  .plain { height: 190px; border-radius: 13px; padding: 11px; display: flex; flex-direction: column; justify-content: flex-end; gap: 5px; }
+  .plain .em { font-size: 26px; }
+  .t { font-size: 12.5px; font-weight: 600; }
+  .pill { align-self: flex-start; font-size: 9.5px; font-weight: 600; background: #fff; border-radius: 5px; padding: 1px 5px; }
+  .step { font-size: 10.5px; color: #444; line-height: 1.35; }
+  .miss { font-size: 10.5px; color: #b25900; font-weight: 600; }
+  .memories { display: flex; align-items: center; gap: 8px; background: var(--card); border-radius: 11px; padding: 11px 12px; font-size: 12.5px; }
+  .plus { width: 36px; height: 36px; border-radius: 18px; background: var(--green); color: #fff; display: grid; place-items: center; font-size: 22px; line-height: 1; }
+  .head { display: flex; justify-content: space-between; align-items: center; }
+
+  .hero { position: relative; height: 270px; flex-shrink: 0; }
+  .hero svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .navpill { position: absolute; top: 18px; min-height: 30px; padding: 0 11px; border-radius: 15px; background: rgba(255,255,255,.88); color: var(--blue); font-size: 14px; display: flex; align-items: center; }
+  .other { position: absolute; right: 12px; bottom: 12px; padding: 7px 11px; border-radius: 15px; background: rgba(0,0,0,.55); color: #fff; font-size: 12px; font-weight: 600; }
+  .credit { font-size: 10px; color: var(--muted-text); text-align: right; padding: 5px 16px 0; }
+  .credit u { text-decoration: underline; }
+  .detail { padding: 6px 16px 0; display: flex; flex-direction: column; gap: 12px; }
+  .progress { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 3px; }
+  .progress i { height: 5px; border-radius: 3px; background: #e5e5e7; display: block; }
+  .progress i.on { background: var(--blue); }
+  .plabels { display: flex; justify-content: space-between; font-size: 9.5px; color: var(--muted-text); margin-top: -7px; }
+  .stepcard { border: 1.5px solid var(--blue); border-radius: 13px; padding: 12px; display: flex; flex-direction: column; gap: 9px; }
+  .stepcard small { font-size: 10.5px; font-weight: 700; color: var(--blue); letter-spacing: .3px; }
+  .stepcard b { font-size: 14.5px; }
+  .btns { display: flex; gap: 7px; }
+  .btns span { flex: 1; text-align: center; padding: 10px 0; border-radius: 9px; font-size: 12.5px; }
+  .field small { font-size: 10.5px; font-weight: 600; color: var(--muted-text); }
+  .field p { margin: 2px 0 0; font-size: 12.5px; line-height: 1.4; }
+
+  .home { background: #2b3140; }
+  .home .screen { padding: 26px 14px 0; gap: 12px; }
+  .wlabel { font-size: 10px; font-weight: 600; color: #c9cedb; letter-spacing: .4px; }
+  .w { position: relative; border-radius: 20px; overflow: hidden; }
+  .w svg.photo { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .wpanel { position: absolute; left: 7px; right: 7px; bottom: 7px; border-radius: 13px; padding: 7px 9px; display: flex; flex-direction: column; gap: 2px; }
+  .apps { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; margin-top: auto; padding-bottom: 26px; }
+  .apps i { display: block; width: 54px; height: 54px; border-radius: 15px; background: rgba(255,255,255,.14); margin: 0 auto; }
+</style>
+</head>
+<body>
+<div class="frames">
+
+  <!-- BOARD -->
+  <div class="col">
+    <div class="caption">Träume<small>Board mit automatisch gewählten Fotos</small></div>
+    <div class="phone">
+      <div class="screen">
+        <div class="head"><h2>Träume</h2><span class="plus">+</span></div>
+        <div class="lead">Was du im Leben noch erleben willst — und der nächste kleine Schritt dahin.</div>
+        <div class="sec">Dieses Jahr</div>
+        <div class="grid">
+          <div class="card">
+            <svg class="photo" viewBox="0 0 160 190" preserveAspectRatio="xMidYMid slice"><rect width="160" height="190" fill="#f6c58f"/><circle cx="112" cy="36" r="17" fill="#fde7b0"/><rect y="64" width="160" height="126" fill="#3d7ea6"/><path d="M0 84 C 28 66, 52 66, 76 80 S 122 96, 160 74 L160 190 L0 190 Z" fill="#2a6489"/><path d="M54 74 q 6 -10 12 -2" stroke="#1c2b36" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="60" cy="65" r="2.6" fill="#1c2b36"/><rect x="48" y="76" width="22" height="3" rx="1.5" fill="#f3f0e8"/></svg>
+            <div class="panel" style="background: rgba(234,242,255,.88)"><span class="t">🏄 Surfen lernen</span><span class="pill" style="color:#007aff">Erkundet</span><span class="step">Weiter: Surfcamps in Portugal vergleichen</span></div>
+          </div>
+          <div class="card">
+            <svg class="photo" viewBox="0 0 160 190" preserveAspectRatio="xMidYMid slice"><rect width="160" height="190" fill="#9fd3e6"/><path d="M94 80 L106 28 Q 115 14 124 30 L136 80 Z" fill="#4f7d5c"/><rect y="76" width="160" height="40" fill="#2fa3b5"/><rect y="116" width="160" height="74" fill="#efd9a8"/><path d="M26 94 L72 94 L66 102 L32 102 Z" fill="#8a4b2a"/><path d="M29 94 q 22 -8 44 -6" stroke="#c0392b" stroke-width="2" fill="none"/></svg>
+            <div class="panel" style="background: rgba(255,240,224,.88)"><span class="t">🏝️ Reise nach Thailand</span><span class="pill" style="color:#b25900">Geplant · Feb 2027</span><span class="step">Diese Woche: Flüge für Februar anschauen</span></div>
+          </div>
+          <div class="plain" style="background:#e3f6f5"><span class="em">🎹</span><span class="t">Klavier spielen</span><span class="pill" style="color:#00857a">Traum</span><span class="miss">Nächster Schritt fehlt</span></div>
+          <div class="card">
+            <svg class="photo" viewBox="0 0 160 190" preserveAspectRatio="xMidYMid slice"><rect width="160" height="190" fill="#f3b7c8"/><circle cx="40" cy="40" r="14" fill="#fde2ea"/><path d="M0 120 L40 70 L70 100 L110 52 L160 110 L160 190 L0 190 Z" fill="#7f8fa6"/><path d="M98 66 L110 52 L122 66 Z" fill="#ffffff"/><rect y="150" width="160" height="40" fill="#5d7a5a"/><circle cx="30" cy="150" r="14" fill="#f7a8c0"/><circle cx="130" cy="146" r="16" fill="#f7a8c0"/></svg>
+            <div class="panel" style="background: rgba(243,234,253,.88)"><span class="t">🌸 Japan im Frühling</span><span class="pill" style="color:#8944ab">Traum</span><span class="step">Weiter: Kirschblüten-Zeit nachlesen</span></div>
+          </div>
+        </div>
+        <div class="sec">In 1–3 Jahren</div>
+        <div class="grid">
+          <div class="card">
+            <svg class="photo" viewBox="0 0 160 190" preserveAspectRatio="xMidYMid slice"><rect width="160" height="190" fill="#f2b880"/><circle cx="38" cy="40" r="15" fill="#fbe2b8"/><path d="M0 80 L160 70 L160 190 L0 190 Z" fill="#6c6f75"/><path d="M62 190 L82 72 L88 72 L118 190 Z" fill="#53565c"/><circle cx="92" cy="58" r="3" fill="#1c2b36"/><path d="M92 61 l-2 9 l-5 6 M90 70 l6 6 M91 64 l6 3 M91 64 l-6 2" stroke="#1c2b36" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>
+            <div class="panel" style="background: rgba(232,248,236,.88)"><span class="t">🏃 Einen Marathon laufen</span><span class="pill" style="color:#248a3d">Traum</span></div>
+          </div>
+        </div>
+        <div class="memories">✅ <span style="flex:1"><b>2 Träume erfüllt</b> · Erinnerungswand</span>›</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DETAIL -->
+  <div class="col">
+    <div class="caption">Traum-Detail<small>Foto, Stufen, nächster Schritt</small></div>
+    <div class="phone">
+      <div class="hero">
+        <svg viewBox="0 0 342 270" preserveAspectRatio="xMidYMid slice"><rect width="342" height="270" fill="#f6c58f"/><circle cx="246" cy="104" r="34" fill="#fde7b0"/><rect y="142" width="342" height="128" fill="#3d7ea6"/><path d="M0 176 C 62 142, 114 142, 167 168 S 263 198, 342 158 L342 270 L0 270 Z" fill="#2a6489"/><path d="M0 226 C 80 204, 158 214, 228 228 S 298 236, 342 222 L342 270 L0 270 Z" fill="#245677"/><path d="M122 156 q 11 -18 22 -4" stroke="#1c2b36" stroke-width="3.6" fill="none" stroke-linecap="round"/><circle cx="133" cy="140" r="4.5" fill="#1c2b36"/><rect x="112" y="160" width="40" height="5" rx="2.5" fill="#f3f0e8"/></svg>
+        <span class="navpill" style="left:12px">‹ Träume</span>
+        <span class="navpill" style="right:12px">Bearbeiten</span>
+        <span class="other">⟳ Anderes Bild</span>
+      </div>
+      <div class="credit">Foto: <u>Name Fotograf:in</u> / <u>Unsplash</u></div>
+      <div class="detail">
+        <div><div style="display:flex;align-items:center;gap:8px"><span style="font-size:26px">🏄</span><span style="font-size:21px;font-weight:700">Surfen lernen</span></div><div style="font-size:12px;color:#007aff;margin-top:2px">Dieses Jahr · bis Sommer 2027</div></div>
+        <div class="progress"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div>
+        <div class="plabels"><span>Traum</span><span style="color:#007aff;font-weight:600">Erkundet</span><span>Geplant</span><span>Zugesagt</span><span>Erfüllt</span></div>
+        <div class="stepcard"><small>NÄCHSTER SCHRITT</small><b>Surfcamps in Portugal vergleichen</b><div class="btns"><span style="background:#007aff;color:#fff;font-weight:600">In diese Woche</span><span style="border:1.5px solid #d1d1d6">Schon erledigt</span></div></div>
+        <div class="field"><small>Warum</small><p>Ich will draußen sein und etwas lernen, das sich nicht nach Arbeit anfühlt.</p></div>
+        <div class="field"><small>Wie es sich anfühlen wird</small><p style="font-style:italic">Die erste Welle stehen und einfach nur grinsen.</p></div>
+        <div class="field"><small>Was mich bisher abhält</small><p>Kein fester Urlaubstermin.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WIDGETS -->
+  <div class="col">
+    <div class="caption">Widgets<small>Traum des Tages auf dem Startbildschirm (Android)</small></div>
+    <div class="phone home">
+      <div class="screen">
+        <span class="wlabel">TRAUM · 4×2</span>
+        <div class="w" style="height:150px">
+          <svg class="photo" viewBox="0 0 314 150" preserveAspectRatio="xMidYMid slice"><rect width="314" height="150" fill="#9fd3e6"/><path d="M190 70 L204 20 Q 214 6 224 22 L238 70 Z" fill="#4f7d5c"/><rect y="66" width="314" height="34" fill="#2fa3b5"/><rect y="100" width="314" height="50" fill="#efd9a8"/><path d="M40 80 L100 80 L92 88 L48 88 Z" fill="#8a4b2a"/></svg>
+          <span style="position:absolute;top:9px;left:9px;font-size:9px;font-weight:700;color:#b25900;background:rgba(255,240,224,.88);border-radius:7px;padding:3px 7px">TRAUM DES TAGES</span>
+          <div class="wpanel" style="background: rgba(255,240,224,.88)"><span class="t" style="font-size:14px">🏝️ Reise nach Thailand</span><span style="font-size:11px;font-style:italic;color:#b25900">„Barfuß am Strand, der Kopf ganz leer.“</span><span style="font-size:11.5px"><b style="font-size:9.5px;color:#b25900">WEITER</b>&nbsp; Flüge für Februar anschauen</span></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span class="wlabel">KLEIN · 2×2</span>
+            <div class="w" style="width:150px;height:150px">
+              <svg class="photo" viewBox="0 0 150 150" preserveAspectRatio="xMidYMid slice"><rect width="150" height="150" fill="#f6c58f"/><circle cx="106" cy="32" r="14" fill="#fde7b0"/><rect y="56" width="150" height="94" fill="#3d7ea6"/><path d="M0 76 C 26 60, 48 60, 70 72 S 112 86, 150 66 L150 150 L0 150 Z" fill="#2a6489"/></svg>
+              <div class="wpanel" style="background: rgba(234,242,255,.88)"><span class="t">🏄 Surfen lernen</span><span style="font-size:10.5px;color:#555">Weiter: Surfcamps vergleichen</span></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span class="wlabel">MINI · 1×1</span>
+            <div class="w" style="width:70px;height:70px;border-radius:17px">
+              <svg class="photo" viewBox="0 0 70 70" preserveAspectRatio="xMidYMid slice"><rect width="70" height="70" fill="#f2b880"/><circle cx="18" cy="20" r="8" fill="#fbe2b8"/><path d="M0 34 L70 30 L70 70 L0 70 Z" fill="#6c6f75"/><path d="M26 70 L36 31 L39 31 L54 70 Z" fill="#53565c"/></svg>
+              <span style="position:absolute;right:5px;bottom:5px;width:24px;height:24px;border-radius:12px;background:rgba(232,248,236,.88);display:grid;place-items:center;font-size:13px">🏃</span>
+            </div>
+          </div>
+        </div>
+        <span class="wlabel">ZEILE · 4×1</span>
+        <div class="w" style="height:62px;border-radius:17px">
+          <svg class="photo" viewBox="0 0 314 62" preserveAspectRatio="xMidYMid slice"><rect width="314" height="62" fill="#f3b7c8"/><path d="M180 62 L220 18 L250 40 L280 12 L314 40 L314 62 Z" fill="#7f8fa6"/><circle cx="296" cy="50" r="12" fill="#f7a8c0"/></svg>
+          <div style="position:absolute;left:6px;top:6px;bottom:6px;right:66px;border-radius:11px;background:rgba(243,234,253,.88);padding:0 10px;display:flex;flex-direction:column;justify-content:center"><span class="t">🌸 Japan im Frühling</span><span style="font-size:10.5px;color:#555">Weiter: Kirschblüten-Zeit nachlesen</span></div>
+        </div>
+        <div class="apps"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
