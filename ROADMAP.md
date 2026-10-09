@@ -273,10 +273,19 @@ Bild auswählen muss**.
 - **Technik:** Supabase Edge Function `dream-image` hält die API-Keys
   (Anthropic + Unsplash/Pexels) als Secrets. Neue Spalten auf `dreams`:
   `image_url`, `image_credit`, `image_credit_url`, `image_source`. Kleine
-  Credit-Zeile unter dem Foto (Pflicht bei Unsplash/Pexels). Bild im
-  Widget ist ein eigener Schritt (Widget braucht das Bild als Datei).
-- **Offen:** Hat ein eigenes Foto (geplantes `image_path`) Vorrang vor dem
-  automatischen?
+  Credit-Zeile unter dem Foto (Pflicht bei Unsplash/Pexels).
+- **Widgets (2026-10-09):** alle vier Varianten zeigen das Foto (Mockup
+  "Widgets mit Foto"). Die Widget-Bibliothek könnte https-Bilder direkt
+  laden, aber ohne Cache bei jedem Neuzeichnen (~alle 30 Min.). Deshalb
+  `widgets/widget-images.ts`: jedes Foto einmal in 600 px laden, als
+  data:-URI in AsyncStorage speichern, nur bei neuem Foto neu holen (auch
+  offline sichtbar). Kopien gelöschter Träume werden beim nächsten Laden der
+  Traumliste entfernt.
+- **Entschieden (2026-10-09):** Ein eigenes Foto (geplantes `image_path`)
+  hat Vorrang vor dem automatischen. Für später heißt das: Anzeige
+  `image_path ?? image_url`, "Anderes Bild" nur ohne eigenes Foto, und die
+  automatische Suche überschreibt nie ein eigenes Foto. Eigenes Foto
+  entfernen → das automatische ist wieder sichtbar.
 
 **v1 umgesetzt (2026-10-09):** Unsplash; Edge Function
 `supabase/functions/dream-image` (KI-Aufruf #1 → 3 Suchbegriffe konkret →

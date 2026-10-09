@@ -4,6 +4,7 @@ import { currentStep, isOpen, loadStepsThisWeek, pickDreamOfDay } from '../lib/d
 import { supabase } from '../lib/supabase';
 import { Dream } from '../types/dream';
 import { DreamWidget, DreamWidgetMode, DreamWidgetState, ErrorWidget, WIDGET_VARIANTS } from './DreamWidget';
+import { getWidgetImage, pruneWidgetImages } from './widget-images';
 
 // Läuft auch ohne geöffnete App (Headless-Task im Hintergrund). Legt deshalb
 // nie selbst einen Account an — ohne gespeicherte Session zeigt das Widget
@@ -40,7 +41,10 @@ export type WidgetData = { dreams: Dream[]; stepsThisWeek: Record<string, string
 export async function loadDreams(): Promise<WidgetData | null> {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) return null;
-  const [{ data }, stepsThisWeek] = await Promise.all([supabase.from('dreams').select('*'), loadStepsThisWeek()]);
+  const [{ data, error }, stepsThisWeek] = await Promise.all([supabase.from('dreams').select('*'), loadStepsThisWeek()]);
+  // Fotos gelöschter Träume vom Gerät entfernen — nur bei vollständiger Liste,
+  // sonst würde ein Netzwerkfehler alle Kopien löschen.
+  if (!error && data) await pruneWidgetImages(data.map((d) => d.id));
   return { dreams: data ?? [], stepsThisWeek };
 }
 
@@ -62,13 +66,16 @@ async function buildWidget(info: WidgetInfo, data?: WidgetData | null) {
   try {
     const config = await getWidgetConfig(info.widgetId);
     const { dream, step, state } = resolveDream(data === undefined ? await loadDreams() : data, config);
+    const image = await getWidgetImage(dream);
     return (
       <DreamWidget
         dream={dream}
         step={step}
+        image={image}
         mode={config.mode}
         state={state}
         width={info.width}
+        height={info.height}
         variant={WIDGET_VARIANTS[info.widgetName] ?? 'standard'}
       />
     );

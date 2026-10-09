@@ -3,6 +3,7 @@
 // ROADMAP.md, "Fotos (automatisch)"). Läuft still im Hintergrund: findet die
 // Funktion nichts oder ist das Tageslimit erreicht, bleibt der Traum, wie er ist.
 import { supabase } from './supabase';
+import { refreshDreamWidgets } from './widget-bridge';
 
 type Listener = (dreamId: string) => void;
 const listeners = new Set<Listener>();
@@ -20,7 +21,10 @@ async function invoke(body: { dream_id: string; action?: 'next' }): Promise<bool
   try {
     const { data, error } = await supabase.functions.invoke('dream-image', { body });
     if (error) return false;
-    if (data?.image) listeners.forEach((l) => l(body.dream_id));
+    if (data?.image) {
+      listeners.forEach((l) => l(body.dream_id));
+      refreshDreamWidgets(); // neues Foto auch auf dem Startbildschirm
+    }
     return true;
   } catch {
     // Fotos sind ein Extra — nie die App wegen eines Foto-Fehlers stören.
