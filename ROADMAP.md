@@ -143,7 +143,8 @@ anfangen und parallel an der App arbeiten.
 - EAS Update ist eingerichtet (2026-10-09, `expo-updates`, Kanäle
   `preview`/`production` in `eas.json`, `runtimeVersion` per Fingerprint):
   reine JS-Änderungen ohne neuen Build per
-  `npx eas-cli update --channel preview --message "…" --environment preview`.
+  `npx eas-cli update --channel preview --platform android --message "…" --environment preview`
+  (`--platform android` ist nötig: der Web-Export scheitert an Supabase/`window`).
   Neue native Module (oder Plugin-/app.json-Änderungen) ändern den
   Fingerprint → dann wieder ein neuer Build nötig.
 - `npx eas-cli build --platform android --profile production` → AAB statt
