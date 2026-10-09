@@ -5,10 +5,7 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View
 import { currentStep, dreamColor, HORIZON_LABEL, HORIZON_ORDER, isOpen, loadStepsThisWeek, STAGE_LABEL } from '../../lib/dreams';
 import { supabase } from '../../lib/supabase';
 import { Dream } from '../../types/dream';
-
-const ACCENT = '#34c759';
-const CARD_BG = '#f7f7f8';
-const MUTED = '#6b6b70';
+import { ACCENT, BLUE, CARD_BG, MUTED_TEXT, ORANGE_TEXT } from '../../constants/theme';
 
 export default function DreamsScreen() {
   const router = useRouter();
@@ -107,7 +104,7 @@ export default function DreamsScreen() {
             </Text>
             {' · Erinnerungswand'}
           </Text>
-          <Ionicons name="chevron-forward" size={16} color={MUTED} />
+          <Ionicons name="chevron-forward" size={16} color={MUTED_TEXT} />
         </TouchableOpacity>
       )}
     </ScrollView>
@@ -123,19 +120,19 @@ const styles = StyleSheet.create({
   header: { fontSize: 22, fontWeight: '600' },
   addButton: { width: 44, height: 44, borderRadius: 22, backgroundColor: ACCENT, justifyContent: 'center', alignItems: 'center' },
   lead: { fontSize: 13, color: '#555', lineHeight: 18, marginTop: -8 },
-  sectionTitle: { fontSize: 13, fontWeight: '600', color: MUTED },
+  sectionTitle: { fontSize: 13, fontWeight: '600', color: MUTED_TEXT },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   card: { width: '48.5%', minHeight: 120, borderRadius: 14, padding: 12, gap: 6 },
   emoji: { fontSize: 30 },
   cardTitle: { fontSize: 14, fontWeight: '600' },
   stagePill: { alignSelf: 'flex-start', fontSize: 10.5, fontWeight: '600', backgroundColor: '#fff', borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2, overflow: 'hidden' },
   nextStep: { fontSize: 11.5, color: '#444', lineHeight: 15 },
-  missingStep: { fontSize: 11.5, color: '#b25900', fontWeight: '600' },
+  missingStep: { fontSize: 11.5, color: ORANGE_TEXT, fontWeight: '600' },
   memoriesLink: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 48, paddingHorizontal: 14, backgroundColor: CARD_BG, borderRadius: 12 },
   memoriesText: { flex: 1, fontSize: 14 },
   emptyCard: { backgroundColor: CARD_BG, borderRadius: 14, padding: 16, gap: 8 },
   emptyTitle: { fontSize: 16, fontWeight: '600' },
   emptyText: { fontSize: 13, color: '#555', lineHeight: 19 },
-  emptyButton: { alignSelf: 'flex-start', minHeight: 44, paddingHorizontal: 16, borderRadius: 10, backgroundColor: '#007aff', justifyContent: 'center', marginTop: 4 },
+  emptyButton: { alignSelf: 'flex-start', minHeight: 44, paddingHorizontal: 16, borderRadius: 10, backgroundColor: BLUE, justifyContent: 'center', marginTop: 4 },
   emptyButtonText: { color: '#fff', fontSize: 14, fontWeight: '600' },
 });

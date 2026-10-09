@@ -4,9 +4,7 @@ import { WidgetConfigurationScreenProps, WidgetPreview } from 'react-native-andr
 import { dreamColor, isOpen } from '../lib/dreams';
 import { DreamWidget, DreamWidgetMode, WIDGET_VARIANTS } from './DreamWidget';
 import { getWidgetConfig, loadDreams, resolveDream, saveWidgetConfig, WidgetData } from './dream-widget-data';
-
-const BLUE = '#007aff';
-const MUTED = '#6b6b70';
+import { BLUE, CARD_BG, DANGER_TEXT, MUTED_TEXT, TEXT } from '../constants/theme';
 
 /**
  * Öffnet sich beim Platzieren des Traum-Widgets (und über "Widget
@@ -135,19 +133,19 @@ const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center' },
   screen: { flex: 1, backgroundColor: '#fff' },
   content: { padding: 20, paddingTop: 48, gap: 14 },
-  header: { fontSize: 22, fontWeight: '600', color: '#1c1c1e' },
+  header: { fontSize: 22, fontWeight: '600', color: TEXT },
   lead: { fontSize: 13, color: '#555', lineHeight: 19 },
   segment: { flexDirection: 'row', backgroundColor: '#ececee', borderRadius: 10, padding: 3, gap: 4 },
   segmentButton: { flex: 1, minHeight: 40, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
   segmentActive: { backgroundColor: '#fff' },
   segmentText: { fontSize: 14, color: '#444' },
-  segmentTextActive: { fontWeight: '600', color: '#1c1c1e' },
-  dreamRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56, paddingHorizontal: 14, borderRadius: 12, borderWidth: 2, borderColor: 'transparent', backgroundColor: '#f7f7f8' },
-  dreamTitle: { fontSize: 15, color: '#1c1c1e', flex: 1 },
-  sectionTitle: { fontSize: 13, fontWeight: '600', color: MUTED, marginTop: 6 },
+  segmentTextActive: { fontWeight: '600', color: TEXT },
+  dreamRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56, paddingHorizontal: 14, borderRadius: 12, borderWidth: 2, borderColor: 'transparent', backgroundColor: CARD_BG },
+  dreamTitle: { fontSize: 15, color: TEXT, flex: 1 },
+  sectionTitle: { fontSize: 13, fontWeight: '600', color: MUTED_TEXT, marginTop: 6 },
   footer: { flexDirection: 'row', gap: 8, padding: 20, paddingBottom: 32, alignItems: 'center' },
   cancel: { minHeight: 48, paddingHorizontal: 12, justifyContent: 'center' },
   confirm: { flex: 1, minHeight: 50, borderRadius: 12, backgroundColor: BLUE, justifyContent: 'center', alignItems: 'center' },
   confirmText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  diagnostic: { fontSize: 11, color: '#d70015', lineHeight: 16 },
+  diagnostic: { fontSize: 11, color: DANGER_TEXT, lineHeight: 16 },
 });

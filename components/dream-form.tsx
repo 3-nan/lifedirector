@@ -1,6 +1,7 @@
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { DREAM_COLORS, DREAM_EMOJIS, HORIZON_LABEL, HORIZON_ORDER } from '../lib/dreams';
 import { DreamHorizon } from '../types/dream';
+import { BLUE, CARD_BG, MUTED_TEXT, TEXT } from '../constants/theme';
 
 export type DreamDraft = {
   title: string;
@@ -38,8 +39,6 @@ export function draftToRow(draft: DreamDraft) {
     obstacle: orNull(draft.obstacle),
   };
 }
-
-const MUTED = '#6b6b70';
 
 /**
  * Formular für Anlegen und Bearbeiten. Beim Anlegen nur das Nötigste
@@ -81,7 +80,7 @@ export function DreamForm({
             return (
               <TouchableOpacity
                 key={emoji}
-                style={[styles.emojiButton, selected && { borderColor: DREAM_COLORS[draft.color]?.accent ?? '#007aff', backgroundColor: DREAM_COLORS[draft.color]?.bg }]}
+                style={[styles.emojiButton, selected && { borderColor: DREAM_COLORS[draft.color]?.accent ?? BLUE, backgroundColor: DREAM_COLORS[draft.color]?.bg }]}
                 onPress={() => set('emoji', emoji)}
                 accessibilityLabel={`Symbol ${emoji}`}
               >
@@ -98,7 +97,7 @@ export function DreamForm({
           {Object.entries(DREAM_COLORS).map(([name, c]) => (
             <TouchableOpacity
               key={name}
-              style={[styles.colorDot, { backgroundColor: c.bg, borderColor: name === draft.color ? '#1c1c1e' : c.accent }]}
+              style={[styles.colorDot, { backgroundColor: c.bg, borderColor: name === draft.color ? TEXT : c.accent }]}
               onPress={() => set('color', name)}
               accessibilityLabel={`Farbe ${name}${name === draft.color ? ', ausgewählt' : ''}`}
             >
@@ -124,7 +123,7 @@ export function DreamForm({
 
       <View style={styles.field}>
         <Text style={styles.label}>
-          Bis … <Text style={{ fontWeight: '400', color: MUTED }}>(optional)</Text>
+          Bis … <Text style={{ fontWeight: '400', color: MUTED_TEXT }}>(optional)</Text>
         </Text>
         <TextInput
           style={styles.input}
@@ -158,11 +157,11 @@ export function DreamForm({
 const styles = StyleSheet.create({
   field: { gap: 8 },
   label: { fontSize: 13, fontWeight: '600', color: '#555' },
-  titleInput: { minHeight: 48, borderWidth: 1.5, borderColor: '#007aff', borderRadius: 10, paddingHorizontal: 14, fontSize: 16 },
-  input: { minHeight: 44, backgroundColor: '#f7f7f8', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 15 },
+  titleInput: { minHeight: 48, borderWidth: 1.5, borderColor: BLUE, borderRadius: 10, paddingHorizontal: 14, fontSize: 16 },
+  input: { minHeight: 44, backgroundColor: CARD_BG, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 15 },
   multiline: { minHeight: 64, textAlignVertical: 'top' },
   wrapRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  emojiButton: { width: 44, height: 44, borderRadius: 10, backgroundColor: '#f7f7f8', borderWidth: 2, borderColor: 'transparent', justifyContent: 'center', alignItems: 'center' },
+  emojiButton: { width: 44, height: 44, borderRadius: 10, backgroundColor: CARD_BG, borderWidth: 2, borderColor: 'transparent', justifyContent: 'center', alignItems: 'center' },
   emojiText: { fontSize: 22 },
   colorRow: { flexDirection: 'row', gap: 10 },
   colorDot: { width: 36, height: 36, borderRadius: 18, borderWidth: 2, justifyContent: 'center', alignItems: 'center' },

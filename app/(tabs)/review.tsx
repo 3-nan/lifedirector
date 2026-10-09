@@ -8,12 +8,8 @@ import { monthKey, todayStr } from '../../lib/period';
 import { supabase } from '../../lib/supabase';
 import { Challenge } from '../../types/challenge';
 import { Habit, Log } from '../../types/habit';
+import { ACCENT, BLUE, CARD_BG, DANGER, MUTED } from '../../constants/theme';
 
-const ACCENT = '#34c759';
-const DANGER = '#ff3b30';
-const ACCENT_BLUE = '#007aff';
-const CARD_BG = '#f7f7f8';
-const MUTED = '#9a9a9e';
 const WEEKDAYS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 
 type CompletedChallenge = {
@@ -238,7 +234,7 @@ const styles = StyleSheet.create({
   weekRow: { flexDirection: 'row', justifyContent: 'space-between', height: 90, alignItems: 'flex-end' },
   dayCol: { alignItems: 'center', flex: 1 },
   dayBarTrack: { width: 16, height: 64, justifyContent: 'flex-end' },
-  dayBarFill: { width: 16, backgroundColor: ACCENT_BLUE, borderRadius: 5 },
+  dayBarFill: { width: 16, backgroundColor: BLUE, borderRadius: 5 },
   dayLabel: { fontSize: 11, color: MUTED, marginTop: 6 },
   insightCard: { backgroundColor: CARD_BG, borderRadius: 10, padding: 16, marginTop: 20 },
   insightTitle: { fontSize: 13, fontWeight: '600', marginBottom: 8 },

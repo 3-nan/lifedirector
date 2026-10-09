@@ -5,11 +5,7 @@ import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, TextInput, Toucha
 import { DAILY_TARGET, FREQUENCY_OPTIONS, frequencyChipLabel, frequencyLabel, targetOf } from '../../lib/habits';
 import { supabase } from '../../lib/supabase';
 import { Habit } from '../../types/habit';
-
-const ACCENT = '#34c759';
-const CARD_BG = '#f7f7f8';
-const MUTED = '#9a9a9e';
-const DANGER = '#ff3b30';
+import { ACCENT, BLUE, CARD_BG, DANGER, MUTED } from '../../constants/theme';
 
 function FrequencyChips({ value, onChange }: { value: number; onChange: (target: number) => void }) {
   return (
@@ -184,7 +180,7 @@ const styles = StyleSheet.create({
   cardWrap: { backgroundColor: CARD_BG, borderRadius: 10 },
   editChips: { paddingHorizontal: 14, paddingBottom: 14 },
   frequencyButton: { flexDirection: 'row', alignItems: 'center', gap: 3, marginTop: 3, alignSelf: 'flex-start' },
-  frequencyText: { fontSize: 12, color: '#007aff' },
+  frequencyText: { fontSize: 12, color: BLUE },
   input: { flex: 1, backgroundColor: CARD_BG, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15 },
   addButton: { backgroundColor: ACCENT, width: 44, height: 44, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
   card: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: CARD_BG, borderRadius: 10, paddingVertical: 14, paddingHorizontal: 14 },
