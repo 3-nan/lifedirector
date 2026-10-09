@@ -20,15 +20,15 @@ ist vorbereitet, aber noch nicht entschieden.
 | Traum-Fotos (automatisch, KI + Unsplash) | live | Träume → Fotos |
 | Home-Screen-Widgets (4 Größen, mit Fotos) | live | Widgets |
 | EAS Update (JS-Änderungen ohne neuen Build) | live | Play-Store → Build |
-| **`Today` entschlacken / Wochenplanung** | **Konzept, Mockup in Arbeit** | Fokus statt Überladung |
+| **`Today` entschlacken / Wochenplanung** | **Mockup abgestimmt (Variante C)** | Fokus statt Überladung |
 | Fokus-Wochen | Konzept | Fokus-Wochen |
 | Social: gemeinsame Challenges (Duo) | Konzept | Social |
 | Play-Store-Release | vorbereitet, nicht entschieden | Play-Store-Release |
 
 ## Next (Reihenfolge = Priorität)
-1. **`Today` entschlacken** (Grundsatz "Fokus statt Überladung"): HTML-Mockup
-   eines ruhigeren `Today` + der optionalen Wochenplanung (2026-10-09
-   begonnen), danach entscheiden und umsetzen. Bewusst **vor** Fokus-Wochen
+1. **`Today` entschlacken** (Grundsatz "Fokus statt Überladung"): Mockup
+   abgestimmt (Variante C mit Pfirsich-Wochenkarte), offene Detailfragen
+   klären, dann umsetzen (`Today` + Wochenplanung). Bewusst **vor** Fokus-Wochen
    und Social, weil beide sonst noch mehr auf `Today` stapeln würden.
 2. **Dogfooding** (eine Woche) mit Fotos + Widgets: Reibung notieren (passen
    die Fotos? nervt der Alert beim Challenge-Ziehen/bei der Kategorie-Wahl?
@@ -84,11 +84,33 @@ Entschieden (2026-10-07):
 - Wie genau sich UI und Nutzung ändern (was wann wo gezeigt wird),
   wird später entschieden — bis dahin keine Umsetzung, nur Konzept.
 
-Offene Fragen: Wo landen Dinge, die nicht in die Top 3 kommen (eigener
-Backlog-Bereich vs. bleiben einfach in ihrem Tab)? Welche Bausteine sind für
-Fokus-Wochen-Monate pausiert? Wo lebt die gemeinsame Challenge (Social) auf
-`Today`? — Mockup eines entschlackten `Today` + der Wochenplanung: begonnen
-2026-10-09.
+**Mockup abgestimmt (2026-10-09), Variante "C" mit Pfirsich-Wochenkarte**
+(Canvas "Today entschlacken"), von oben nach unten:
+1. Kopf wie bisher (Datum, "Heute", Encouragement-Zeile).
+2. **Wochenkarte "Diese Woche zählt"** in Pfirsich (Ton der Traum-Karten)
+   mit 3-teiligem Fortschrittsbalken und den bis zu 3 Wochen-Prioritäten.
+   Ein Traum-Schritt erscheint als Karte mit Foto ("Schritt zu: …") — das
+   ersetzt die separate "Traum der Woche"-Karte. Unten "+ N weitere diese
+   Woche" (Tasks außerhalb der Top 3) und "Woche anpassen".
+3. **Challenge** als eigene, gut sichtbare Karte direkt darunter (nicht
+   unten versteckt), mit Restlaufzeit und "Geschafft".
+4. **Gewohnheiten mit Tagesring** (z.B. 2/5) + kompakte Liste mit Serien,
+   Momentum und Wochenziel.
+Wegfallen: die zwei Statistik-Karten (ersetzt durch den Ring), die
+separate Traum-der-Woche-Karte, das Task-Eingabefeld auf `Today` (neue
+Tasks über die Wochenplanung bzw. "+ N weitere").
+**Wochenplanung** als eigener Screen: "Von letzter Woche offen" mit
+Mitnehmen/Später/Loslassen, Vorschläge aus Traum-Schritten, Challenge,
+Monatszielen und lange nicht bedienten Kategorien, max. 3, "nichts
+wählen" ist okay.
+Ideen aus der lebendigeren Variante C2 (für später/zur Wahl): Wochenleiste
+Mo–So, Emoji-Symbol pro Gewohnheit, warmer Grundton für die ganze App.
+
+Offene Fragen: Challenges bleiben monatlich (Karte zeigt Restlaufzeit)? Zählt
+der Tagesring nur Gewohnheiten? Reihenfolge Prioritäten → Challenge →
+Gewohnheiten so lassen? Wann erscheint die Einladung zur Wochenplanung
+(Sonntagabend, Montag, nur manuell)? Welche Bausteine sind in
+Fokus-Wochen-Monaten pausiert? Wo lebt die gemeinsame Challenge (Social)?
 
 ## Stand: was live ist
 - **Core-Habit-Tracking** (`Today` / `Habits` / `Review`) gegen Supabase.
