@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { currentStep, dreamColor, HORIZON_LABEL, HORIZON_ORDER, isOpen, loadStepsThisWeek, STAGE_LABEL } from '../../lib/dreams';
+import { onDreamImageChanged, PHOTO_PANEL_ALPHA, withAlpha } from '../../lib/dream-image';
 import { supabase } from '../../lib/supabase';
 import { Dream } from '../../types/dream';
 import { ACCENT, BLUE, CARD_BG, MUTED_TEXT, ORANGE_TEXT } from '../../constants/theme';
@@ -24,6 +25,7 @@ export default function DreamsScreen() {
   }, []);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
+  useEffect(() => onDreamImageChanged(() => load()), [load]);
 
   if (loading) return <ActivityIndicator style={styles.center} />;
 
@@ -68,15 +70,8 @@ export default function DreamsScreen() {
               {group.map((dream) => {
                 const color = dreamColor(dream.color);
                 const step = currentStep(dream, stepsThisWeek);
-                return (
-                  <TouchableOpacity
-                    key={dream.id}
-                    style={[styles.card, { backgroundColor: color.bg }]}
-                    onPress={() => router.push({ pathname: '/dream/[id]', params: { id: dream.id } })}
-                    activeOpacity={0.8}
-                  >
-                    <Text style={styles.emoji}>{dream.emoji}</Text>
-                    <Text style={styles.cardTitle}>{dream.title}</Text>
+                const details = (
+                  <>
                     <Text style={[styles.stagePill, { color: color.accent }]}>
                       {STAGE_LABEL[dream.stage]}{dream.target_label ? ` · ${dream.target_label}` : ''}
                     </Text>
@@ -86,6 +81,30 @@ export default function DreamsScreen() {
                       </Text>
                     ) : (
                       <Text style={styles.missingStep}>Nächster Schritt fehlt</Text>
+                    )}
+                  </>
+                );
+                return (
+                  <TouchableOpacity
+                    key={dream.id}
+                    style={[styles.card, { backgroundColor: color.bg }]}
+                    onPress={() => router.push({ pathname: '/dream/[id]', params: { id: dream.id } })}
+                    activeOpacity={0.8}
+                  >
+                    {dream.image_url ? (
+                      <>
+                        <Image source={{ uri: dream.image_url }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+                        <View style={[styles.photoPanel, { backgroundColor: withAlpha(color.bg, PHOTO_PANEL_ALPHA) }]}>
+                          <Text style={styles.cardTitle}>{dream.emoji} {dream.title}</Text>
+                          {details}
+                        </View>
+                      </>
+                    ) : (
+                      <View style={styles.plainContent}>
+                        <Text style={styles.emoji}>{dream.emoji}</Text>
+                        <Text style={styles.cardTitle}>{dream.title}</Text>
+                        {details}
+                      </View>
                     )}
                   </TouchableOpacity>
                 );
@@ -122,7 +141,10 @@ const styles = StyleSheet.create({
   lead: { fontSize: 13, color: '#555', lineHeight: 18, marginTop: -8 },
   sectionTitle: { fontSize: 13, fontWeight: '600', color: MUTED_TEXT },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  card: { width: '48.5%', minHeight: 120, borderRadius: 14, padding: 12, gap: 6 },
+  // Feste Höhe, damit Karten mit und ohne Foto in einer Reihe gleich aussehen.
+  card: { width: '48.5%', height: 210, borderRadius: 14, overflow: 'hidden', justifyContent: 'flex-end' },
+  plainContent: { padding: 12, gap: 6 },
+  photoPanel: { margin: 6, borderRadius: 10, paddingHorizontal: 10, paddingTop: 8, paddingBottom: 10, gap: 4 },
   emoji: { fontSize: 30 },
   cardTitle: { fontSize: 14, fontWeight: '600' },
   stagePill: { alignSelf: 'flex-start', fontSize: 10.5, fontWeight: '600', backgroundColor: '#fff', borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2, overflow: 'hidden' },

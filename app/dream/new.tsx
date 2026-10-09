@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { DreamDraft, DreamForm, draftToRow, EMPTY_DRAFT } from '../../components/dream-form';
 import { KeyboardAwareScroll } from '../../components/keyboard-aware';
+import { requestDreamImage } from '../../lib/dream-image';
 import { supabase } from '../../lib/supabase';
 import { refreshDreamWidgets } from '../../lib/widget-bridge';
 import { BLUE, DANGER_TEXT, MUTED_TEXT } from '../../constants/theme';
@@ -27,6 +28,7 @@ export default function NewDreamScreen() {
       return;
     }
     refreshDreamWidgets();
+    requestDreamImage(data.id);
     // Direkt in die Detailansicht, damit Warum/Hindernis/nächster Schritt gleich ergänzt werden können.
     router.replace({ pathname: '/dream/[id]', params: { id: data.id, fresh: '1' } });
   }

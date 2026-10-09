@@ -1,8 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Image,
+  Linking,
   StyleSheet,
   Text,
   TextInput,
@@ -26,6 +28,7 @@ import {
   STAGE_ORDER,
   updateDream,
 } from '../../lib/dreams';
+import { nextDreamImage, onDreamImageChanged } from '../../lib/dream-image';
 import { dreamStepLine, stageUpLine } from '../../lib/motivation';
 import { isoWeekKey } from '../../lib/period';
 import { supabase } from '../../lib/supabase';
@@ -85,6 +88,7 @@ export default function DreamDetailScreen() {
   }, [id]);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
+  useEffect(() => onDreamImageChanged((dreamId) => { if (dreamId === id) load(); }), [id, load]);
 
   function celebrate(title: string, line: string) {
     if (!dream) return;
@@ -185,6 +189,15 @@ export default function DreamDetailScreen() {
     if (ok) setEditing(false);
   }
 
+  function toggleEdit() {
+    if (!dream) return;
+    if (editing) saveEdit();
+    else {
+      setDraft(toDraft(dream));
+      setEditing(true);
+    }
+  }
+
   async function deleteDream() {
     if (!dream) return;
     setBusy(true);
@@ -208,29 +221,66 @@ export default function DreamDetailScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
       <KeyboardAwareScroll contentContainerStyle={{ paddingBottom: 48 }}>
-          <View style={[styles.hero, { backgroundColor: color.bg }]}>
-            <View style={styles.heroNav}>
+          {dream.image_url && (
+            <View style={styles.photo}>
+              <Image source={{ uri: dream.image_url }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+              <View style={styles.photoNav}>
+                <TouchableOpacity style={styles.photoNavButton} onPress={() => router.back()}>
+                  <Ionicons name="chevron-back" size={20} color={BLUE} />
+                  <Text style={styles.navText}>Träume</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.photoNavButton} onPress={toggleEdit} disabled={busy}>
+                  <Text style={[styles.navText, editing && { fontWeight: '600' }]}>{editing ? 'Fertig' : 'Bearbeiten'}</Text>
+                </TouchableOpacity>
+              </View>
+              {(dream.image_candidates?.length ?? 0) > 1 && <TouchableOpacity
+                style={styles.otherPhotoButton}
+                onPress={async () => {
+                  setBusy(true);
+                  await nextDreamImage(dream.id);
+                  setBusy(false);
+                }}
+                disabled={busy}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="refresh" size={15} color="#fff" />
+                <Text style={styles.otherPhotoText}>Anderes Bild</Text>
+              </TouchableOpacity>}
+            </View>
+          )}
+          {dream.image_url && dream.image_credit && (
+            <Text style={styles.credit}>
+              Foto:{' '}
+              <Text style={styles.creditLink} onPress={() => dream.image_credit_url && Linking.openURL(dream.image_credit_url)}>
+                {dream.image_credit}
+              </Text>
+              {' / '}
+              <Text style={styles.creditLink} onPress={() => Linking.openURL('https://unsplash.com/?utm_source=lifedirector&utm_medium=referral')}>
+                Unsplash
+              </Text>
+            </Text>
+          )}
+          <View style={[styles.hero, dream.image_url ? styles.heroBelowPhoto : { backgroundColor: color.bg }]}>
+            {!dream.image_url && <View style={styles.heroNav}>
               <TouchableOpacity style={styles.navButton} onPress={() => router.back()} hitSlop={8}>
                 <Ionicons name="chevron-back" size={22} color={BLUE} />
                 <Text style={styles.navText}>Träume</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.navButton}
-                onPress={() => {
-                  if (editing) saveEdit();
-                  else {
-                    setDraft(toDraft(dream));
-                    setEditing(true);
-                  }
-                }}
-                disabled={busy}
-                hitSlop={8}
-              >
+              <TouchableOpacity style={styles.navButton} onPress={toggleEdit} disabled={busy} hitSlop={8}>
                 <Text style={[styles.navText, editing && { fontWeight: '600' }]}>{editing ? 'Fertig' : 'Bearbeiten'}</Text>
               </TouchableOpacity>
-            </View>
-            <Text style={styles.heroEmoji}>{dream.emoji}</Text>
-            <Text style={styles.heroTitle}>{dream.title}</Text>
+            </View>}
+            {dream.image_url ? (
+              <View style={styles.titleRow}>
+                <Text style={styles.titleEmoji}>{dream.emoji}</Text>
+                <Text style={[styles.heroTitle, { flex: 1 }]}>{dream.title}</Text>
+              </View>
+            ) : (
+              <>
+                <Text style={styles.heroEmoji}>{dream.emoji}</Text>
+                <Text style={styles.heroTitle}>{dream.title}</Text>
+              </>
+            )}
             <Text style={[styles.heroMeta, { color: color.accent }]}>
               {HORIZON_LABEL[dream.horizon]}
               {dream.target_label ? ` · bis ${dream.target_label}` : ''}
@@ -474,6 +524,16 @@ const styles = StyleSheet.create({
   heroEmoji: { fontSize: 44 },
   heroTitle: { fontSize: 24, fontWeight: '700' },
   heroMeta: { fontSize: 13 },
+  heroBelowPhoto: { paddingTop: 4, backgroundColor: '#fff' },
+  photo: { height: 300, backgroundColor: CARD_BG },
+  photoNav: { position: 'absolute', top: 48, left: 14, right: 14, flexDirection: 'row', justifyContent: 'space-between' },
+  photoNavButton: { minHeight: 36, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.88)' },
+  otherPhotoButton: { position: 'absolute', right: 14, bottom: 14, minHeight: 36, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, borderRadius: 18, backgroundColor: 'rgba(0,0,0,0.55)' },
+  otherPhotoText: { color: '#fff', fontSize: 13, fontWeight: '600' },
+  credit: { fontSize: 11, color: MUTED_TEXT, textAlign: 'right', paddingHorizontal: 20, paddingTop: 6 },
+  creditLink: { textDecorationLine: 'underline' },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  titleEmoji: { fontSize: 30 },
   body: { padding: 20, gap: 16 },
   error: { fontSize: 13, color: DANGER_TEXT },
   progressRow: { flexDirection: 'row', gap: 4 },
