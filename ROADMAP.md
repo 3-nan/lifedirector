@@ -110,11 +110,20 @@ wählen" ist okay.
 Ideen aus der lebendigeren Variante C2 (für später/zur Wahl): Wochenleiste
 Mo–So, Emoji-Symbol pro Gewohnheit, warmer Grundton für die ganze App.
 
-Offene Fragen: Challenges bleiben monatlich (Karte zeigt Restlaufzeit)? Zählt
-der Tagesring nur Gewohnheiten? Reihenfolge Prioritäten → Challenge →
-Gewohnheiten so lassen? Wann erscheint die Einladung zur Wochenplanung
-(Sonntagabend, Montag, nur manuell)? Welche Bausteine sind in
-Fokus-Wochen-Monaten pausiert? Wo lebt die gemeinsame Challenge (Social)?
+Entschieden (2026-10-09):
+- **Tagesring zählt nur die Gewohnheiten.**
+- **Reihenfolge bleibt:** Wochen-Prioritäten → Challenge → Gewohnheiten.
+- **Challenges bleiben vorerst monatlich** (Karte zeigt die Restlaufzeit);
+  später optional eigene Zeiträume festlegen (z.B. 1 Woche, 2 Wochen,
+  4 Wochen) — passt auch zu den Duo-Challenges (Social), die eine Dauer haben.
+- **Einladung zur Wochenplanung: noch unsicher.** Vorschlag für v1: nur
+  manuell über "Woche anpassen" und — solange für die Woche nichts gewählt
+  ist — eine zurückhaltende Karte "Was soll diese Woche zählen?" mit
+  "Diese Woche nicht" (Mockup B, Zustand "nicht geplant"). Keine Push.
+  Nach dem Dogfooding neu entscheiden.
+
+Offene Fragen: Welche Bausteine sind in Fokus-Wochen-Monaten pausiert? Wo
+lebt die gemeinsame Challenge (Social)?
 
 ## Stand: was live ist
 - **Core-Habit-Tracking** (`Today` / `Habits` / `Review`) gegen Supabase.
