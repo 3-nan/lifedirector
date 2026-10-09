@@ -140,6 +140,13 @@ anfangen und parallel an der App arbeiten.
       nur einfache Backups → mit echten Nutzern Pro (~25 $/Monat) erwägen.
 
 **3. Build & Upload**
+- EAS Update ist eingerichtet (2026-10-09, `expo-updates`, Kanäle
+  `preview`/`production` in `eas.json`, `runtimeVersion` per Fingerprint):
+  reine JS-Änderungen ohne neuen Build per
+  `npx eas-cli update --channel preview --platform android --message "…" --environment preview`
+  (`--platform android` ist nötig: der Web-Export scheitert an Supabase/`window`).
+  Neue native Module (oder Plugin-/app.json-Änderungen) ändern den
+  Fingerprint → dann wieder ein neuer Build nötig.
 - `npx eas-cli build --platform android --profile production` → AAB statt
   APK (`autoIncrement` für versionCode steht schon in `eas.json`).
 - Ersten Build manuell in der Play Console hochladen; danach
@@ -246,6 +253,49 @@ mit dem Konkreten eines Plans.
 - **Später:** Fotos (Bild-Upload, Supabase Storage, native Bildauswahl →
   neuer Build), Saison-Hinweise, Sparziel, jährlicher Traum-Review,
   Schritt-Vorschläge aus der App, Erinnerungs-Notiz beim Erfüllen mit Foto.
+
+### Fotos (automatisch) (geplant, 2026-10-09)
+Idee: Träume bekommen ein passendes Foto, **ohne dass der Nutzer selbst ein
+Bild auswählen muss**.
+
+- **Automatisch:** beim Anlegen eines Traums holt die App einmalig ein Bild
+  (Träume ohne Versuch werden beim App-Start nachgeholt, `image_attempted`).
+  Ein geänderter Titel ändert das Bild nicht. Ohne Bild bleibt es bei Emoji
+  + Farbe.
+- **KI formuliert die Suche:** aus Titel, Gefühls-Satz und Warum macht die
+  KI einen englischen Foto-Suchbegriff ("Surfen lernen" → "surfer catching
+  first wave at sunrise").
+- **KI wählt das Bild:** Unsplash oder Pexels liefert ~6 Kandidaten; die KI
+  schaut sich die Vorschaubilder an und nimmt das, das am besten zum Traum
+  passt (emotional, kein Produkt-Stockfoto, kein sichtbarer Text). Claude
+  Haiku 5.5 kann Bilder ansehen, Kosten Bruchteil eines Cents pro Traum.
+- **Ausweg:** "Anderes Bild" nimmt still den nächstbesten Kandidaten — immer
+  noch kein Auswahl-Screen.
+- **Technik:** Supabase Edge Function `dream-image` hält die API-Keys
+  (Anthropic + Unsplash/Pexels) als Secrets. Neue Spalten auf `dreams`:
+  `image_url`, `image_credit`, `image_credit_url`, `image_source`. Kleine
+  Credit-Zeile unter dem Foto (Pflicht bei Unsplash/Pexels).
+- **Widgets (2026-10-09):** alle vier Varianten zeigen das Foto (Mockup
+  "Widgets mit Foto"). Die Widget-Bibliothek könnte https-Bilder direkt
+  laden, aber ohne Cache bei jedem Neuzeichnen (~alle 30 Min.). Deshalb
+  `widgets/widget-images.ts`: jedes Foto einmal in 600 px laden, als
+  data:-URI in AsyncStorage speichern, nur bei neuem Foto neu holen (auch
+  offline sichtbar). Kopien gelöschter Träume werden beim nächsten Laden der
+  Traumliste entfernt.
+- **Entschieden (2026-10-09):** Ein eigenes Foto (geplantes `image_path`)
+  hat Vorrang vor dem automatischen. Für später heißt das: Anzeige
+  `image_path ?? image_url`, "Anderes Bild" nur ohne eigenes Foto, und die
+  automatische Suche überschreibt nie ein eigenes Foto. Eigenes Foto
+  entfernen → das automatische ist wieder sichtbar.
+
+**v1 umgesetzt (2026-10-09):** Unsplash; Edge Function
+`supabase/functions/dream-image` (KI-Aufruf #1 → 3 Suchbegriffe konkret →
+allgemein, Suche mit dem ersten, weitere nur bei 0 Treffern; KI-Aufruf #2
+rankt bis zu 6 Kandidaten); max. 4 KI-Aufrufe pro Nutzer und Tag
+(`claim_image_call` in `supabase/dream_images.sql`); liefert die KI nichts
+Brauchbares, bleibt der Traum ohne Bild. App: `lib/dream-image.ts`, Board-
+Karten vollflächig mit Foto + Text-Panel in Traumfarbe (88 % deckend), Detail
+mit Foto-Header, Credit-Zeile und "Anderes Bild". Mockup abgestimmt.
 
 ### Datenmodell (umgesetzt in `supabase/dreams.sql`, Branch `dreams`)
 Grundsatz: wenig Aufwand beim Anlegen — **nur der Titel ist Pflicht**, der

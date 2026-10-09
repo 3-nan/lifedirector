@@ -41,3 +41,6 @@ app-example
 # generated native folders
 /ios
 /android
+
+# Supabase Edge Function secrets (local testing only)
+supabase/functions/.env

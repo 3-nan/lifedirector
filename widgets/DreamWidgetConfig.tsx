@@ -4,6 +4,7 @@ import { WidgetConfigurationScreenProps, WidgetPreview } from 'react-native-andr
 import { dreamColor, isOpen } from '../lib/dreams';
 import { DreamWidget, DreamWidgetMode, WIDGET_VARIANTS } from './DreamWidget';
 import { getWidgetConfig, loadDreams, resolveDream, saveWidgetConfig, WidgetData } from './dream-widget-data';
+import { getWidgetImage, WidgetImage } from './widget-images';
 import { BLUE, CARD_BG, DANGER_TEXT, MUTED_TEXT, TEXT } from '../constants/theme';
 
 /**
@@ -16,6 +17,8 @@ export function DreamWidgetConfig({ widgetInfo, renderWidget, setResult }: Widge
   const [mode, setMode] = useState<DreamWidgetMode>('rotate');
   const [dreamId, setDreamId] = useState<string | undefined>(undefined);
   const [previewError, setPreviewError] = useState<string | null>(null);
+  // Foto der Vorschau, gemerkt mit dem Traum/Foto, zu dem es gehört.
+  const [loadedImage, setLoadedImage] = useState<{ key: string; image: WidgetImage | null } | null>(null);
   const variant = WIDGET_VARIANTS[widgetInfo.widgetName] ?? 'standard';
 
   // Diagnose: WidgetPreview zeigt nur "Error rendering widget, see logs" und
@@ -44,6 +47,20 @@ export function DreamWidgetConfig({ widgetInfo, renderWidget, setResult }: Widge
   const selectedId = dreamId ?? openDreams[0]?.id;
   const config = mode === 'fixed' ? { mode, dreamId: selectedId } : { mode };
   const preview = resolveDream(data ?? null, config);
+  const previewDreamId = preview.dream?.id;
+  const imageKey = `${previewDreamId}|${preview.dream?.image_url}`;
+  const previewImage = loadedImage?.key === imageKey ? loadedImage.image : null;
+
+  useEffect(() => {
+    let cancelled = false;
+    const dream = data?.dreams.find((d) => d.id === previewDreamId) ?? null;
+    getWidgetImage(dream).then((image) => {
+      if (!cancelled) setLoadedImage({ key: imageKey, image });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [data, previewDreamId, imageKey]);
   const defaultSize = { standard: [320, 154], small: [154, 154], row: [320, 64], mini: [72, 72] }[variant];
   const previewWidth = Math.round(Math.min(widgetInfo.width > 0 ? widgetInfo.width : defaultSize[0], 320));
   const previewHeight = Math.round(Math.min(widgetInfo.height > 0 ? widgetInfo.height : defaultSize[1], 180));
@@ -51,7 +68,7 @@ export function DreamWidgetConfig({ widgetInfo, renderWidget, setResult }: Widge
   async function confirm() {
     await saveWidgetConfig(widgetInfo.widgetId, config);
     renderWidget(
-      <DreamWidget dream={preview.dream} step={preview.step} mode={mode} state={preview.state} width={widgetInfo.width} variant={variant} />
+      <DreamWidget dream={preview.dream} step={preview.step} image={previewImage} mode={mode} state={preview.state} width={widgetInfo.width} height={widgetInfo.height} variant={variant} />
     );
     setResult('ok');
   }
@@ -107,7 +124,7 @@ export function DreamWidgetConfig({ widgetInfo, renderWidget, setResult }: Widge
             width={previewWidth}
             height={previewHeight}
             renderWidget={() => (
-              <DreamWidget dream={preview.dream} step={preview.step} mode={mode} state={preview.state} width={previewWidth} variant={variant} />
+              <DreamWidget dream={preview.dream} step={preview.step} image={previewImage} mode={mode} state={preview.state} width={previewWidth} height={previewHeight} variant={variant} />
             )}
           />
         </View>

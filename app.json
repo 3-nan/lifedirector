@@ -108,6 +108,12 @@
         "projectId": "33698eb1-d740-48ff-a275-bdabbf4a87c8"
       }
     },
-    "owner": "franzmotzkus"
+    "owner": "franzmotzkus",
+    "runtimeVersion": {
+      "policy": "fingerprint"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/33698eb1-d740-48ff-a275-bdabbf4a87c8"
+    }
   }
 }

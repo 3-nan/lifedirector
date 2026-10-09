@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import 'react-native-reanimated';
 import { KeyboardAwareProvider } from '../components/keyboard-aware';
+import { fetchMissingDreamImages } from '../lib/dream-image';
 import { ensureSession } from '../lib/supabase';
 import { refreshDreamWidgets } from '../lib/widget-bridge';
 
@@ -21,6 +22,8 @@ export default function RootLayout() {
         setReady(true);
         // Widgets beim App-Start auffrischen (z.B. nach Änderungen auf einem anderen Gerät).
         refreshDreamWidgets();
+        // Fotos für Träume nachholen, bei denen noch nie gesucht wurde.
+        fetchMissingDreamImages();
       })
       .catch((e) => setError(e instanceof Error ? e.message : String(e)));
   }, []);

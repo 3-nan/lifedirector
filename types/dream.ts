@@ -17,6 +17,12 @@ export type Dream = {
   last_activity_at: string;
   fulfilled_at: string | null;
   fulfilled_note: string | null;
+  // Automatisches Foto (Edge Function `dream-image`), null = Emoji + Farbe.
+  image_url: string | null;
+  image_credit: string | null;
+  image_credit_url: string | null;
+  image_attempted: boolean; // schon einmal ein Foto gesucht? (Nachholen beim Start)
+  image_candidates: unknown[] | null; // für "Anderes Bild", Inhalt verwaltet die Edge Function
   created_at: string;
   updated_at: string;
 };
