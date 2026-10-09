@@ -17,11 +17,7 @@ import { monthKey } from '../../lib/period';
 import { supabase } from '../../lib/supabase';
 import { Challenge, ChallengeStatus } from '../../types/challenge';
 import { MonthlyGoal } from '../../types/monthlyGoal';
-
-const ACCENT = '#34c759';
-const ACCENT_BLUE = '#007aff';
-const CARD_BG = '#f7f7f8';
-const MUTED = '#9a9a9e';
+import { ACCENT, BLUE, CARD_BG, MUTED } from '../../constants/theme';
 
 const STATUS_ICON: Record<ChallengeStatus, keyof typeof Ionicons.glyphMap> = {
   open: 'ellipse-outline',
@@ -30,7 +26,7 @@ const STATUS_ICON: Record<ChallengeStatus, keyof typeof Ionicons.glyphMap> = {
 };
 const STATUS_COLOR: Record<ChallengeStatus, string> = {
   open: '#c7c7cc',
-  active: ACCENT_BLUE,
+  active: BLUE,
   done: ACCENT,
 };
 
@@ -131,7 +127,7 @@ export default function ChallengesScreen() {
           <Text style={styles.statLabel}>Erledigt</Text>
         </View>
         <View style={styles.statCard}>
-          <Text style={[styles.statValue, { color: ACCENT_BLUE }]}>{activeCount}</Text>
+          <Text style={[styles.statValue, { color: BLUE }]}>{activeCount}</Text>
           <Text style={styles.statLabel}>Aktiv</Text>
         </View>
         <View style={styles.statCard}>
@@ -235,7 +231,7 @@ const styles = StyleSheet.create({
   monthCard: { backgroundColor: CARD_BG, borderRadius: 12, padding: 16, marginBottom: 16, alignItems: 'center' },
   monthLabel: { fontSize: 12, color: MUTED },
   monthValue: { fontSize: 18, fontWeight: '600', marginTop: 4, marginBottom: 12 },
-  drawButton: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: ACCENT_BLUE, borderRadius: 10, paddingVertical: 10, paddingHorizontal: 18 },
+  drawButton: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: BLUE, borderRadius: 10, paddingVertical: 10, paddingHorizontal: 18 },
   drawButtonText: { color: '#fff', fontSize: 14, fontWeight: '600' },
   statsRow: { flexDirection: 'row', gap: 8, marginBottom: 20 },
   statCard: { flex: 1, backgroundColor: CARD_BG, borderRadius: 10, paddingVertical: 12, alignItems: 'center' },

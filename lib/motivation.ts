@@ -9,10 +9,6 @@ export type LogEntry = { date: string; done: boolean };
 export const MILESTONES = [3, 7, 30, 100] as const;
 export type Milestone = (typeof MILESTONES)[number];
 
-function toDateUTC(isoDate: string): Date {
-  return new Date(`${isoDate}T00:00:00Z`);
-}
-
 function dateStr(d: Date): string {
   return d.toISOString().slice(0, 10);
 }

@@ -32,11 +32,7 @@ import { Challenge, ChallengeCategory, ChallengeStatus } from '../../types/chall
 import { Dream } from '../../types/dream';
 import { Habit } from '../../types/habit';
 import { Task } from '../../types/task';
-
-
-const ACCENT = '#34c759';
-const CARD_BG = '#f7f7f8';
-const MUTED = '#9a9a9e';
+import { ACCENT, BLUE, CARD_BG, MUTED, ORANGE_TEXT } from '../../constants/theme';
 
 const MOMENTUM_WINDOW_DAYS = 60;
 
@@ -519,7 +515,7 @@ const styles = StyleSheet.create({
   nudgeActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8 },
   nudgeLater: { minHeight: 40, paddingHorizontal: 14, justifyContent: 'center' },
   nudgeLaterText: { fontSize: 14, color: '#555' },
-  nudgeSecure: { minHeight: 40, paddingHorizontal: 16, borderRadius: 10, backgroundColor: '#007aff', justifyContent: 'center' },
+  nudgeSecure: { minHeight: 40, paddingHorizontal: 16, borderRadius: 10, backgroundColor: BLUE, justifyContent: 'center' },
   dreamCard: { borderRadius: 14, padding: 14, gap: 10, marginBottom: 20 },
   dreamTop: { flexDirection: 'row', gap: 12, alignItems: 'flex-start' },
   dreamEmoji: { fontSize: 34 },
@@ -549,9 +545,9 @@ const styles = StyleSheet.create({
   labelDone: { color: MUTED, textDecorationLine: 'line-through' },
   weekProgress: { fontSize: 11, color: MUTED, marginTop: 3 },
   weekProgressMet: { color: ACCENT, fontWeight: '600' },
-  momentumNote: { fontSize: 11, color: '#007aff', marginTop: 3 },
+  momentumNote: { fontSize: 11, color: BLUE, marginTop: 3 },
   streakBadge: { backgroundColor: '#fff0e0', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4 },
-  streakText: { fontSize: 12, fontWeight: '600', color: '#b25900' },
+  streakText: { fontSize: 12, fontWeight: '600', color: ORANGE_TEXT },
   challengeCard: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#eaf2ff', borderRadius: 10, paddingVertical: 14, paddingHorizontal: 14 },
   challengeDescription: { fontSize: 12, color: '#666', marginTop: 4, lineHeight: 17 },
   badgeRow: { flexDirection: 'row', gap: 6, marginTop: 4 },

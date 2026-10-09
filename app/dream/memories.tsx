@@ -5,9 +5,9 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View
 import { dreamColor } from '../../lib/dreams';
 import { supabase } from '../../lib/supabase';
 import { Dream } from '../../types/dream';
+import { BLUE, CARD_BG, MUTED_TEXT } from '../../constants/theme';
 
 const MONTHS = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
-const MUTED = '#6b6b70';
 
 function monthYear(iso: string): string {
   const d = new Date(iso);
@@ -92,17 +92,17 @@ const styles = StyleSheet.create({
   content: { padding: 20, paddingTop: 52, paddingBottom: 40 },
   center: { flex: 1, justifyContent: 'center' },
   back: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start', marginLeft: -6, minHeight: 44, marginBottom: -12 },
-  backText: { color: '#007aff', fontSize: 16 },
+  backText: { color: BLUE, fontSize: 16 },
   header: { fontSize: 22, fontWeight: '600' },
   lead: { fontSize: 13, color: '#555', lineHeight: 18, marginTop: -8 },
-  empty: { color: MUTED, fontSize: 14 },
+  empty: { color: MUTED_TEXT, fontSize: 14 },
   card: { borderRadius: 14, padding: 14, gap: 8 },
   cardTop: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   emoji: { fontSize: 30 },
   title: { fontSize: 15, fontWeight: '600' },
-  meta: { fontSize: 12, color: MUTED, marginTop: 2 },
+  meta: { fontSize: 12, color: MUTED_TEXT, marginTop: 2 },
   note: { fontSize: 13.5, lineHeight: 20, fontStyle: 'italic', color: '#333' },
   addNote: { fontSize: 13, fontWeight: '600' },
-  sectionTitle: { fontSize: 13, fontWeight: '600', color: MUTED, marginTop: 6 },
-  letGoRow: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#f7f7f8', borderRadius: 12, padding: 12 },
+  sectionTitle: { fontSize: 13, fontWeight: '600', color: MUTED_TEXT, marginTop: 6 },
+  letGoRow: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: CARD_BG, borderRadius: 12, padding: 12 },
 });

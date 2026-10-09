@@ -5,6 +5,7 @@ import { DreamDraft, DreamForm, draftToRow, EMPTY_DRAFT } from '../../components
 import { KeyboardAwareScroll } from '../../components/keyboard-aware';
 import { supabase } from '../../lib/supabase';
 import { refreshDreamWidgets } from '../../lib/widget-bridge';
+import { BLUE, DANGER_TEXT, MUTED_TEXT } from '../../constants/theme';
 
 export default function NewDreamScreen() {
   const router = useRouter();
@@ -52,10 +53,10 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   content: { padding: 20, paddingTop: 52, paddingBottom: 40, gap: 16 },
   cancel: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center', marginBottom: -12 },
-  cancelText: { color: '#007aff', fontSize: 16 },
+  cancelText: { color: BLUE, fontSize: 16 },
   header: { fontSize: 22, fontWeight: '600' },
-  hint: { fontSize: 12.5, color: '#6b6b70', textAlign: 'center', lineHeight: 18 },
-  error: { fontSize: 13, color: '#d70015', textAlign: 'center' },
-  saveButton: { minHeight: 50, borderRadius: 12, backgroundColor: '#007aff', justifyContent: 'center', alignItems: 'center' },
+  hint: { fontSize: 12.5, color: MUTED_TEXT, textAlign: 'center', lineHeight: 18 },
+  error: { fontSize: 13, color: DANGER_TEXT, textAlign: 'center' },
+  saveButton: { minHeight: 50, borderRadius: 12, backgroundColor: BLUE, justifyContent: 'center', alignItems: 'center' },
   saveText: { color: '#fff', fontSize: 16, fontWeight: '600' },
 });

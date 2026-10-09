@@ -51,3 +51,21 @@ export const Fonts = Platform.select({
     mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
   },
 });
+
+/**
+ * App-Palette (helles Design aus dem Mockup). Screens importieren diese
+ * Konstanten statt eigene Hex-Werte zu deklarieren.
+ */
+export const ACCENT = '#34c759';
+export const BLUE = '#007aff';
+export const DANGER = '#ff3b30';
+/** Dunkleres Rot für Text und Buttons mit Text darauf (besser lesbar). */
+export const DANGER_TEXT = '#d70015';
+export const GREEN_TEXT = '#1f7a35';
+export const ORANGE_TEXT = '#b25900';
+export const TEXT = '#1c1c1e';
+/** Hinweise, Platzhalter, Icons. */
+export const MUTED = '#9a9a9e';
+/** Sekundärtext, der gut lesbar bleiben muss. */
+export const MUTED_TEXT = '#6b6b70';
+export const CARD_BG = '#f7f7f8';

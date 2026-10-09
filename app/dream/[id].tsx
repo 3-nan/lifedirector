@@ -32,11 +32,7 @@ import { supabase } from '../../lib/supabase';
 import { refreshDreamWidgets } from '../../lib/widget-bridge';
 import { Dream, DreamStep } from '../../types/dream';
 import { Task } from '../../types/task';
-
-const BLUE = '#007aff';
-const CARD_BG = '#f7f7f8';
-const MUTED = '#6b6b70';
-const DANGER = '#d70015';
+import { BLUE, CARD_BG, DANGER_TEXT, MUTED_TEXT } from '../../constants/theme';
 
 function formatShortDate(iso: string): string {
   const d = new Date(iso);
@@ -254,7 +250,7 @@ export default function DreamDetailScreen() {
                   <View style={styles.confirmBox}>
                     <Text style={styles.confirmText}>Traum mit allen Schritten endgültig löschen? (Loslassen behält ihn als Erinnerung.)</Text>
                     <View style={styles.row}>
-                      <TouchableOpacity style={[styles.smallButton, { backgroundColor: DANGER }]} onPress={deleteDream} disabled={busy}>
+                      <TouchableOpacity style={[styles.smallButton, { backgroundColor: DANGER_TEXT }]} onPress={deleteDream} disabled={busy}>
                         <Text style={styles.smallButtonText}>Löschen</Text>
                       </TouchableOpacity>
                       <TouchableOpacity style={styles.textButton} onPress={() => setConfirmDelete(false)}>
@@ -264,7 +260,7 @@ export default function DreamDetailScreen() {
                   </View>
                 ) : (
                   <TouchableOpacity style={styles.textButton} onPress={() => setConfirmDelete(true)}>
-                    <Text style={[styles.textButtonText, { color: DANGER }]}>Traum löschen</Text>
+                    <Text style={[styles.textButtonText, { color: DANGER_TEXT }]}>Traum löschen</Text>
                   </TouchableOpacity>
                 )}
               </>
@@ -371,7 +367,7 @@ export default function DreamDetailScreen() {
                         setEditing(true);
                       }}
                     >
-                      <Ionicons name="create-outline" size={18} color={MUTED} />
+                      <Ionicons name="create-outline" size={18} color={MUTED_TEXT} />
                       <Text style={styles.reflectPromptText}>
                         {!dream.why ? 'Warum ist dir das wichtig?' : !dream.obstacle ? 'Was hält dich bisher ab?' : 'Wie wird es sich anfühlen?'} Ergänzen
                       </Text>
@@ -387,9 +383,9 @@ export default function DreamDetailScreen() {
                         <Ionicons
                           name={step.done_at ? 'checkmark' : 'time-outline'}
                           size={16}
-                          color={step.done_at ? '#248a3d' : MUTED}
+                          color={step.done_at ? '#248a3d' : MUTED_TEXT}
                         />
-                        <Text style={[styles.stepRowTitle, !step.done_at && { color: MUTED }]}>{step.title}</Text>
+                        <Text style={[styles.stepRowTitle, !step.done_at && { color: MUTED_TEXT }]}>{step.title}</Text>
                         <Text style={styles.stepRowDate}>{step.done_at ? formatShortDate(step.done_at) : 'diese Woche'}</Text>
                       </View>
                     ))}
@@ -439,7 +435,7 @@ export default function DreamDetailScreen() {
                       </TouchableOpacity>
                     )}
                     <TouchableOpacity style={[styles.greyButton, { paddingHorizontal: 14 }]} onPress={() => setConfirmLetGo(true)}>
-                      <Text style={[styles.greyButtonText, { color: MUTED }]}>Loslassen</Text>
+                      <Text style={[styles.greyButtonText, { color: MUTED_TEXT }]}>Loslassen</Text>
                     </TouchableOpacity>
                   </View>
                 ) : (
@@ -479,16 +475,16 @@ const styles = StyleSheet.create({
   heroTitle: { fontSize: 24, fontWeight: '700' },
   heroMeta: { fontSize: 13 },
   body: { padding: 20, gap: 16 },
-  error: { fontSize: 13, color: DANGER },
+  error: { fontSize: 13, color: DANGER_TEXT },
   progressRow: { flexDirection: 'row', gap: 4 },
   progressSegment: { flex: 1, height: 6, borderRadius: 3 },
   progressLabels: { flexDirection: 'row', justifyContent: 'space-between' },
-  progressLabel: { fontSize: 10.5, color: MUTED },
+  progressLabel: { fontSize: 10.5, color: MUTED_TEXT },
   stepCard: { borderWidth: 1.5, borderRadius: 14, padding: 14, gap: 10 },
   stepCardLabel: { fontSize: 12, fontWeight: '700', letterSpacing: 0.3 },
   stepTitle: { fontSize: 16, fontWeight: '600' },
   stepQuestion: { fontSize: 16, fontWeight: '600' },
-  stepHint: { fontSize: 12, color: MUTED, lineHeight: 17 },
+  stepHint: { fontSize: 12, color: MUTED_TEXT, lineHeight: 17 },
   stepInput: { minHeight: 44, backgroundColor: CARD_BG, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 15 },
   row: { flexDirection: 'row', gap: 8, alignItems: 'center' },
   flexButton: { flex: 1, minHeight: 44, borderRadius: 10, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 8 },
@@ -498,13 +494,13 @@ const styles = StyleSheet.create({
   outlineButtonText: { fontSize: 14 },
   greyButton: { minHeight: 44, borderRadius: 10, backgroundColor: CARD_BG, alignItems: 'center', justifyContent: 'center', flexDirection: 'row' },
   greyButtonText: { fontSize: 13 },
-  fieldLabel: { fontSize: 12, fontWeight: '600', color: MUTED },
+  fieldLabel: { fontSize: 12, fontWeight: '600', color: MUTED_TEXT },
   fieldValue: { fontSize: 14, lineHeight: 20, marginTop: 2 },
   reflectPrompt: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 44, paddingHorizontal: 12, borderRadius: 10, borderWidth: 1.5, borderStyle: 'dashed', borderColor: '#d1d1d6' },
-  reflectPromptText: { fontSize: 13, color: MUTED, flex: 1 },
+  reflectPromptText: { fontSize: 13, color: MUTED_TEXT, flex: 1 },
   stepRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   stepRowTitle: { flex: 1, fontSize: 13 },
-  stepRowDate: { fontSize: 12, color: MUTED },
+  stepRowDate: { fontSize: 12, color: MUTED_TEXT },
   memoryCard: { borderRadius: 14, padding: 14, gap: 6 },
   memoryText: { fontSize: 14, lineHeight: 20, fontStyle: 'italic' },
   confirmBox: { backgroundColor: CARD_BG, borderRadius: 12, padding: 14, gap: 10 },

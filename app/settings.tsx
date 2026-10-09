@@ -24,13 +24,7 @@ import {
 } from '../lib/account';
 import { supabase } from '../lib/supabase';
 import { KeyboardAwareScroll } from '../components/keyboard-aware';
-
-const BLUE = '#007aff';
-const GREEN_TEXT = '#1f7a35';
-const ORANGE_TEXT = '#b25900';
-const DANGER = '#d70015';
-const CARD_BG = '#f7f7f8';
-const MUTED = '#8e8e93';
+import { BLUE, CARD_BG, DANGER_TEXT, GREEN_TEXT, MUTED_TEXT, ORANGE_TEXT, TEXT } from '../constants/theme';
 
 const CODE_LENGTH = 6;
 const RESEND_SECONDS = 60;
@@ -272,14 +266,14 @@ export default function SettingsScreen() {
             {!secured && (
               <TouchableOpacity style={styles.rowLink} onPress={() => startFlow('signIn')} activeOpacity={0.7}>
                 <Text style={styles.rowLinkText}>Schon gesichert? Hier anmelden</Text>
-                <Ionicons name="chevron-forward" size={16} color={MUTED} />
+                <Ionicons name="chevron-forward" size={16} color={MUTED_TEXT} />
               </TouchableOpacity>
             )}
 
             <Text style={[styles.sectionTitle, { marginTop: 8 }]}>Daten</Text>
             <TouchableOpacity style={styles.rowLink} onPress={openDelete} activeOpacity={0.7}>
-              <Text style={[styles.rowLinkText, { color: DANGER }]}>Alle meine Daten löschen</Text>
-              <Ionicons name="chevron-forward" size={16} color={MUTED} />
+              <Text style={[styles.rowLinkText, { color: DANGER_TEXT }]}>Alle meine Daten löschen</Text>
+              <Ionicons name="chevron-forward" size={16} color={MUTED_TEXT} />
             </TouchableOpacity>
 
             <Text style={styles.version}>LifeDirector {version}</Text>
@@ -300,7 +294,7 @@ export default function SettingsScreen() {
               value={email}
               onChangeText={setEmail}
               placeholder="du@beispiel.de"
-              placeholderTextColor={MUTED}
+              placeholderTextColor={MUTED_TEXT}
               keyboardType="email-address"
               autoCapitalize="none"
               autoComplete="email"
@@ -337,7 +331,7 @@ export default function SettingsScreen() {
           <>
             <Text style={styles.header}>Code eingeben</Text>
             <Text style={styles.lead}>
-              Gesendet an <Text style={{ fontWeight: '600', color: '#1c1c1e' }}>{email.trim()}</Text>. Schau auch im Spam-Ordner nach.
+              Gesendet an <Text style={{ fontWeight: '600', color: TEXT }}>{email.trim()}</Text>. Schau auch im Spam-Ordner nach.
             </Text>
             <Text style={styles.label}>6-stelliger Code</Text>
             <Pressable style={styles.codeRow} onPress={() => codeInput.current?.focus()}>
@@ -368,7 +362,7 @@ export default function SettingsScreen() {
               {busy ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryButtonText}>Bestätigen</Text>}
             </TouchableOpacity>
             <TouchableOpacity style={styles.textButton} onPress={sendCode} disabled={busy || secondsLeft > 0}>
-              <Text style={[styles.textButtonText, { color: secondsLeft > 0 ? '#6b6b70' : BLUE }]}>
+              <Text style={[styles.textButtonText, { color: secondsLeft > 0 ? MUTED_TEXT : BLUE }]}>
                 {secondsLeft > 0
                   ? `Code erneut senden (${Math.floor(secondsLeft / 60)}:${String(secondsLeft % 60).padStart(2, '0')})`
                   : 'Code erneut senden'}
@@ -395,7 +389,7 @@ export default function SettingsScreen() {
             </View>
             <Text style={styles.label}>Zur Bestätigung {DELETE_WORD} eintippen</Text>
             <TextInput
-              style={[styles.input, { borderColor: DANGER }]}
+              style={[styles.input, { borderColor: DANGER_TEXT }]}
               value={deleteWord}
               onChangeText={setDeleteWord}
               autoCapitalize="characters"
@@ -427,7 +421,7 @@ const styles = StyleSheet.create({
   backText: { color: BLUE, fontSize: 16 },
   header: { fontSize: 22, fontWeight: '600' },
   lead: { fontSize: 14, color: '#555', lineHeight: 21, marginTop: -6 },
-  sectionTitle: { fontSize: 13, fontWeight: '600', color: MUTED, marginBottom: -8 },
+  sectionTitle: { fontSize: 13, fontWeight: '600', color: MUTED_TEXT, marginBottom: -8 },
   card: { backgroundColor: CARD_BG, borderRadius: 12, padding: 16, gap: 14 },
   statusRow: { flexDirection: 'row', gap: 12, alignItems: 'flex-start' },
   statusIcon: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center' },
@@ -438,20 +432,20 @@ const styles = StyleSheet.create({
   successText: { fontSize: 14, fontWeight: '600', color: GREEN_TEXT, flex: 1 },
   primaryButton: { minHeight: 48, borderRadius: 10, backgroundColor: BLUE, justifyContent: 'center', alignItems: 'center' },
   primaryButtonText: { color: '#fff', fontSize: 15, fontWeight: '600' },
-  dangerButton: { minHeight: 48, borderRadius: 10, backgroundColor: DANGER, justifyContent: 'center', alignItems: 'center' },
+  dangerButton: { minHeight: 48, borderRadius: 10, backgroundColor: DANGER_TEXT, justifyContent: 'center', alignItems: 'center' },
   buttonDisabled: { opacity: 0.4 },
   outlineButton: { minHeight: 44, borderRadius: 10, borderWidth: 1.5, borderColor: '#d1d1d6', backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center' },
   outlineButtonText: { fontSize: 15 },
   rowLink: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 48, paddingHorizontal: 16, backgroundColor: CARD_BG, borderRadius: 12 },
   rowLinkText: { fontSize: 15 },
-  version: { textAlign: 'center', fontSize: 12, color: MUTED, marginTop: 24 },
+  version: { textAlign: 'center', fontSize: 12, color: MUTED_TEXT, marginTop: 24 },
   label: { fontSize: 13, fontWeight: '600', color: '#555', marginBottom: -10 },
   input: { minHeight: 48, borderWidth: 1.5, borderColor: BLUE, borderRadius: 10, paddingHorizontal: 14, fontSize: 16 },
   warning: { flexDirection: 'row', gap: 10, alignItems: 'flex-start', backgroundColor: '#fff4e5', borderRadius: 12, padding: 14 },
   warningText: { flex: 1, fontSize: 13, color: '#5c3a00', lineHeight: 19 },
   infoBox: { flexDirection: 'row', gap: 10, alignItems: 'flex-start', backgroundColor: CARD_BG, borderRadius: 12, padding: 14 },
   infoText: { flex: 1, fontSize: 13, color: '#444', lineHeight: 19 },
-  error: { fontSize: 13, color: DANGER, lineHeight: 19 },
+  error: { fontSize: 13, color: DANGER_TEXT, lineHeight: 19 },
   codeRow: { flexDirection: 'row', gap: 8 },
   codeBox: { flex: 1, height: 54, borderRadius: 10, backgroundColor: CARD_BG, justifyContent: 'center', alignItems: 'center' },
   codeBoxActive: { backgroundColor: '#fff', borderWidth: 1.5, borderColor: BLUE },
@@ -461,6 +455,6 @@ const styles = StyleSheet.create({
   textButtonText: { fontSize: 14, color: BLUE },
   countRow: { flexDirection: 'row', justifyContent: 'space-between' },
   countLabel: { fontSize: 14 },
-  countValue: { fontSize: 14, color: '#6b6b70' },
-  footnote: { fontSize: 12, color: '#6b6b70', textAlign: 'center', lineHeight: 18, marginTop: 8 },
+  countValue: { fontSize: 14, color: MUTED_TEXT },
+  footnote: { fontSize: 12, color: MUTED_TEXT, textAlign: 'center', lineHeight: 18, marginTop: 8 },
 });
