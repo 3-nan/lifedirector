@@ -90,15 +90,19 @@ Entschieden (2026-10-07):
 2. **Wochenkarte "Diese Woche zählt"** in Pfirsich (Ton der Traum-Karten)
    mit 3-teiligem Fortschrittsbalken und den bis zu 3 Wochen-Prioritäten.
    Ein Traum-Schritt erscheint als Karte mit Foto ("Schritt zu: …") — das
-   ersetzt die separate "Traum der Woche"-Karte. Unten "+ N weitere diese
-   Woche" (Tasks außerhalb der Top 3) und "Woche anpassen".
+   ersetzt die separate "Traum der Woche"-Karte. Hat der Traum der Woche
+   noch **keinen nächsten Schritt**, zeigt die Karte stattdessen ein
+   Eingabefeld ("Was ist dein nächster kleiner Schritt?" + "Festlegen").
+   Unten "+ N weitere diese Woche" (Tasks außerhalb der Top 3) und "Woche
+   anpassen".
 3. **Challenge** als eigene, gut sichtbare Karte direkt darunter (nicht
    unten versteckt), mit Restlaufzeit und "Geschafft".
 4. **Gewohnheiten mit Tagesring** (z.B. 2/5) + kompakte Liste mit Serien,
    Momentum und Wochenziel.
 Wegfallen: die zwei Statistik-Karten (ersetzt durch den Ring), die
-separate Traum-der-Woche-Karte, das Task-Eingabefeld auf `Today` (neue
-Tasks über die Wochenplanung bzw. "+ N weitere").
+separate Traum-der-Woche-Karte, das allgemeine Task-Eingabefeld auf
+`Today` (neue Tasks über die Wochenplanung bzw. "+ N weitere"; nur der
+fehlende Traum-Schritt wird direkt auf `Today` eingegeben).
 **Wochenplanung** als eigener Screen: "Von letzter Woche offen" mit
 Mitnehmen/Später/Loslassen, Vorschläge aus Traum-Schritten, Challenge,
 Monatszielen und lange nicht bedienten Kategorien, max. 3, "nichts
