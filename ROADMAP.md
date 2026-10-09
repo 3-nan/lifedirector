@@ -3,16 +3,156 @@
 ## Vision
 Kein reiner Habit-Tracker, sondern eine Growth-App: tägliche Gewohnheiten
 im Griff behalten *und* regelmäßig Impulse setzen, die aus der Komfortzone
-holen (Challenges). Für den Eigenbedarf gebaut, keine Mehrbenutzer-App.
+holen (Challenges), dazu große Lebensträume präsent halten und Schritt für
+Schritt angehen. Ursprünglich für den Eigenbedarf gebaut; seit 2026-10-05
+mehrbenutzerfähig (anonyme Accounts), ein öffentlicher Play-Store-Release
+ist vorbereitet, aber noch nicht entschieden.
+
+## Überblick (Stand 2026-10-09)
+
+| Baustein | Status | Abschnitt |
+|---|---|---|
+| Habits, `Today`, `Review` | live | Stand |
+| Wochen-Tasks + Monatsziele + Challenges | live | Drei Zeithorizonte |
+| Motivational Core (Streak, Momentum, Celebrations) | live | Motivational Core |
+| Accounts (anonym + "Konto sichern", Daten löschen) | live | Accounts |
+| Träume v1 (Board, Detail, Stufen, Erinnerungswand) | live | Träume |
+| Traum-Fotos (automatisch, KI + Unsplash) | live | Träume → Fotos |
+| Home-Screen-Widgets (4 Größen, mit Fotos) | live | Widgets |
+| EAS Update (JS-Änderungen ohne neuen Build) | live | Play-Store → Build |
+| **`Today` entschlacken / Wochenplanung** | **Mockup abgestimmt (Variante C)** | Fokus statt Überladung |
+| Fokus-Wochen | Konzept | Fokus-Wochen |
+| Social: gemeinsame Challenges (Duo) | Konzept | Social |
+| Play-Store-Release | vorbereitet, nicht entschieden | Play-Store-Release |
+
+## Next (Reihenfolge = Priorität)
+1. **`Today` entschlacken** (Grundsatz "Fokus statt Überladung"): Mockup
+   abgestimmt (Variante C mit Pfirsich-Wochenkarte), offene Detailfragen
+   klären, dann umsetzen (`Today` + Wochenplanung). Bewusst **vor** Fokus-Wochen
+   und Social, weil beide sonst noch mehr auf `Today` stapeln würden.
+2. **Dogfooding** (eine Woche) mit Fotos + Widgets: Reibung notieren (passen
+   die Fotos? nervt der Alert beim Challenge-Ziehen/bei der Kategorie-Wahl?
+   fehlt eine Übersicht über erledigte Items über Zeit?). Speist direkt
+   Punkt 1.
+3. **Monats-Review:** erledigte Challenges/Monatsziele + Wochen-Tasks-Quote
+   in `Review` — Daten existieren, Review-UI zieht noch nicht nach. Passt zu
+   "Kein Schuld-Stapel": Review zeigt vor allem, was geschafft wurde.
+4. **Gezogene Challenge als eigene Karte/State statt `Alert.alert`** — v.a.
+   relevant, falls die Challenge länger "aktiv" bleibt (ongoing-Kategorie)
+   und man sie wiederfinden will, ohne erneut zu ziehen.
+5. Danach: Fokus-Wochen *oder* Social (je nach Ergebnis von 1), Play-Store
+   nur, falls der Release entschieden wird.
+
+## Grundsatz: Fokus statt Überladung (Gedanke 2026-10-07)
+Sorge: Habits + Wochen-Tasks + Challenges + Monatsziele + Träume + (geplant)
+Fokus-Wochen + gemeinsame Challenges — zusammen kann das **zu viel** werden.
+Unerledigtes stapelt sich, die App wirkt dann eher wie eine Mahnliste als
+wie ein Antrieb, und `Today` zeigt viel zu viele Informationen statt weniger
+wichtiger Dinge. Ziel: alle Bausteine behalten, aber **nie alles
+gleichzeitig zeigen**.
+
+Ideen (noch nicht entschieden):
+1. **"Heute zählt" statt "alles für heute":** `Today` zeigt oben nur 1–3
+   wirklich wichtige Dinge (z.B. fällige Habits + die eine Wochen-Priorität),
+   alles Weitere eingeklappt hinter "Alles anzeigen".
+2. **Wochenplanung als einziger Eingang:** ein kurzes Ritual (Sonntag/
+   Montag, ~5 Min), in dem man aus allen Quellen — Traum-Schritte, Fokus-
+   Bereich, Challenge, eigene Ideen — **höchstens 3 Wochen-Prioritäten**
+   wählt. Alles andere bleibt im Hintergrund (Backlog/Träume-Tab) und
+   taucht nicht auf `Today` auf. Das ist der Hebel, der die vielen
+   Bausteine bündelt, statt sie zu addieren.
+3. **Fokus-Wochen nicht zusätzlich, sondern anstelle:** in einer Fokus-
+   Woche *sind* die Wochen-Prioritäten die Schritte des Fokus-Bereichs;
+   Challenge/Traum-Schritt pausieren in der Woche. Und Fokus-Wochen nicht
+   jede Woche, sondern z.B. **einmal im Monat** oder nur auf Wunsch.
+4. **Kein Schuld-Stapel:** Unerledigtes wird am Wochenende nicht "überfällig"
+   mitgeschleppt, sondern kurz entschieden: *Mitnehmen / Später / Loslassen*.
+   Keine roten Zähler für Verpasstes; Review zeigt vor allem, was geschafft
+   wurde (passt zu "Fortschritt statt Perfektion").
+5. **Module wählbar:** in den Einstellungen festlegen, welche Bausteine aktiv
+   sind (z.B. nur Habits + Träume). Neue Nutzer starten minimal; die App
+   schlägt weitere Bausteine erst vor, wenn das Bisherige läuft
+   ("progressive disclosure": z.B. nach 2 Wochen Habits den ersten Traum).
+6. **Sanfte Obergrenzen:** Empfehlung von ~3–5 aktiven Habits und 3
+   Wochen-Prioritäten; mehr ist möglich, aber die App weist freundlich darauf
+   hin, dass weniger oft mehr bringt.
+
+Entschieden (2026-10-07):
+- Wochenplanung ist **optional**, kein Pflicht-Ritual.
+- **Habits bleiben vorerst immer auf `Today` sichtbar** (nicht hinter "Heute
+  zählt"/"Alles anzeigen" versteckt).
+- Wie genau sich UI und Nutzung ändern (was wann wo gezeigt wird),
+  wird später entschieden — bis dahin keine Umsetzung, nur Konzept.
+
+**Mockup abgestimmt (2026-10-09), Variante "C" mit Pfirsich-Wochenkarte**
+(Canvas "Today entschlacken"), von oben nach unten:
+1. Kopf wie bisher (Datum, "Heute", Encouragement-Zeile).
+2. **Wochenkarte "Diese Woche zählt"** in Pfirsich (Ton der Traum-Karten)
+   mit 3-teiligem Fortschrittsbalken und den bis zu 3 Wochen-Prioritäten.
+   Ein Traum-Schritt erscheint als Karte mit Foto ("Schritt zu: …") — das
+   ersetzt die separate "Traum der Woche"-Karte. Hat der Traum der Woche
+   noch **keinen nächsten Schritt**, zeigt die Karte stattdessen ein
+   Eingabefeld ("Was ist dein nächster kleiner Schritt?" + "Festlegen").
+   Unten "+ N weitere diese Woche" (Tasks außerhalb der Top 3) und "Woche
+   anpassen".
+3. **Challenge** als eigene, gut sichtbare Karte direkt darunter (nicht
+   unten versteckt), mit Restlaufzeit und "Geschafft".
+4. **Gewohnheiten mit Tagesring** (z.B. 2/5) + kompakte Liste mit Serien,
+   Momentum und Wochenziel.
+Wegfallen: die zwei Statistik-Karten (ersetzt durch den Ring), die
+separate Traum-der-Woche-Karte, das allgemeine Task-Eingabefeld auf
+`Today` (neue Tasks über die Wochenplanung bzw. "+ N weitere"; nur der
+fehlende Traum-Schritt wird direkt auf `Today` eingegeben).
+**Wochenplanung** als eigener Screen: "Von letzter Woche offen" mit
+Mitnehmen/Später/Loslassen, Vorschläge aus Traum-Schritten, Challenge,
+Monatszielen und lange nicht bedienten Kategorien, max. 3, "nichts
+wählen" ist okay.
+Ideen aus der lebendigeren Variante C2 (für später/zur Wahl): Wochenleiste
+Mo–So, Emoji-Symbol pro Gewohnheit, warmer Grundton für die ganze App.
+
+Entschieden (2026-10-09):
+- **Tagesring zählt nur die Gewohnheiten.**
+- **Reihenfolge bleibt:** Wochen-Prioritäten → Challenge → Gewohnheiten.
+- **Challenges bleiben vorerst monatlich** (Karte zeigt die Restlaufzeit);
+  später optional eigene Zeiträume festlegen (z.B. 1 Woche, 2 Wochen,
+  4 Wochen) — passt auch zu den Duo-Challenges (Social), die eine Dauer haben.
+- **Einladung zur Wochenplanung: noch unsicher.** Vorschlag für v1: nur
+  manuell über "Woche anpassen" und — solange für die Woche nichts gewählt
+  ist — eine zurückhaltende Karte "Was soll diese Woche zählen?" mit
+  "Diese Woche nicht" (Mockup B, Zustand "nicht geplant"). Keine Push.
+  Nach dem Dogfooding neu entscheiden.
+
+Offene Fragen: Welche Bausteine sind in Fokus-Wochen-Monaten pausiert? Wo
+lebt die gemeinsame Challenge (Social)?
+
+## Stand: was live ist
+- **Core-Habit-Tracking** (`Today` / `Habits` / `Review`) gegen Supabase.
+- **Habit-Frequenz** (2026-10-05): jeder Habit hat ein Wochenziel
+  (`habits.target_per_week`, 7 = täglich, 1–6 = x-mal pro ISO-Woche).
+  1–6×-Habits haben Wochen-Streak/-Momentum, Celebration beim Erreichen des
+  Wochenziels, zählen in `Today` nicht mehr als "fällig", wenn das Ziel schon
+  steht, und `Review`/Push-Quote messen gegen das Ziel statt gegen 7/7.
+  `supabase/habit_frequency.sql` ist ausgeführt.
+- **Challenges-Tab** (`app/(tabs)/challenges.tsx`), Seed-Daten in
+  `supabase/challenges.sql` (Tabellen in `supabase/schema.sql`).
+- **Wochen-Tasks** (`Today`, Abschnitt "Diese Woche") + **Monatsziele**
+  (`Challenges`, Abschnitt "Monatsziele"), nach Mockup umgesetzt.
+- **Motivational Core** (Streak/Momentum/Celebration/Encouragement).
+- **Accounts:** anonymer Account beim ersten Start, "Konto sichern" per
+  E-Mail-Code, Anmelden auf weiteren Geräten, Abmelden, alle Daten löschen.
+- **Träume v1** inkl. "Traum der Woche" auf `Today`, **automatische Fotos**
+  (2026-10-09) und **Home-Screen-Widgets** in 4 Größen mit Fotos.
+- **Styling-Konstanten** zentral in `constants/theme.ts` (2026-10-09, PR #8).
+- **EAS Update** (2026-10-09): JS-Änderungen ohne neuen Build aufs Handy.
 
 ## Struktur: drei Zeithorizonte
 
 | Horizont | Was | Rhythmus | Kategorisiert? | Lebt wo? |
 |---|---|---|---|---|
 | Täglich | Habits | wiederkehrend, binär | nein, freitext | `Today` / `Habits` |
-| Wöchentlich | Tasks | einmalig pro Woche | ja, gleiche 4 Kategorien wie Challenges (körperlich/kreativ/sozial/handwerklich) | `Today` (neuer Abschnitt über den Habits) |
+| Wöchentlich | Tasks | einmalig pro Woche | ja, gleiche 4 Kategorien wie Challenges (körperlich/kreativ/sozial/handwerklich); Traum-Tasks zeigen stattdessen den Traum | `Today` (Abschnitt "Diese Woche" über den Habits) |
 | Monatlich | Challenge (gezogen) **+** freie Monatsziele | einmalig pro Monat | Challenge ja, freie Ziele optional | `Challenges`-Tab |
-| Langfristig (geplant) | Träume / Lebensziele | kein fester Rhythmus, über Jahre | optional (gleiche 4 Kategorien) | noch offen, siehe unten |
+| Langfristig | Träume / Lebensziele | kein fester Rhythmus, über Jahre | nein (später evtl. Lebensbereich/Tags) | eigener Tab `Träume` |
 
 Entscheidung (2026-10-01): Wochen-Tasks sind an die 4 Kategorien gekoppelt.
 Monatsziele sind NICHT nur die gezogene Challenge — zusätzlich lassen sich
@@ -22,16 +162,16 @@ lebt im `Challenges`-Tab, der damit zum "Monats-Hub" wird.
 Optionale spätere Verknüpfung (nicht für v1): ein Wochen-Task kann auf eine
 Challenge/ein Monatsziel zeigen (`source_id`), um große Ziele in Wochen-
 Schritte runterzubrechen. Erstmal weglassen, bis sich zeigt, ob's gebraucht
-wird.
+wird. (Für Träume gibt es das bereits: `tasks.dream_id`.)
 
 ### Datenmodell
-- `tasks`: id, title, category, week_key (ISO-Woche, z.B. "2026-W40"), done,
-  completed_at, created_at — eigene Zeilen pro Woche statt dauerhafter Katalog
-  wie bei `challenges`.
+- `tasks`: id, title, category (optional), week_key (ISO-Woche, z.B.
+  "2026-W40"), done, completed_at, created_at, dream_id (optional) — eigene
+  Zeilen pro Woche statt dauerhafter Katalog wie bei `challenges`.
 - `monthly_goals`: id, title, month_key (z.B. "2026-10"), done, completed_at,
   created_at — freie Ziele, unabhängig von `challenges`.
 
-Beide umgesetzt in `supabase/tasks_and_goals.sql`, Typen in `types/task.ts` /
+Umgesetzt in `supabase/tasks_and_goals.sql`, Typen in `types/task.ts` /
 `types/monthlyGoal.ts`, Perioden-Helper (`isoWeekKey`, `monthKey`) in
 `lib/period.ts`.
 
@@ -66,11 +206,7 @@ Fortschritt statt Perfektion (kein harter Streak-Reset), Identitäts-Framing
   **Grenze:** der Text wird nur beim nächsten App-Öffnen neu berechnet, nicht
   live zur Zustellzeit — lokale Notifications können das ohne Server nicht.
 
-## Accounts / Multi-User (Basis live seit 2026-10-05)
-Stand: anonyme Accounts + RLS laufen, alle drei Migrationen ausgeführt,
-bisherige Daten erfolgreich auf den Account der neuen APK übertragen.
-Offen: "Konto sichern" (siehe unten).
-
+## Accounts / Multi-User (live seit 2026-10-05)
 Ziel: andere Leute können die App mit eigenen Habits/Zielen/Challenges/
 Träumen nutzen. Grundsatz: **so bequem wie möglich — kein Login-Zwang.**
 
@@ -78,120 +214,56 @@ Träumen nutzen. Grundsatz: **so bequem wie möglich — kein Login-Zwang.**
   Supabase-Account an (`ensureSession` in `lib/supabase.ts`, Gate in
   `app/_layout.tsx`). Kein Login-Screen, man startet sofort. Die Session
   bleibt auf dem Gerät gespeichert — "Login" passiert genau einmal, unsichtbar.
-- **Konto sichern (nächster Schritt, noch offen):** später optional E-Mail
-  verknüpfen (6-stelliger Code, kein Passwort) → gleiche `user_id`, alle
-  Daten bleiben, dazu Sync auf ein zweites Gerät und Schutz vor Datenverlust
-  bei Handywechsel/Neuinstallation. Sanft anstoßen statt erzwingen, z.B. nach
-  der ersten Woche oder dem ersten Celebration-Moment.
   **Risiko ohne Sicherung:** App löschen = anonymer Account weg.
-  **Umgesetzt (2026-10-05, Branch `konto-sichern`), nach Mockup:**
-  Zahnrad oben rechts auf `Today` → `app/settings.tsx` (eigener Screen, kein
-  Tab) mit Konto-Status, "Mit E-Mail sichern" (6-stelliger Code, kein
-  Passwort), "Schon gesichert? Hier anmelden" (ersetzt ungesicherte Daten
-  auf dem Gerät, mit Warnung vorher), "Abmelden" und "Alle meine Daten
-  löschen" (Bestätigung durch Eintippen von LÖSCHEN, RPC `delete_my_account`
-  in `supabase/delete_account.sql`). Hinweis-Karte auf `Today` nach 7 Tagen
-  für ungesicherte Accounts, "Später" blendet sie dauerhaft aus. Logik in
-  `lib/account.ts`.
+- **Konto sichern (live seit 2026-10-06), nach Mockup:** Zahnrad oben rechts
+  auf `Today` → `app/settings.tsx` (eigener Screen, kein Tab) mit
+  Konto-Status, "Mit E-Mail sichern" (6-stelliger Code, kein Passwort →
+  gleiche `user_id`, alle Daten bleiben), "Schon gesichert? Hier anmelden"
+  (ersetzt ungesicherte Daten auf dem Gerät, mit Warnung vorher),
+  "Abmelden" und "Alle meine Daten löschen" (Bestätigung durch Eintippen von
+  LÖSCHEN, RPC `delete_my_account` in `supabase/delete_account.sql`).
+  Hinweis-Karte auf `Today` nach 7 Tagen für ungesicherte Accounts,
+  "Später" blendet sie dauerhaft aus. Logik in `lib/account.ts`.
   Entschieden: nur E-Mail-Code (kein Google vorerst); CAPTCHA vor dem
   geschlossenen Play-Test; beim Anmelden ersetzen statt zusammenführen.
   Voraussetzung in Supabase: Mail-Vorlagen "Magic Link" und "Change Email
   Address" mit `{{ .Token }}`; Email-OTP-Länge auf **6** (die App erwartet
   6 Ziffern, Supabase-Default war 8); SMTP aktuell über Gmail
   (App-Passwort) — vor einem Release besser Resend mit eigener Domain.
-  Bis das steht: Datenumzug auf einen neuen Account (neues Gerät/neuer
-  Build) per `supabase/auth_3_move_data_to_new_account.sql`.
+  Notfall-Datenumzug auf einen neuen Account per
+  `supabase/auth_3_move_data_to_new_account.sql`.
 - **Datenbank:** `user_id` (Default `auth.uid()`) auf `habits`, `logs`,
-  `tasks`, `monthly_goals`, `challenge_progress`; RLS "nur eigene Zeilen";
-  `challenges`-Katalog bleibt geteilt. Migration in zwei Teilen:
-  `supabase/auth_1_user_columns.sql` (additiv, alte App läuft weiter) und
+  `tasks`, `monthly_goals`, `challenge_progress`, `dreams`, `dream_steps`;
+  RLS "nur eigene Zeilen"; `challenges`-Katalog bleibt geteilt. Migration in
+  zwei Teilen: `supabase/auth_1_user_columns.sql` (additiv) und
   `supabase/auth_2_claim_and_lock.sql` (bisherige Daten dem ersten Account
   zuordnen, anon-Zugriff entfernen).
+- Neue Tabellen bekommen `user_id` + RLS von Anfang an.
 - Später: Google-Login als Alternative zum E-Mail-Code, CAPTCHA/Turnstile
   gegen Missbrauch der anonymen Anmeldung (Supabase-Empfehlung), eigener
-  SMTP-Anbieter (Resend o.ä.) für die Code-Mails, Abmelden + "Account
-  löschen" (Play-Store-Pflicht), Aufräumen alter ungesicherter Accounts.
-- Neue Tabellen (z.B. `dreams`) bekommen `user_id` + RLS von Anfang an.
+  SMTP-Anbieter (Resend o.ä.) für die Code-Mails, Aufräumen alter
+  ungesicherter Accounts.
 
-## Play-Store-Release (geplant, 2026-10-05)
-Ziel: LifeDirector öffentlich im Google Play Store. Größter Zeitfaktor ist
-der Pflicht-Testlauf für neue private Entwicklerkonten — deshalb früh
-anfangen und parallel an der App arbeiten.
-
-**1. Entwicklerkonto** (zuerst, läuft im Hintergrund)
-- Google Play Console: 25 $ einmalig + Identitätsprüfung (dauert Tage).
-- Neue private Konten: geschlossener Test mit mind. 12 Testern, 14 Tage am
-  Stück, bevor Produktionszugang beantragt werden kann (Zahlen in der
-  Console gegenprüfen, Google ändert das gelegentlich). Tester früh suchen.
-
-**2. App-Voraussetzungen**
-- [x] Package-Name festgelegt (2026-10-06): `com.lifedirector.app` (Android
-      + iOS-Bundle-ID, Scheme `lifedirector`) — neutral statt Klarname, weil
-      der Package-Name öffentlich im Play-Store-Link steht. Vorher
-      `com.franzmotzkus.habittracker`; neue App auf dem Handy → einmal mit
-      E-Mail anmelden, alte App deinstallieren. Für volle Neutralität beim
-      Release zusätzlich: eigene App-E-Mail (Support-Kontakt + SMTP-Absender)
-      und "LifeDirector" als Entwicklername in Play.
-- [ ] "Account/Daten löschen": in der App erledigt (Einstellungen); fehlt
-      noch die Web-Seite für Löschanfragen (Play-Pflicht).
-- [ ] CAPTCHA (Cloudflare Turnstile) für die anonyme Anmeldung in Supabase.
-- [x] "Konto sichern" (siehe Accounts) — Code steht, Branch `konto-sichern`.
-- [ ] Supabase-Plan prüfen: Free-Projekte pausieren nach 7 Tagen Inaktivität,
-      nur einfache Backups → mit echten Nutzern Pro (~25 $/Monat) erwägen.
-
-**3. Build & Upload**
-- EAS Update ist eingerichtet (2026-10-09, `expo-updates`, Kanäle
-  `preview`/`production` in `eas.json`, `runtimeVersion` per Fingerprint):
-  reine JS-Änderungen ohne neuen Build per
-  `npx eas-cli update --channel preview --platform android --message "…" --environment preview`
-  (`--platform android` ist nötig: der Web-Export scheitert an Supabase/`window`).
-  Neue native Module (oder Plugin-/app.json-Änderungen) ändern den
-  Fingerprint → dann wieder ein neuer Build nötig.
-- `npx eas-cli build --platform android --profile production` → AAB statt
-  APK (`autoIncrement` für versionCode steht schon in `eas.json`).
-- Ersten Build manuell in der Play Console hochladen; danach
-  `npx eas-cli submit --platform android` (braucht einmalig einen Google-
-  Service-Account-Key). Signing: Play App Signing, EAS-Key bleibt Upload-Key.
-
-**4. Store-Eintrag & Formulare**
-- [ ] Texte: Name, Kurzbeschreibung (≤ 80 Zeichen), Beschreibung (≤ 4000);
-      Deutsch zuerst, Englisch später.
-- [ ] Grafiken: Icon 512×512, Feature-Grafik 1024×500, ≥ 2 Handy-Screenshots
-      (echte Screenshots, `docs/mockup.png` als Stil-Vorlage).
-- [ ] Datenschutzerklärung (öffentliche URL, DSGVO): was in Supabase
-      gespeichert wird, Region des Projekts, wie man löscht.
-- [ ] Formulare: Datensicherheit, Altersfreigabe, Zielgruppe, Werbung
-      (keine), App-Zugriff (kein Login nötig).
-
-**5. Release-Weg**
-Interner Test (nur ich) → geschlossener Test (≥ 12 Tester, 14 Tage) →
-Produktionszugang beantragen → Review (meist wenige Tage) → live.
-
-**Reihenfolge:** Konto jetzt eröffnen → parallel App-Voraussetzungen
-(Löschen, CAPTCHA, idealerweise Konto sichern, Package-Name) →
-Datenschutz/Texte/Screenshots → Production-Build + interner Test →
-geschlossener Test starten → nach 14 Tagen Produktion beantragen.
-
-## Träume / Lebensziele (geplant, Konzept 2026-10-06)
+## Träume / Lebensziele (v1 live seit 2026-10-06)
 Idee: eine Mischung aus Vision Board und Bucket List für Dinge, die man im
 Leben noch machen will ("Surfen lernen", "Reise nach Thailand", "Marathon").
 Die App soll Träume nicht nur sammeln, sondern **präsent halten** und zum
 **nächsten kleinen Schritt** schubsen, statt sie auf "irgendwann" zu schieben.
 
-> Status: **v1 umgesetzt (2026-10-06, Branch `dreams`)** nach abgestimmtem
-> Mockup: Tab `app/(tabs)/dreams.tsx` (Board), `app/dream/new.tsx`,
-> `app/dream/[id].tsx` (Detail mit nächstem Schritt, Stufen, Loslassen,
-> Erfüllen mit "Wie war's?"), `app/dream/memories.tsx` (Erinnerungswand),
-> "Traum der Woche"-Karte + Traum-Badge auf Wochen-Tasks in `Today`,
-> Celebrations bei Schritt/Stufenwechsel/Erfüllung. `supabase/dreams.sql`
-> ist ausgeführt. Der Rest dieses Abschnitts bleibt Ideensammlung für später.
+> Status: **v1 umgesetzt** nach abgestimmtem Mockup: Tab
+> `app/(tabs)/dreams.tsx` (Board), `app/dream/new.tsx`, `app/dream/[id].tsx`
+> (Detail mit nächstem Schritt, Stufen, Loslassen, Erfüllen mit "Wie war's?"),
+> `app/dream/memories.tsx` (Erinnerungswand), "Traum der Woche"-Karte +
+> Traum-Badge auf Wochen-Tasks in `Today`, Celebrations bei
+> Schritt/Stufenwechsel/Erfüllung. `supabase/dreams.sql` ist ausgeführt.
+> Automatische Fotos seit 2026-10-09 (siehe unten). Der Rest dieses
+> Abschnitts bleibt Ideensammlung für später.
 
 **Schon entschieden (2026-10-06):**
 - Eigener Tab "Träume" (nicht im `Challenges`-Hub) — emotional etwas anderes
   als Challenges, und ein Tab hält sie präsent.
 - Keine Begrenzung der Anzahl Träume. Gegen Überforderung hilft stattdessen
   der wöchentliche Fokus auf *einen* Traum (siehe "Traum der Woche").
-- Fotos nicht in v1, aber als spätere Erweiterung vorgesehen.
 
 **Psychologischer Grundsatz:** Reines Schwärmen (Vision Board nur anschauen)
 senkt laut Forschung (Oettingen, "WOOP"/Mental Contrasting) eher die
@@ -201,9 +273,10 @@ Wenn-dann-Plan. Die App verbindet deshalb das Emotionale eines Vision Boards
 mit dem Konkreten eines Plans.
 
 ### Darstellung
-- **Board statt Liste:** jeder Traum als Karte (v1: großes Emoji + Farbe,
-  Titel, Horizont, Stufe; später: eigenes Foto). Gruppiert nach Horizont:
-  *Dieses Jahr* / *In 1–3 Jahren* / *5+ Jahre* / *Irgendwann*.
+- **Board statt Liste:** jeder Traum als Karte (Foto vollflächig mit
+  Text-Panel in Traumfarbe, ohne Foto Emoji + Farbe; Titel, Stufe, nächster
+  Schritt). Gruppiert nach Horizont: *Dieses Jahr* / *In 1–3 Jahren* /
+  *5+ Jahre* / *Irgendwann*.
 - **"Erfüllt"-Bereich als Erinnerungswand:** erfüllte Träume mit kurzer
   Notiz ("Wie war's?") — motiviert mehr als jede offene Liste.
 - **Stufen statt nur offen/erledigt:** Traum → Erkundet → Geplant → Fest
@@ -245,59 +318,48 @@ mit dem Konkreten eines Plans.
 7. **Push sparsam:** höchstens einer pro Woche zu Träumen, ermutigend statt
    mahnend (Prinzip Motivational Core).
 
-### Vorschlag v1 vs. später
-- **v1:** Tab mit Board (Emoji + Farbe, nach Horizont gruppiert, Erfüllt-
-  Bereich); pro Traum Titel, Warum, Hindernis, Horizont, Stufe, ein nächster
-  Schritt; "Als Wochen-Task übernehmen"; "Traum der Woche"-Karte auf
-  `Today`; Celebrations bei Stufenwechsel/Erfüllung.
-- **Später:** Fotos (Bild-Upload, Supabase Storage, native Bildauswahl →
-  neuer Build), Saison-Hinweise, Sparziel, jährlicher Traum-Review,
-  Schritt-Vorschläge aus der App, Erinnerungs-Notiz beim Erfüllen mit Foto.
+### Später
+Eigenes Foto (Bild-Upload, Supabase Storage, native Bildauswahl → neuer
+Build; hat Vorrang vor dem automatischen, siehe Fotos), Saison-Hinweise,
+Sparziel, jährlicher Traum-Review, Schritt-Vorschläge aus der App,
+Erinnerungs-Notiz beim Erfüllen mit Foto, gemeinsame Träume (siehe Social v3).
 
-### Fotos (automatisch) (geplant, 2026-10-09)
-Idee: Träume bekommen ein passendes Foto, **ohne dass der Nutzer selbst ein
-Bild auswählen muss**.
+### Fotos (automatisch, live seit 2026-10-09)
+Träume bekommen ein passendes Foto, **ohne dass der Nutzer selbst ein Bild
+auswählen muss**.
 
-- **Automatisch:** beim Anlegen eines Traums holt die App einmalig ein Bild
-  (Träume ohne Versuch werden beim App-Start nachgeholt, `image_attempted`).
-  Ein geänderter Titel ändert das Bild nicht. Ohne Bild bleibt es bei Emoji
-  + Farbe.
-- **KI formuliert die Suche:** aus Titel, Gefühls-Satz und Warum macht die
-  KI einen englischen Foto-Suchbegriff ("Surfen lernen" → "surfer catching
-  first wave at sunrise").
-- **KI wählt das Bild:** Unsplash oder Pexels liefert ~6 Kandidaten; die KI
-  schaut sich die Vorschaubilder an und nimmt das, das am besten zum Traum
-  passt (emotional, kein Produkt-Stockfoto, kein sichtbarer Text). Claude
-  Haiku 5.5 kann Bilder ansehen, Kosten Bruchteil eines Cents pro Traum.
-- **Ausweg:** "Anderes Bild" nimmt still den nächstbesten Kandidaten — immer
-  noch kein Auswahl-Screen.
-- **Technik:** Supabase Edge Function `dream-image` hält die API-Keys
-  (Anthropic + Unsplash/Pexels) als Secrets. Neue Spalten auf `dreams`:
-  `image_url`, `image_credit`, `image_credit_url`, `image_source`. Kleine
-  Credit-Zeile unter dem Foto (Pflicht bei Unsplash/Pexels).
-- **Widgets (2026-10-09):** alle vier Varianten zeigen das Foto (Mockup
-  "Widgets mit Foto"). Die Widget-Bibliothek könnte https-Bilder direkt
-  laden, aber ohne Cache bei jedem Neuzeichnen (~alle 30 Min.). Deshalb
-  `widgets/widget-images.ts`: jedes Foto einmal in 600 px laden, als
-  data:-URI in AsyncStorage speichern, nur bei neuem Foto neu holen (auch
-  offline sichtbar). Kopien gelöschter Träume werden beim nächsten Laden der
-  Traumliste entfernt.
+- **Automatisch und einmalig:** beim Anlegen eines Traums holt die App ein
+  Bild; Träume ohne Versuch werden beim App-Start nachgeholt
+  (`image_attempted`). Ein geänderter Titel ändert das Bild nicht. Ohne Bild
+  bleibt es bei Emoji + Farbe — keine Lade- oder Fehleranzeige.
+- **KI formuliert die Suche:** aus Titel, Gefühls-Satz und Warum macht
+  Claude Haiku 5.5 drei englische Suchbegriffe von konkret bis allgemein
+  ("Surfen lernen" → "surfer riding first wave at sunrise" / "surfer riding
+  wave" / "surfing"). Gesucht wird mit dem ersten, die weiteren nur bei 0
+  Treffern.
+- **KI wählt das Bild:** Unsplash liefert bis zu 6 Kandidaten; die KI sieht
+  sich die Vorschaubilder an und rankt sie (der Traum erfüllt statt
+  Vorbereitung, Personen von hinten/in der Ferne, warmes Licht, kein
+  Produkt, kein Text). Kosten: Bruchteil eines Cents pro Traum.
+- **Ausweg:** "Anderes Bild" nimmt still den nächstbesten Kandidaten — ohne
+  KI, ohne Tageslimit, kein Auswahl-Screen.
+- **Grenzen:** max. 4 KI-Aufrufe pro Nutzer und Tag (`claim_image_call`);
+  liefert die KI nichts Brauchbares, bleibt der Traum ohne Bild.
+- **Technik:** Supabase Edge Function `supabase/functions/dream-image` hält
+  die API-Keys (Anthropic + Unsplash) als Secrets — nie im App-Code.
+  Deployment per Einfügen in den Dashboard-Editor, deshalb ist `index.ts`
+  eigenständig (Importe als `npm:paket@version`, kein `deno.json`).
+  Migrationen `supabase/dream_images.sql` + `dream_images_2_attempted.sql`.
+  App: `lib/dream-image.ts`. Board-Karten vollflächig mit Foto + Text-Panel
+  in Traumfarbe (88 % deckend), Detail mit Foto-Header, Credit-Zeile "Foto:
+  Name / Unsplash" (Pflicht) und "Anderes Bild". Mockup abgestimmt.
 - **Entschieden (2026-10-09):** Ein eigenes Foto (geplantes `image_path`)
-  hat Vorrang vor dem automatischen. Für später heißt das: Anzeige
-  `image_path ?? image_url`, "Anderes Bild" nur ohne eigenes Foto, und die
-  automatische Suche überschreibt nie ein eigenes Foto. Eigenes Foto
-  entfernen → das automatische ist wieder sichtbar.
+  hat Vorrang vor dem automatischen: Anzeige `image_path ?? image_url`,
+  "Anderes Bild" nur ohne eigenes Foto, die automatische Suche überschreibt
+  nie ein eigenes Foto. Eigenes Foto entfernen → das automatische ist wieder
+  sichtbar.
 
-**v1 umgesetzt (2026-10-09):** Unsplash; Edge Function
-`supabase/functions/dream-image` (KI-Aufruf #1 → 3 Suchbegriffe konkret →
-allgemein, Suche mit dem ersten, weitere nur bei 0 Treffern; KI-Aufruf #2
-rankt bis zu 6 Kandidaten); max. 4 KI-Aufrufe pro Nutzer und Tag
-(`claim_image_call` in `supabase/dream_images.sql`); liefert die KI nichts
-Brauchbares, bleibt der Traum ohne Bild. App: `lib/dream-image.ts`, Board-
-Karten vollflächig mit Foto + Text-Panel in Traumfarbe (88 % deckend), Detail
-mit Foto-Header, Credit-Zeile und "Anderes Bild". Mockup abgestimmt.
-
-### Datenmodell (umgesetzt in `supabase/dreams.sql`, Branch `dreams`)
+### Datenmodell (`supabase/dreams.sql`)
 Grundsatz: wenig Aufwand beim Anlegen — **nur der Titel ist Pflicht**, der
 Rest wird nach und nach ergänzt (die App fragt beim ersten Öffnen nach).
 
@@ -312,28 +374,77 @@ Rest wird nach und nach ergänzt (die App fragt beim ersten Öffnen nach).
   let_go) · `last_activity_at` (Basis für "Traum der Woche") ·
   `fulfilled_at` + `fulfilled_note` ("Wie war's?" für die Erinnerungswand) ·
   `created_at` / `updated_at`
+- Foto: `image_url`, `image_credit`, `image_credit_url`, `image_source`,
+  `image_queries`, `image_candidates`, `image_index`, `image_attempted`
 
 `dream_steps` — Historie pro Traum: `title`, `done_at`, optional `task_id`
 (wenn als Wochen-Task übernommen; Abhaken des Tasks markiert den Schritt per
 DB-Trigger `tasks_sync_dream_step` als erledigt).
 
-`tasks`: neue Spalte `dream_id`; `category` ist dafür jetzt optional (Traum-
-Tasks zeigen den Traum statt einer der vier Kategorien).
+`tasks`: Spalte `dream_id`; `category` ist dafür optional (Traum-Tasks zeigen
+den Traum statt einer der vier Kategorien).
 
-Später: `image_path` (Foto), beste Saison, Sparziel + gespart, Lebensbereich/
-Tags (Brücke zu Fokus-Wochen), "mit wem" (Brücke zu Freund-als-Co-Pilot).
+Später: `image_path` (eigenes Foto), beste Saison, Sparziel + gespart,
+Lebensbereich/Tags (Brücke zu Fokus-Wochen), "mit wem" (Brücke zu Social).
 Bewusst weggelassen: Priorität/Ranking, Fortschritt in Prozent, harte
 Deadlines mit Erinnerungen.
 
 Logik in `lib/dreams.ts` (Labels, Stufen, `pickDreamOfWeek`,
-`nextStepToWeeklyTask`, `completeNextStep`, `setStage`), Typen in
-`types/dream.ts`.
+`pickDreamOfDay`, `nextStepToWeeklyTask`, `completeNextStep`, `setStage`),
+Typen in `types/dream.ts`.
 
-## Fokus-Wochen (geplant, 2026-10-05)
+## Home-Screen-Widgets: Träume & Ziele (live seit 2026-10-06)
+Bewusst **für Träume und größere Ziele, nicht für tägliche Habits**. Habits
+sieht man beim Öffnen der App ohnehin; Träume rutschen im Alltag aus dem
+Blick. Ein Widget ist ein Vision Board, das man 50-mal am Tag sieht.
+
+**Umgesetzt:** ein Traum-Widget (`widgets/`) in 4 Größen (4×2, 2×2, Zeile
+4×1, Mini 1×1) mit zwei Modi, beim Platzieren gewählt:
+1. **"Wechselnd" = "Traum des Tages"** (Default) — deterministische
+   Tagesrotation durch alle offenen Träume, vernachlässigte und nahe
+   Horizonte etwas öfter (`pickDreamOfDay`). Bewusst getrennt vom "Traum der
+   Woche" auf `Today`: Widget = Inspiration (alle Träume präsent), `Today` =
+   Fokus (ein Traum bekommt diese Woche einen Schritt).
+2. **"Fester Traum"** — ein ausgewählter Traum pro Widget, zeigt den
+   **Gefühls-Satz** + nächsten Schritt: lebendiges Bild + konkreter Schritt,
+   genau die Kombination, die laut Forschung motiviert. Mehrere platzierbar.
+
+- **Fotos (2026-10-09):** alle vier Größen zeigen das Traum-Foto vollflächig
+  mit Text-Panel (Mockup "Widgets mit Foto"). Die Widget-Bibliothek könnte
+  https-Bilder direkt laden, aber ohne Cache bei jedem Neuzeichnen (~alle
+  30 Min.). Deshalb `widgets/widget-images.ts`: jedes Foto einmal in 600 px
+  laden, als data:-URI in AsyncStorage speichern, nur bei neuem Foto neu
+  holen (auch offline sichtbar). Kopien gelöschter Träume werden beim
+  nächsten Laden der Traumliste entfernt.
+- **Interaktion:** Tippen öffnet den Traum (`lifedirector://dream/<id>`).
+- **Technik:** `react-native-android-widget` (JSX → natives Widget-Layout,
+  Config-Plugin, EAS Build). Ein Task-Handler (JS im Hintergrund) lädt die
+  Daten aus Supabase mit der gespeicherten Session; die App zeichnet Widgets
+  beim Start, nach Traum-Änderungen und nach neuen Fotos neu, zusätzlich
+  Android alle 30 Min. Widget-Code wird nur in echten Android-Builds geladen
+  (`lib/widget-bridge.ts`, Einstieg `index.ts`), Expo Go bleibt lauffähig.
+  Widget-Komponenten brauchen `"use no memo"` (React Compiler). EAS Updates
+  erreichen auch den Widget-Task (getestet 2026-10-09).
+- iOS (nur falls je relevant): WidgetKit in Swift/SwiftUI als zusätzliches
+  Target (z.B. `@bacons/apple-targets`), Daten über App Group.
+
+**Später:**
+- **"Schritt erledigt ✓" direkt im Widget** → markiert den nächsten Schritt
+  erledigt, Widget fragt dann "Was ist dein nächster Schritt?" → Tippen
+  öffnet die App zum Eintragen.
+- **Traum-Board** (mittel/groß) — 2–4 Träume als Mini-Karten mit Fotos, ein
+  echtes Vision Board auf dem Startbildschirm.
+- **"Mein Monat"** — aktuelle Challenge + Monatsziele mit Fortschritt (1/3).
+
+## Fokus-Wochen (Konzept, 2026-10-05)
 Idee: Eine Woche lang steht ein Lebensbereich im Mittelpunkt, in dem man
 **Souveränität** gewinnen will — also nicht nur "mehr machen", sondern den
 Bereich im Griff haben, verstehen und bewusst gestalten. Die App stößt an,
 über konkrete Schritte nachzudenken, und schiebt Richtung Verbesserung.
+
+> Hinweis (2026-10-07): siehe "Grundsatz: Fokus statt Überladung" — Fokus-
+> Wochen eher als Ersatz für die normalen Wochen-Prioritäten (nicht
+> zusätzlich) und seltener (z.B. monatlich/auf Wunsch).
 
 Mögliche Bereiche (Katalog, wie bei `challenges` in Supabase statt im Code):
 - **Finanzen** — Überblick Ein-/Ausgaben, Abos ausmisten, Notgroschen,
@@ -389,117 +500,167 @@ Offene Fragen: Jede Woche ein Fokus oder nur jede zweite/auf Wunsch (sonst
 Vorschlag nach schwächstem Bereich? Wie lang/kurz darf der Selbst-Check
 sein, damit er nicht nervt? — Vor der Umsetzung: HTML-Mockup.
 
-## Home-Screen-Widgets: Träume & Ziele (geplant, 2026-10-06)
-Idee: Widgets auf dem Startbildschirm — bewusst **für Träume und größere
-Ziele, nicht für tägliche Habits**. Habits sieht man beim Öffnen der App
-ohnehin; Träume rutschen im Alltag aus dem Blick. Ein Widget ist ein Vision
-Board, das man 50-mal am Tag sieht.
+## Social: gemeinsame Challenges (Konzept, 2026-10-08)
+Idee: Challenges mit einem Freund teilen — sich gegenseitig z.B. für 4
+Wochen herausfordern, Fortschritt teilen und den des anderen sehen. Ersetzt
+die frühere Idee "Freund-als-Co-Pilot". Soziale Verbindlichkeit ist einer
+der stärksten Motivatoren — entscheidend ist, dass es **motiviert statt
+Druck oder Konkurrenz** erzeugt.
 
-Widget-Ideen (Entscheidung 2026-10-06: **ein** Traum-Widget mit zwei Modi,
-beim Platzieren gewählt):
-1. **Modus "Wechselnd" = "Traum des Tages"** (Default; klein/mittel) — jeden
-   Tag ein anderer offener Traum: deterministische Tagesrotation durch alle
-   offenen Träume, vernachlässigte und nahe Horizonte etwas öfter (gleiche
-   Gewichtung wie `pickDreamOfWeek`). Emoji + Farbe als Hintergrund, Titel,
-   nächster Schritt. Tippen öffnet den Traum. Bewusst getrennt vom "Traum der
-   Woche" auf `Today`, der wöchentlich bleibt: Widget = Inspiration (alle
-   Träume präsent), `Today` = Fokus (ein Traum bekommt diese Woche einen
-   Schritt).
-2. **Modus "Fester Traum"** — ein ausgewählter Traum pro Widget, zeigt den
-   **Gefühls-Satz** ("Die erste Welle stehen …") + nächsten Schritt:
-   lebendiges Bild + konkreter Schritt, genau die Kombination, die laut
-   Forschung motiviert. Mehrere platzierbar.
-3. **Traum-Board** (mittel/groß) — 2–4 Träume als Mini-Karten; mit Fotos
-   (später) ein echtes Vision Board auf dem Startbildschirm.
-4. **"Mein Monat"** — aktuelle Challenge + Monatsziele mit Fortschritt (1/3).
+**Entschieden (2026-10-08):**
+- **Nur Duo** zum Start (zwei Personen), Gruppen später.
+- **Fortschritt des Freundes immer sichtbar**, direkt neben dem eigenen.
+- **Beliebige Challenges** — aus dem Katalog oder frei formuliert
+  ("4 Wochen kein Zucker").
 
-Interaktion:
-- v1: **Tippen öffnet** den Traum/das Ziel (Deep Link über Scheme
-  `lifedirector://`).
-- Später: **"Schritt erledigt ✓" direkt im Widget** → markiert den
-  nächsten Schritt erledigt, Widget fragt dann "Was ist dein nächster
-  Schritt?" → Tippen öffnet die App zum Eintragen.
+Grundprinzipien:
+- **Kooperativ statt kompetitiv:** "Wir schaffen das zusammen" statt
+  Rangliste — wer zurückfällt, wird mitgezogen statt abgehängt.
+- **Klein & privat:** sichtbar ist nur die gemeinsame Challenge, nichts
+  sonst aus der App des anderen. Kein Feed.
+- **Ermutigend statt beschämend:** verpasster Tag = "Pause", nicht
+  "gescheitert" (passt zu "Fortschritt statt Perfektion").
+
+Kernmechanik (v1):
+1. **Gemeinsam starten:** Challenge wählen oder frei formulieren, Dauer
+   (z.B. 4 Wochen) und Rhythmus (z.B. 3×/Woche) festlegen; Freund per
+   **6-stelligem Code** einladen. Beide notieren kurz ihr **Warum**.
+2. **Check-ins:** jeder hakt seine Einheiten ab, optional mit einer
+   Ein-Zeilen-Notiz ("5 km im Regen 💪").
+3. **Gemeinsame Ansicht:** beide Fortschritte nebeneinander + ein
+   **Team-Fortschritt** ("Zusammen 14/24 Einheiten") und eine
+   **Team-Streak** (läuft, solange beide im Wochenrhythmus bleiben).
+4. **Reaktionen:** ein Tipp auf den Check-in des anderen: 🙌 🔥 💪 — der
+   kleinste, aber stärkste Motivator ("meine Mühe wurde gesehen").
+5. **Gemeinsamer Abschluss:** geteilter Celebration-Screen + Eintrag
+   "Gemeinsam geschafft" auf beiden Erinnerungswänden, mit den Notizen der
+   4 Wochen als Rückblick.
+- Aktualisierung in v1 beim Öffnen der App (noch kein Push).
+
+Später:
+- **v2:** Push-Nachrichten (Check-in des Freundes, sanftes "Anstupsen"
+  max. 1×/Tag als "Lisa denkt an dich 👋", Anfeuern) — nur mit feinem
+  Opt-in; **Joker-Tage** (z.B. 2 pro Challenge, damit Krankheit/Reise die
+  Team-Streak nicht bricht); Halbzeit-Moment; optionaler Spaß-Einsatz
+  ("wer aussteigt, zahlt den Kaffee" — nie echtes Geld in der App).
+- **v3:** Gruppen (3–4), Foto-Nachweis bei Check-ins, gemeinsame Träume
+  ("Gemeinsam nach Thailand").
 
 Technik:
-- Android: `react-native-android-widget` (Widgets in JSX beschrieben, wird
-  in natives Widget-Layout übersetzt, Expo-Config-Plugin → läuft mit EAS
-  Build). Ein Task-Handler (JS im Hintergrund) lädt die Daten aus Supabase
-  mit der gespeicherten Session; die App stößt nach Änderungen an Träumen
-  ein Widget-Update an, zusätzlich aktualisiert Android periodisch (≥ 30 Min
-  — für Träume, die sich selten ändern, mehr als genug).
-- iOS (nur falls je relevant): WidgetKit in Swift/SwiftUI als zusätzliches
-  Target (z.B. `@bacons/apple-targets`), Daten über App Group.
-- Grenzen: neues natives Modul → neuer Build, nicht in Expo Go; feste
-  Größen, eingeschränkte Layout-Elemente, keine Animationen.
+- Beide brauchen ein **gesichertes Konto** (E-Mail, existiert bereits).
+- Neue Tabellen mit RLS "nur Teilnehmer sehen die gemeinsame Challenge":
+  `shared_challenges` (Titel, Beschreibung, Dauer, Rhythmus, Code,
+  Ersteller, Start/Ende), `shared_challenge_members` (user_id, Warum,
+  Anzeigename), `shared_checkins` (user_id, Datum, Notiz),
+  `shared_reactions` (checkin_id, user_id, Emoji). Beitritt per Code über
+  eine `security definer`-Funktion, damit niemand fremde Challenges
+  auflisten kann.
+- Anzeigename pro Teilnehmer (die App kennt bisher keine Namen).
+- Push zwischen Nutzern (v2) braucht Server-Logik (Supabase Edge Function +
+  Expo Push) — größter neuer Baustein, deshalb nicht in v1. (Edge Functions
+  sind seit den Traum-Fotos eingerichtet.)
+- Vor der Umsetzung: Mockup (Einladen/Beitreten, gemeinsame Ansicht,
+  Abschluss) — und klären, wo die gemeinsame Challenge im entschlackten
+  `Today` lebt.
 
-**v1 umgesetzt (2026-10-06, Branch `widgets`):** Widget "Traum" (`widgets/`),
-Modi "Wechselnd"/"Fester Traum" per Einrichtungs-Screen, zeigt Vision
-(Gefühls-Satz) + nächsten Schritt, Tippen öffnet den Traum
-(`lifedirector://dream/<id>`). Tagesauswahl `pickDreamOfDay` in
-`lib/dreams.ts`. Widget-Code wird nur in echten Android-Builds geladen
-(`lib/widget-bridge.ts`, Einstieg `index.ts`), Expo Go bleibt lauffähig.
-Die App zeichnet Widgets nach Traum-Änderungen und beim Start neu.
+## Play-Store-Release (vorbereitet, noch nicht entschieden)
+Ziel: LifeDirector öffentlich im Google Play Store. Größter Zeitfaktor ist
+der Pflicht-Testlauf für neue private Entwicklerkonten — deshalb früh
+anfangen und parallel an der App arbeiten, falls der Release kommt.
 
-Vorschlag v1: Traum-Widget mit beiden Modi ("Wechselnd" täglich + "Fester
-Traum" mit Gefühls-Satz), Tippen öffnet. Schritt-erledigt-Button, Traum-Board und
-"Mein Monat" danach. Vor der Umsetzung: Mockup der Widget-Größen.
+**1. Entwicklerkonto** (zuerst, läuft im Hintergrund)
+- Google Play Console: 25 $ einmalig + Identitätsprüfung (dauert Tage).
+- Neue private Konten: geschlossener Test mit mind. 12 Testern, 14 Tage am
+  Stück, bevor Produktionszugang beantragt werden kann (Zahlen in der
+  Console gegenprüfen, Google ändert das gelegentlich). Tester früh suchen.
 
-## Now
-- Core-Habit-Tracking (`Today` / `Habits` / `Review`) — steht, läuft gegen Supabase.
-- Challenges-Tab (`app/(tabs)/challenges.tsx`) — Code steht, Seed-Daten in
-  `supabase/challenges.sql` (Tabellen in `supabase/schema.sql`).
-- Wochen-Tasks (`Today`, Abschnitt "Diese Woche") + Monatsziele
-  (`Challenges`, Abschnitt "Monatsziele") — Code steht, nach Mockup umgesetzt,
-  Tabellen in Supabase angelegt.
-- Habit-Frequenz (2026-10-05): jeder Habit hat ein Wochenziel
-  (`habits.target_per_week`, 7 = täglich, 1–6 = x-mal pro ISO-Woche).
-  1–6×-Habits haben Wochen-Streak/-Momentum, Celebration beim Erreichen des
-  Wochenziels, zählen in `Today` nicht mehr als "fällig", wenn das Ziel schon
-  steht, und `Review`/Push-Quote messen gegen das Ziel statt gegen 7/7.
-  `supabase/habit_frequency.sql` ist ausgeführt (2026-10-05).
-- Motivational Core (Streak/Momentum/Celebration/Encouragement) — Code steht,
-  reiner JS/UI-Change, kein neuer Build nötig zum Testen.
+**2. App-Voraussetzungen**
+- [x] Package-Name festgelegt (2026-10-06): `com.lifedirector.app` (Android
+      + iOS-Bundle-ID, Scheme `lifedirector`) — neutral statt Klarname, weil
+      der Package-Name öffentlich im Play-Store-Link steht. Für volle
+      Neutralität beim Release zusätzlich: eigene App-E-Mail (Support-Kontakt
+      + SMTP-Absender) und "LifeDirector" als Entwicklername in Play.
+- [x] "Konto sichern" (siehe Accounts) — live.
+- [ ] "Account/Daten löschen": in der App erledigt (Einstellungen); fehlt
+      noch die Web-Seite für Löschanfragen (Play-Pflicht).
+- [ ] CAPTCHA (Cloudflare Turnstile) für die anonyme Anmeldung in Supabase.
+- [ ] Supabase-Plan prüfen: Free-Projekte pausieren nach 7 Tagen Inaktivität,
+      nur einfache Backups → mit echten Nutzern Pro (~25 $/Monat) erwägen.
+- [ ] Unsplash: vor einem Release Produktionszugang beantragen (Demo-Limit
+      50 Anfragen/Stunde); Anthropic-Ausgabenlimit in der Console prüfen.
 
-## Next
-- Nach dem Ausführen aller drei SQL-Dateien: eine Woche dogfooden, Reibung
-  notieren (z.B. nervt der Alert beim Ziehen/bei der Kategorie-Wahl? Fehlt
-  eine Übersicht über erledigte Items über Zeit?).
-- Monats-Review: erledigte Challenges/Monatsziele + Wochen-Tasks-Quote in
-  `Review` mit aufnehmen — Daten existieren jetzt, Review-UI zieht noch nicht
-  nach.
-- Styling-Konstanten (`ACCENT`, `CARD_BG`, `MUTED`, …) aus den einzelnen
-  Screens in `constants/theme.ts` zentralisieren statt sie mehrfach zu
-  duplizieren — Voraussetzung für konsistentes Look-and-Feel, bevor mehr
-  Screens dazukommen.
-- Gezogene Challenge als eigene Karte/State statt `Alert.alert` — v.a.
-  relevant, falls die Challenge länger "aktiv" bleibt (ongoing-Kategorie)
-  und man sie wiederfinden will, ohne erneut zu ziehen.
+**3. Build & Update**
+- EAS Update ist eingerichtet (2026-10-09, `expo-updates`, Kanäle
+  `preview`/`production` in `eas.json`, `runtimeVersion` per Fingerprint):
+  reine JS-Änderungen ohne neuen Build per
+  `npx eas-cli update --channel preview --platform android --message "…" --environment preview`
+  (`--platform android` ist nötig: der Web-Export scheitert an Supabase/`window`).
+  Neue native Module (oder Plugin-/app.json-Änderungen) ändern den
+  Fingerprint → dann wieder ein neuer Build nötig.
+- Test-Build: `npx eas-cli build --platform android --profile preview` (APK,
+  über die alte App installieren).
+- Release: `npx eas-cli build --platform android --profile production` → AAB
+  statt APK (`autoIncrement` für versionCode steht schon in `eas.json`).
+- Ersten Build manuell in der Play Console hochladen; danach
+  `npx eas-cli submit --platform android` (braucht einmalig einen Google-
+  Service-Account-Key). Signing: Play App Signing, EAS-Key bleibt Upload-Key.
+- Bekannt: `npx expo install` scheitert an npm (EALLOWSCRIPTS) → Pakete mit
+  `npm install paket@~<SDK-Version>` installieren.
+
+**4. Store-Eintrag & Formulare**
+- [ ] Texte: Name, Kurzbeschreibung (≤ 80 Zeichen), Beschreibung (≤ 4000);
+      Deutsch zuerst, Englisch später.
+- [ ] Grafiken: Icon 512×512, Feature-Grafik 1024×500, ≥ 2 Handy-Screenshots
+      (echte Screenshots, `docs/mockup.png` als Stil-Vorlage).
+- [ ] Datenschutzerklärung (öffentliche URL, DSGVO): was in Supabase
+      gespeichert wird, Region des Projekts, wie man löscht; dazu die
+      Weitergabe von Traum-Texten an Anthropic (Foto-Suche) und das Laden
+      der Fotos von Unsplash.
+- [ ] Formulare: Datensicherheit, Altersfreigabe, Zielgruppe, Werbung
+      (keine), App-Zugriff (kein Login nötig).
+
+**5. Release-Weg**
+Interner Test (nur ich) → geschlossener Test (≥ 12 Tester, 14 Tage) →
+Produktionszugang beantragen → Review (meist wenige Tage) → live.
+
+**Reihenfolge:** Konto eröffnen → parallel App-Voraussetzungen (Lösch-
+Webseite, CAPTCHA) → Datenschutz/Texte/Screenshots → Production-Build +
+interner Test → geschlossener Test starten → nach 14 Tagen Produktion
+beantragen.
 
 ## Later / Ideen (ungeprüft)
 - Wochen-Tasks optional mit Challenge/Monatsziel verknüpfen (Hierarchie
-  Monat → Woche → Tag), siehe oben — erst wenn sich der Bedarf zeigt.
+  Monat → Woche → Tag), siehe Drei Zeithorizonte — erst wenn sich der Bedarf
+  zeigt.
 - Erinnerungen für aktive Challenges/offene Wochen-Tasks (analog
-  `lib/notifications.ts`).
-- Freund-als-Co-Pilot als echtes Feature (gemeinsame Challenge-Instanz,
-  Einladungslink) — wird mit den Accounts möglich, braucht aber eigene
-  Sharing-Regeln in RLS.
+  `lib/notifications.ts`) — mit Blick auf "Fokus statt Überladung" sparsam.
 - Explizite "Exploration"-Komponente, die aktiv neue Habits/Challenges
   vorschlägt (aus Phase-2-Prinzipien übrig, noch nicht umgesetzt) — die
   Challenge-Ziehen-Mechanik deckt das fürs Monatliche schon ab, fürs
-  Tägliche/Wöchentliche noch offen.
+  Tägliche/Wöchentliche noch offen. Passt zu "Module wählbar /
+  progressive disclosure".
 - Sound/Haptics beim Celebration-Moment (aktuell nur Animation + Text).
+- Abhängige Pakete aktuell halten (`npx expo install --check` meldete
+  2026-10-09 Patch-Rückstände bei `expo-linking`, `expo-notifications`,
+  `expo-router`) — beim nächsten nativen Build mitnehmen.
 
 ## Entscheidungen, die schon getroffen wurden
 - ~~Kein Auth, kein Multi-User~~ → revidiert 2026-10-05: Multi-User mit
   anonymem Account zuerst und optionaler E-Mail-Sicherung, siehe "Accounts /
   Multi-User". "Mit Freund"-Markierung bei Challenges ist weiterhin nur ein
-  Hinweis-Badge, keine geteilte Instanz.
+  Hinweis-Badge; echte geteilte Challenges sind als "Social" geplant.
 - Challenges-Daten leben in Supabase (Tabellen `challenges` +
   `challenge_progress`), nicht hart im Code — konsistent zum
   Habits/Logs-Pattern.
-- Drei-Zeithorizonte-Struktur (täglich/wöchentlich/monatlich) wie oben
-  beschrieben, inkl. Kategorie-Kopplung der Wochen-Tasks und freier
-  Monatsziele zusätzlich zur Challenge.
+- Drei-Zeithorizonte-Struktur (täglich/wöchentlich/monatlich, plus
+  langfristig Träume) wie oben beschrieben, inkl. Kategorie-Kopplung der
+  Wochen-Tasks und freier Monatsziele zusätzlich zur Challenge.
 - Visuelles Design vorab als HTML-Mockup abgestimmt, dann 1:1 in React
   Native umgesetzt (2026-10-02) — bei größeren UI-Änderungen gleiches
   Vorgehen: erst Mockup, dann Code.
+- Wochenplanung optional, Habits immer sichtbar auf `Today` (2026-10-07).
+- Social startet als Duo, Fortschritt des Freundes immer sichtbar,
+  beliebige Challenges (2026-10-08).
+- Traum-Fotos: automatisch, einmal pro Traum, kein Wechsel bei
+  Titeländerung, eigenes Foto hat später Vorrang (2026-10-09).
+- Secrets (API-Keys) nur als Supabase-Secrets, nie im App-Code oder Repo.
