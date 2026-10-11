@@ -31,6 +31,7 @@ import {
 import { nextDreamImage, onDreamImageChanged } from '../../lib/dream-image';
 import { dreamStepLine, stageUpLine } from '../../lib/motivation';
 import { isoWeekKey } from '../../lib/period';
+import { cached, readCache } from '../../lib/offline';
 import { supabase } from '../../lib/supabase';
 import { refreshDreamWidgets } from '../../lib/widget-bridge';
 import { Dream, DreamStep } from '../../types/dream';
@@ -76,12 +77,16 @@ export default function DreamDetailScreen() {
   const celebrationKey = useRef(0);
 
   const load = useCallback(async () => {
-    const [{ data: dreamData }, { data: stepData }, { data: taskData }] = await Promise.all([
-      supabase.from('dreams').select('*').eq('id', id).single(),
-      supabase.from('dream_steps').select('*').eq('dream_id', id).order('created_at', { ascending: true }),
-      supabase.from('tasks').select('*').eq('dream_id', id).eq('week_key', isoWeekKey()).eq('done', false).limit(1),
+    const [dreamData, stepData, taskData] = await Promise.all([
+      cached<Dream>(`dream:${id}`, () => supabase.from('dreams').select('*').eq('id', id).single()),
+      cached<DreamStep[]>(`dream:${id}:steps`, () =>
+        supabase.from('dream_steps').select('*').eq('dream_id', id).order('created_at', { ascending: true })),
+      cached<Task[]>(`dream:${id}:weekTask:${isoWeekKey()}`, () =>
+        supabase.from('tasks').select('*').eq('dream_id', id).eq('week_key', isoWeekKey()).eq('done', false).limit(1)),
     ]);
-    setDream(dreamData ?? null);
+    // Offline und noch nie geöffnet: Traum aus dem Board-Stand nehmen.
+    const fallback = dreamData ?? (await readCache<Dream[]>('dreams:all'))?.find((d) => d.id === id) ?? null;
+    setDream(fallback);
     setSteps(stepData ?? []);
     setWeekTask(taskData?.[0] ?? null);
     setLoading(false);

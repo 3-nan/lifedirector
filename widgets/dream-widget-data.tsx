@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { requestWidgetUpdate, WidgetInfo, WidgetTaskHandler } from 'react-native-android-widget';
 import { currentStep, isOpen, loadStepsThisWeek, pickDreamOfDay } from '../lib/dreams';
+import { readCache, writeCache } from '../lib/offline';
 import { supabase } from '../lib/supabase';
 import { Dream } from '../types/dream';
 import { DreamWidget, DreamWidgetMode, DreamWidgetState, ErrorWidget, WIDGET_VARIANTS } from './DreamWidget';
@@ -37,15 +38,38 @@ async function removeWidgetConfig(widgetId: number) {
 
 export type WidgetData = { dreams: Dream[]; stepsThisWeek: Record<string, string> };
 
-/** `null` = keine Session auf diesem Gerät. */
+const WIDGET_CACHE_KEY = 'widget:dreams';
+
+/**
+ * `null` = auf diesem Gerät ist niemand angemeldet. Ohne Netz (oder mit
+ * abgelaufenem Token offline) zeigt das Widget den zuletzt geladenen Stand.
+ */
 export async function loadDreams(): Promise<WidgetData | null> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) return null;
-  const [{ data, error }, stepsThisWeek] = await Promise.all([supabase.from('dreams').select('*'), loadStepsThisWeek()]);
-  // Fotos gelöschter Träume vom Gerät entfernen — nur bei vollständiger Liste,
-  // sonst würde ein Netzwerkfehler alle Kopien löschen.
-  if (!error && data) await pruneWidgetImages(data.map((d) => d.id));
-  return { dreams: data ?? [], stepsThisWeek };
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  if (!session && !sessionError && !(await readCache(WIDGET_CACHE_KEY))) return null;
+  let dreams: Dream[] | null = null;
+  let complete = false;
+  if (session) {
+    try {
+      const { data, error } = await supabase.from('dreams').select('*');
+      if (!error && data) {
+        dreams = data;
+        complete = true;
+      }
+    } catch {
+      // offline
+    }
+  }
+  if (complete && dreams) {
+    // Fotos gelöschter Träume vom Gerät entfernen — nur bei vollständiger Liste,
+    // sonst würde ein Netzwerkfehler alle Kopien löschen.
+    await pruneWidgetImages(dreams.map((d) => d.id));
+    await writeCache(WIDGET_CACHE_KEY, dreams);
+  } else {
+    dreams = await readCache<Dream[]>(WIDGET_CACHE_KEY);
+    if (!dreams) return session ? { dreams: [], stepsThisWeek: {} } : null;
+  }
+  return { dreams, stepsThisWeek: await loadStepsThisWeek() };
 }
 
 export function resolveDream(
