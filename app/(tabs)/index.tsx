@@ -99,13 +99,16 @@ function DreamOfWeekBox({
 }) {
   const color = dreamColor(dream.color);
   const photo = (
-    <TouchableOpacity onPress={onOpen} accessibilityLabel={`Traum öffnen: ${dream.title}`} activeOpacity={0.8}>
+    <TouchableOpacity
+      onPress={onOpen}
+      style={[styles.dreamPhoto, { backgroundColor: color.bg }]}
+      accessibilityLabel={`Traum öffnen: ${dream.title}`}
+      activeOpacity={0.8}
+    >
       {dream.image_url ? (
-        <Image source={{ uri: dream.image_url }} style={styles.dreamPhoto} resizeMode="cover" />
+        <Image source={{ uri: dream.image_url }} style={StyleSheet.absoluteFill} resizeMode="cover" />
       ) : (
-        <View style={[styles.dreamPhoto, styles.dreamPhotoEmpty, { backgroundColor: color.bg }]}>
-          <Text style={styles.dreamPhotoEmoji}>{dream.emoji}</Text>
-        </View>
+        <Text style={styles.dreamPhotoEmoji}>{dream.emoji}</Text>
       )}
     </TouchableOpacity>
   );
@@ -630,8 +633,9 @@ const styles = StyleSheet.create({
   weekBar: { height: 6, borderRadius: 3, backgroundColor: PEACH.line, overflow: 'hidden', marginTop: -2 },
   weekBarFill: { height: 6, borderRadius: 3, backgroundColor: PEACH.bar },
   dreamBox: { flexDirection: 'row', backgroundColor: '#fff', borderRadius: 12, overflow: 'hidden' },
-  dreamPhoto: { width: 60, height: '100%', minHeight: 60 },
-  dreamPhotoEmpty: { justifyContent: 'center', alignItems: 'center' },
+  // Feste Breite, Höhe kommt von der Zeile (stretch) — keine %-Höhe, die in
+  // der ScrollView keinen Bezug hat und das Bild riesig macht.
+  dreamPhoto: { width: 60, minHeight: 60, overflow: 'hidden', justifyContent: 'center', alignItems: 'center' },
   dreamPhotoEmoji: { fontSize: 26 },
   dreamBoxBody: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 9, paddingHorizontal: 12, justifyContent: 'center' },
   dreamOfWeekLabel: { fontSize: 11.5, fontWeight: '600', color: PEACH.text },
