@@ -20,16 +20,16 @@ ist vorbereitet, aber noch nicht entschieden.
 | Traum-Fotos (automatisch, KI + Unsplash) | live | Träume → Fotos |
 | Home-Screen-Widgets (4 Größen, mit Fotos) | live | Widgets |
 | EAS Update (JS-Änderungen ohne neuen Build) | live | Play-Store → Build |
-| **`Today` entschlacken / Wochenplanung** | **Mockup abgestimmt (Variante C)** | Fokus statt Überladung |
+| `Today` entschlackt (Wochenkarte, Challenge-Karte, Tagesring) | umgesetzt, Test auf dem Handy | Fokus statt Überladung |
+| Wochenplanung / Top 3 pro Woche | verworfen (2026-10-12) | Fokus statt Überladung |
 | Fokus-Wochen | Konzept | Fokus-Wochen |
 | Social: gemeinsame Challenges (Duo) | Konzept | Social |
 | Play-Store-Release | vorbereitet, nicht entschieden | Play-Store-Release |
 
 ## Next (Reihenfolge = Priorität)
-1. **`Today` entschlacken** (Grundsatz "Fokus statt Überladung"): Mockup
-   abgestimmt (Variante C mit Pfirsich-Wochenkarte), offene Detailfragen
-   klären, dann umsetzen (`Today` + Wochenplanung). Bewusst **vor** Fokus-Wochen
-   und Social, weil beide sonst noch mehr auf `Today` stapeln würden.
+1. **`Today` entschlackt** (Variante D, 2026-10-12): auf dem Handy testen und
+   nachschärfen. Bewusst **vor** Fokus-Wochen und Social, weil beide sonst
+   noch mehr auf `Today` stapeln würden.
 2. **Dogfooding** (eine Woche) mit Fotos + Widgets: Reibung notieren (passen
    die Fotos? nervt der Alert beim Challenge-Ziehen/bei der Kategorie-Wahl?
    fehlt eine Übersicht über erledigte Items über Zeit?). Speist direkt
@@ -121,6 +121,24 @@ Entschieden (2026-10-09):
   ist — eine zurückhaltende Karte "Was soll diese Woche zählen?" mit
   "Diese Woche nicht" (Mockup B, Zustand "nicht geplant"). Keine Push.
   Nach dem Dogfooding neu entscheiden.
+
+**Umgesetzt (2026-10-12): Variante "D" statt C** (Canvas "Today
+entschlacken", Artboard D) — **keine Top 3 pro Woche, keine Wochenplanung**:
+- Pfirsich-Wochenkarte "Diese Woche · KW n" mit "x von y erledigt" und
+  durchgehendem Fortschrittsbalken über **alle** Wochen-Tasks.
+- Oben der Traum der Woche: sein Schritt diese Woche (mit Foto, abhakbar),
+  sonst der nächste Schritt mit "In diese Woche", sonst das Eingabefeld
+  "Was ist dein nächster kleiner Schritt?". Foto antippen öffnet den Traum.
+- Darunter **alle** Wochen-Tasks vollständig (nicht eingeklappt), offene vor
+  erledigten, rechts das Kategorie- bzw. Traum-Emoji.
+- Unten "Neuer Task für diese Woche"; beim Tippen erscheinen Kategorie-Chips
+  (💪 🎨 🤝 🔨). **Kategorie ist optional** (ersetzt den Alert). Eine fünfte
+  Kategorie "Arbeit" wurde erwogen und verworfen (bräuchte eine DB-Änderung).
+- Challenge-Karte (lila) mit Restlaufzeit bis Monatsende und "Geschafft".
+- Gewohnheiten mit Tagesring (erledigt/fällig, `components/day-ring.tsx`,
+  ohne SVG) + längste Serie, kompakte Liste in einer Karte.
+- Damit entfallen: Prioritäts-Markierung an Tasks, Wochenplanungs-Screen,
+  die Einladungs-Karte "Was soll diese Woche zählen?".
 
 Offene Fragen: Welche Bausteine sind in Fokus-Wochen-Monaten pausiert? Wo
 lebt die gemeinsame Challenge (Social)?
