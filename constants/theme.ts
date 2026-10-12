@@ -69,3 +69,19 @@ export const MUTED = '#9a9a9e';
 /** Sekundärtext, der gut lesbar bleiben muss. */
 export const MUTED_TEXT = '#6b6b70';
 export const CARD_BG = '#f7f7f8';
+
+/** Wochenkarte auf `Today` (Ton der Traum-Karten). */
+export const PEACH = {
+  bg: '#fff0e0',
+  text: '#a44f00',
+  line: '#f6dcc0',
+  bar: '#f08a24',
+  /** Buttons mit weißer Schrift (dunkler als `bar`, damit lesbar). */
+  button: '#b25900',
+  ring: '#e8b98a',
+  done: '#a3896f',
+  field: '#fffaf5',
+};
+
+/** Challenge-Karte auf `Today`. */
+export const PURPLE = { bg: '#f3eafd', accent: '#8944ab' };

@@ -23,7 +23,7 @@ The app interface is in German.
 
 | Screen | What you do there |
 |---|---|
-| **Today** | Tick off today's habits, see your active challenge, this week's tasks and the *dream of the week* with its next step. Weekly-target habits show their progress ("2/3 diese Woche") and streaks are counted in days or weeks. The gear icon opens the settings. |
+| **Today** | A week card with all of this week's tasks and the next step toward the *dream of the week*, the active challenge with the days left, and today's habits with a day ring. Weekly-target habits show their progress ("2/3 diese Woche") and streaks are counted in days or weeks. The gear icon opens the settings. |
 | **Habits** | Add, reorder and remove habits, and set each one to *Täglich* or 1–6× per week. |
 | **Challenges** | Draw a challenge from this month's category, track its status (open → active → done) and manage monthly goals. |
 | **Träume** | Your dreams as a photo board, grouped by horizon (this year, 1–3 years, 5+ years, someday). The detail screen has the why, the feeling, the obstacle, the stages and the next step. "Anderes Bild" swaps the photo. |
