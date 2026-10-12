@@ -3,6 +3,8 @@ import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { DAILY_TARGET, FREQUENCY_OPTIONS, frequencyChipLabel, frequencyLabel, targetOf } from '../../lib/habits';
+import { OfflineBanner } from '../../components/offline-banner';
+import { cached } from '../../lib/offline';
 import { supabase } from '../../lib/supabase';
 import { Habit } from '../../types/habit';
 import { ACCENT, BLUE, CARD_BG, DANGER, MUTED } from '../../constants/theme';
@@ -51,8 +53,8 @@ export default function HabitsScreen() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase
-        .from('habits').select('*').eq('active', true).order('sort_order', { ascending: true });
+    const data = await cached<Habit[]>('habits:list', () =>
+      supabase.from('habits').select('*').eq('active', true).order('sort_order', { ascending: true }));
     setHabits(data ?? []);
     setLoading(false);
   }, []);
@@ -104,6 +106,7 @@ export default function HabitsScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Habits</Text>
+      <OfflineBanner />
 
       <View style={styles.addCard}>
         <TextInput

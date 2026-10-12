@@ -3,6 +3,7 @@
 // Hindernis benennen, immer genau einen kleinen nächsten Schritt haben.
 import { Dream, DreamHorizon, DreamStage } from '../types/dream';
 import { isoWeekKey } from './period';
+import { cached } from './offline';
 import { supabase } from './supabase';
 import { refreshDreamWidgets } from './widget-bridge';
 
@@ -169,12 +170,9 @@ export function pickDreamOfDay(dreams: Dream[], date: Date = new Date()): Dream 
  * ohne diese Abfrage sähe ein Traum mit laufendem Schritt aus, als fehle er.
  */
 export async function loadStepsThisWeek(): Promise<Record<string, string>> {
-  const { data } = await supabase
-    .from('tasks')
-    .select('dream_id, title')
-    .not('dream_id', 'is', null)
-    .eq('week_key', isoWeekKey())
-    .eq('done', false);
+  const week = isoWeekKey();
+  const data = await cached<{ dream_id: string | null; title: string }[]>(`dreams:stepsThisWeek:${week}`, () =>
+    supabase.from('tasks').select('dream_id, title').not('dream_id', 'is', null).eq('week_key', week).eq('done', false));
   const byDream: Record<string, string> = {};
   (data ?? []).forEach((t) => {
     if (t.dream_id) byDream[t.dream_id] = t.title;

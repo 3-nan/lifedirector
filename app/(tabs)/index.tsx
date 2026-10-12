@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { CelebrationOverlay, CelebrationPayload } from '../../components/celebration';
 import { KeyboardAwareScroll } from '../../components/keyboard-aware';
+import { OfflineBanner } from '../../components/offline-banner';
 import { isSecured } from '../../lib/account';
 import { dreamColor, nextStepToWeeklyTask, pickDreamOfWeek, updateDream } from '../../lib/dreams';
 import { CATEGORY_EMOJI, CATEGORY_LABEL, CATEGORY_ROTATION, setChallengeStatus } from '../../lib/challenges';
@@ -27,6 +28,7 @@ import { isDaily, targetOf } from '../../lib/habits';
 import { setupDailyReminder } from '../../lib/notifications';
 import { refreshDreamWidgets } from '../../lib/widget-bridge';
 import { daysAgoStr, isoWeekKey, todayStr } from '../../lib/period';
+import { cached, pendingHabitDone, pendingTaskDone, setHabitDone, setTaskDone, syncPending } from '../../lib/offline';
 import { supabase } from '../../lib/supabase';
 import { Challenge, ChallengeCategory, ChallengeStatus } from '../../types/challenge';
 import { Dream } from '../../types/dream';
@@ -98,19 +100,23 @@ export default function TodayScreen() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const { data: habitsData } = await supabase
-      .from('habits').select('*').eq('active', true).order('sort_order', { ascending: true });
-    const { data: logsData } = await supabase
-      .from('logs').select('habit_id, date, done').eq('date', todayStr());
-    const { data: historyData } = await supabase
-      .from('logs').select('habit_id, date, done').gte('date', daysAgoStr(MOMENTUM_WINDOW_DAYS)).eq('done', true);
-    const { data: dreamsData } = await supabase.from('dreams').select('*');
-    const { data: tasksData } = await supabase
-      .from('tasks').select('*').eq('week_key', isoWeekKey()).order('created_at', { ascending: true });
-    const { data: challengesData } = await supabase
-      .from('challenges').select('*').eq('active', true);
-    const { data: progressData } = await supabase
-      .from('challenge_progress').select('challenge_id, status').eq('status', 'active');
+    // Erst offline Abgehaktes übertragen, dann laden. Ohne Netz kommt überall
+    // der zuletzt gespeicherte Stand (lib/offline.ts).
+    await syncPending();
+    const today = todayStr();
+    const habitsData = await cached<Habit[]>('today:habits', () =>
+      supabase.from('habits').select('*').eq('active', true).order('sort_order', { ascending: true }));
+    const logsData = await cached<{ habit_id: string; date: string; done: boolean }[]>(`today:logs:${today}`, () =>
+      supabase.from('logs').select('habit_id, date, done').eq('date', today));
+    const historyData = await cached<{ habit_id: string; date: string }[]>('today:history', () =>
+      supabase.from('logs').select('habit_id, date, done').gte('date', daysAgoStr(MOMENTUM_WINDOW_DAYS)).eq('done', true));
+    const dreamsData = await cached<Dream[]>('today:dreams', () => supabase.from('dreams').select('*'));
+    const tasksData = await cached<Task[]>(`today:tasks:${isoWeekKey()}`, () =>
+      supabase.from('tasks').select('*').eq('week_key', isoWeekKey()).order('created_at', { ascending: true }));
+    const challengesData = await cached<Challenge[]>('today:challenges', () =>
+      supabase.from('challenges').select('*').eq('active', true));
+    const progressData = await cached<{ challenge_id: string }[]>('today:progress', () =>
+      supabase.from('challenge_progress').select('challenge_id, status').eq('status', 'active'));
 
     const map: Record<string, boolean> = {};
     logsData?.forEach((l) => { map[l.habit_id] = l.done; });
@@ -121,13 +127,23 @@ export default function TodayScreen() {
       history[l.habit_id].add(l.date);
     });
 
+    // Offline gemerkte Haken darüberlegen, bis sie übertragen sind.
+    for (const p of await pendingHabitDone()) {
+      if (p.date === today) map[p.habitId] = p.done;
+      if (!history[p.habitId]) history[p.habitId] = new Set();
+      if (p.done) history[p.habitId].add(p.date);
+      else history[p.habitId].delete(p.date);
+    }
+    const pendingTasks = await pendingTaskDone();
+    const tasksWithPending = (tasksData ?? []).map((t) => (t.id in pendingTasks ? { ...t, done: pendingTasks[t.id] } : t));
+
     const activeIds = new Set(progressData?.map((p) => p.challenge_id));
     const active = (challengesData ?? []).filter((c) => activeIds.has(c.id));
 
     setHabits(habitsData ?? []);
     setDoneMap(map);
     setHistoryMap(history);
-    setTasks(tasksData ?? []);
+    setTasks(tasksWithPending);
     setDreams(dreamsData ?? []);
     setActiveChallenges(active);
     setShowSecureNudge(await shouldShowSecureNudge(habitsData ?? []));
@@ -181,10 +197,7 @@ export default function TodayScreen() {
       });
     }
 
-    await supabase.from('logs').upsert(
-      { habit_id: habit.id, date: today, done: newDone },
-      { onConflict: 'habit_id,date' }
-    );
+    await setHabitDone(habit.id, today, newDone);
   }
 
   async function toggleTask(task: Task) {
@@ -202,10 +215,7 @@ export default function TodayScreen() {
       });
     }
     // Der zugehörige Traum-Schritt wird per DB-Trigger mit abgehakt.
-    await supabase.from('tasks').update({
-      done: newDone,
-      completed_at: newDone ? new Date().toISOString() : null,
-    }).eq('id', task.id);
+    await setTaskDone(task.id, newDone);
     if (task.dream_id) refreshDreamWidgets();
   }
 
@@ -287,6 +297,7 @@ export default function TodayScreen() {
           </TouchableOpacity>
         </View>
         <Text style={styles.encouragement}>{encouragement}</Text>
+        <OfflineBanner canCheckOff />
 
         {showSecureNudge && (
           <View style={styles.nudgeCard}>

@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { currentStep, dreamColor, HORIZON_LABEL, HORIZON_ORDER, isOpen, loadStepsThisWeek, STAGE_LABEL } from '../../lib/dreams';
 import { onDreamImageChanged, PHOTO_PANEL_ALPHA, withAlpha } from '../../lib/dream-image';
+import { OfflineBanner } from '../../components/offline-banner';
+import { cached } from '../../lib/offline';
 import { supabase } from '../../lib/supabase';
 import { Dream } from '../../types/dream';
 import { ACCENT, BLUE, CARD_BG, MUTED_TEXT, ORANGE_TEXT } from '../../constants/theme';
@@ -15,8 +17,8 @@ export default function DreamsScreen() {
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
-    const [{ data }, steps] = await Promise.all([
-      supabase.from('dreams').select('*').order('created_at', { ascending: true }),
+    const [data, steps] = await Promise.all([
+      cached<Dream[]>('dreams:all', () => supabase.from('dreams').select('*').order('created_at', { ascending: true })),
       loadStepsThisWeek(),
     ]);
     setDreams(data ?? []);
@@ -47,6 +49,7 @@ export default function DreamsScreen() {
         </TouchableOpacity>
       </View>
       <Text style={styles.lead}>Was du im Leben noch erleben willst — und der nächste kleine Schritt dahin.</Text>
+      <OfflineBanner />
 
       {open.length === 0 && (
         <View style={styles.emptyCard}>

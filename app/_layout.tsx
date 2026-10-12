@@ -5,6 +5,7 @@ import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'rea
 import 'react-native-reanimated';
 import { KeyboardAwareProvider } from '../components/keyboard-aware';
 import { fetchMissingDreamImages } from '../lib/dream-image';
+import { syncPending } from '../lib/offline';
 import { ensureSession } from '../lib/supabase';
 import { refreshDreamWidgets } from '../lib/widget-bridge';
 
@@ -22,6 +23,8 @@ export default function RootLayout() {
         setReady(true);
         // Widgets beim App-Start auffrischen (z.B. nach Änderungen auf einem anderen Gerät).
         refreshDreamWidgets();
+        // Offline Abgehaktes übertragen.
+        syncPending().catch(() => {});
         // Fotos für Träume nachholen, bei denen noch nie gesucht wurde.
         fetchMissingDreamImages();
       })
@@ -37,13 +40,17 @@ export default function RootLayout() {
 
   // Alle Screens laden ihre Daten direkt beim Mount — ohne Session würden die
   // Abfragen an den Row-Level-Security-Regeln scheitern und leer bleiben.
+  // Fehler gibt es hier nur beim allerersten Start ohne Netz (siehe ensureSession).
   if (!ready) {
     return (
       <View style={styles.center}>
         {error ? (
           <>
-            <Text style={styles.errorTitle}>Verbindung fehlgeschlagen</Text>
-            <Text style={styles.errorText}>{error}</Text>
+            <Text style={styles.errorTitle}>Keine Verbindung</Text>
+            <Text style={styles.errorText}>
+              Für den allerersten Start braucht LifeDirector einmal Internet, um deinen Account anzulegen. Danach startet die App auch offline.
+            </Text>
+            <Text style={styles.errorDetail}>{error}</Text>
             <TouchableOpacity style={styles.retry} onPress={retry} activeOpacity={0.7}>
               <Text style={styles.retryText}>Nochmal versuchen</Text>
             </TouchableOpacity>
@@ -74,7 +81,8 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24, backgroundColor: '#fff' },
   errorTitle: { fontSize: 17, fontWeight: '600', marginBottom: 8 },
-  errorText: { fontSize: 13, color: '#666', textAlign: 'center', marginBottom: 20 },
+  errorText: { fontSize: 13, color: '#666', textAlign: 'center', lineHeight: 19, marginBottom: 8 },
+  errorDetail: { fontSize: 11, color: '#999', textAlign: 'center', marginBottom: 20 },
   retry: { backgroundColor: '#34c759', borderRadius: 10, paddingHorizontal: 18, paddingVertical: 12 },
   retryText: { color: '#fff', fontWeight: '600' },
 });

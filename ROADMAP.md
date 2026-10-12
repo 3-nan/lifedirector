@@ -145,6 +145,32 @@ lebt die gemeinsame Challenge (Social)?
 - **Styling-Konstanten** zentral in `constants/theme.ts` (2026-10-09, PR #8).
 - **EAS Update** (2026-10-09): JS-Änderungen ohne neuen Build aufs Handy.
 
+## Offline (2026-10-11)
+Anlass: ohne Internet startete die App nicht. Ursache: nach ~1 Std. ist das
+Zugangs-Token abgelaufen, offline kann supabase-js es nicht erneuern, die
+App hielt das für "kein Account" und wollte einen neuen anonymen anlegen —
+offline scheiterte das (Fehlerbildschirm), bei wackeligem Netz hätte es den
+bestehenden Account auf dem Gerät durch einen leeren ersetzen können.
+
+Umgesetzt:
+- **Start:** liegt eine Session auf dem Gerät, startet die App immer (auch
+  offline mit abgelaufenem Token); ein neuer Account entsteht nur, wenn
+  wirklich keine Session gespeichert ist (`ensureSession` in
+  `lib/supabase.ts`). Nur der allererste Start braucht Internet.
+- **Letzter Stand:** Today, Habits, Träume-Board, Traum-Detail und das
+  Widget zeigen ohne Netz die zuletzt geladenen Daten (`cached()` in
+  `lib/offline.ts`), dazu ein Hinweis-Balken (`components/offline-banner.tsx`).
+- **Offline abhaken** (Habits + Wochen-Tasks auf `Today`): wird auf dem Gerät
+  gemerkt und übertragen, sobald wieder Netz da ist (App-Start, Zurückkehren
+  in die App, nächstes Laden).
+- **Entschieden: abgehakt gewinnt.** Was irgendwo abgehakt wurde, gilt als
+  erledigt; offen ist es nur, wenn es nirgendwo abgehakt ist. Offline
+  zurückgenommene Haken werden deshalb nur lokal angezeigt und nie
+  übertragen.
+
+Noch nicht offline: Anlegen/Bearbeiten (Habits, Tasks, Träume, Monatsziele),
+Challenge-Status, Traum-Schritte — dafür braucht es weiterhin Netz.
+
 ## Struktur: drei Zeithorizonte
 
 | Horizont | Was | Rhythmus | Kategorisiert? | Lebt wo? |
