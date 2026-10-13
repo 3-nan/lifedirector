@@ -22,6 +22,7 @@ ist vorbereitet, aber noch nicht entschieden.
 | EAS Update (JS-Änderungen ohne neuen Build) | live | Play-Store → Build |
 | `Today` entschlackt (Wochenkarte, Challenge-Karte, Tagesring) | umgesetzt, Test auf dem Handy | Fokus statt Überladung |
 | Wochenplanung / Top 3 pro Woche | verworfen (2026-10-12) | Fokus statt Überladung |
+| Habits-Tab aufgewertet + `Rückblick` (Woche/Monat) | umgesetzt, Test auf dem Handy | Habits & Rückblick |
 | Fokus-Wochen | Konzept | Fokus-Wochen |
 | Social: gemeinsame Challenges (Duo) | Konzept | Social |
 | Play-Store-Release | vorbereitet, nicht entschieden | Play-Store-Release |
@@ -34,9 +35,8 @@ ist vorbereitet, aber noch nicht entschieden.
    die Fotos? nervt der Alert beim Challenge-Ziehen/bei der Kategorie-Wahl?
    fehlt eine Übersicht über erledigte Items über Zeit?). Speist direkt
    Punkt 1.
-3. **Monats-Review:** erledigte Challenges/Monatsziele + Wochen-Tasks-Quote
-   in `Review` — Daten existieren, Review-UI zieht noch nicht nach. Passt zu
-   "Kein Schuld-Stapel": Review zeigt vor allem, was geschafft wurde.
+3. ~~**Monats-Review**~~ → umgesetzt 2026-10-13 als `Rückblick` mit
+   Woche/Monat (siehe "Habits & Rückblick"); auf dem Handy testen.
 4. **Gezogene Challenge als eigene Karte/State statt `Alert.alert`** — v.a.
    relevant, falls die Challenge länger "aktiv" bleibt (ongoing-Kategorie)
    und man sie wiederfinden will, ohne erneut zu ziehen.
@@ -144,7 +144,7 @@ Offene Fragen: Welche Bausteine sind in Fokus-Wochen-Monaten pausiert? Wo
 lebt die gemeinsame Challenge (Social)?
 
 ## Stand: was live ist
-- **Core-Habit-Tracking** (`Today` / `Habits` / `Review`) gegen Supabase.
+- **Core-Habit-Tracking** (`Today` / `Habits` / `Rückblick`) gegen Supabase.
 - **Habit-Frequenz** (2026-10-05): jeder Habit hat ein Wochenziel
   (`habits.target_per_week`, 7 = täglich, 1–6 = x-mal pro ISO-Woche).
   1–6×-Habits haben Wochen-Streak/-Momentum, Celebration beim Erreichen des
@@ -162,6 +162,40 @@ lebt die gemeinsame Challenge (Social)?
   (2026-10-09) und **Home-Screen-Widgets** in 4 Größen mit Fotos.
 - **Styling-Konstanten** zentral in `constants/theme.ts` (2026-10-09, PR #8).
 - **EAS Update** (2026-10-09): JS-Änderungen ohne neuen Build aufs Handy.
+
+## Habits & Rückblick (umgesetzt 2026-10-13)
+Mockup: `docs/mockup-habits-review.html` (abgestimmt; Raster in den
+Habit-Karten und Kalender im Monat bewusst verworfen — zu viel).
+
+- **Habits-Tab:** Emoji pro Habit (`habits.icon`, Spalte gab es schon) +
+  feste Farbe aus der Habit-ID (keine DB-Änderung), Haken insgesamt, Serie
+  bzw. Momentum als Pill, beste Serie, **Wachstumsstufe** nach Anzahl Haken:
+  🌱 Keimt (< 10) → 🌿 Wächst → 🌳 Gefestigt (≥ 66, angelehnt an die ~66
+  Tage aus der Gewohnheitsforschung). Sortieren/Löschen/Frequenz/Emoji nur im
+  Modus "Bearbeiten"; "Neuer Habit" als aufklappbares Formular.
+- **`Review` → `Rückblick`** mit Umschalter Woche/Monat, Logik in
+  `lib/review.ts`. Grundsatz: zeigt, was geschafft wurde — keine roten
+  Balken, kein "schwächster Habit/Tag" mehr.
+  - **Woche** (Mo/Di die letzte, fertige Woche, sonst die laufende; zurück-
+    blätterbar): Haken + Identitäts-Satz, Vergleich zur Vorwoche nur, wenn
+    besser; "Deine Erfolge" (Wochenziele, Serien ab 3 Tagen, perfekte Tage =
+    alle täglichen Habits erledigt, Wochen-Tasks, Challenge, erfüllter Traum);
+    Tagesringe Mo–So; Gewohnheiten mit Punkten pro Tag, beste zuerst.
+    Höchstens **ein Tipp**, nur für die gerade abgeschlossene Woche: Habit
+    unter 50 % → "Auf n× ändern" (setzt das Wochenziel) oder "Passt so"
+    (auf dem Gerät gemerkt).
+  - **Monat** (in den ersten 5 Tagen der Vormonat): keine Einzeltage, nur
+    erreichte Ziele — Challenge, Monatsziele (offene grau, ohne Wertung),
+    Traum-Schritte/erfüllte Träume, Wochen-Tasks nach Kategorie, zuletzt
+    Gewohnheiten mit "Wochenziel in x von y Wochen" (Wochen = ISO-Wochen,
+    deren Donnerstag im Monat liegt). Darunter Gesamtbilanz "Seit du dabei
+    bist" und **Abzeichen** (aus der Historie berechnet, nicht gespeichert).
+- Alle erledigten Logs werden seitenweise geladen (`fetchDoneLogs`,
+  Supabase liefert max. 1000 Zeilen pro Abfrage).
+
+Später/offen: Emoji auch auf `Today` in der Habit-Liste; unerledigte
+Monatsziele in den nächsten Monat mitnehmen ("Kein Schuld-Stapel" Punkt 4);
+Haptik beim Freischalten eines Abzeichens.
 
 ## Offline (2026-10-11)
 Anlass: ohne Internet startete die App nicht. Ursache: nach ~1 Std. ist das
