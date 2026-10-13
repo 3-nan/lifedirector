@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LifeDirector – Mockup Habits &amp; Rückblick</title>
+<!--
+  Vorschlag (2026-10-13): Habits-Tab visuell aufwerten, Review zum
+  motivierenden "Rückblick" mit Woche/Monat umbauen. Farben aus
+  constants/theme.ts. Umgesetzt 2026-10-13 (Habits: "Bearbeiten" statt
+  "Sortieren", Formular per "+ Neuer Habit" aufklappbar).
+  Rendern:
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless \
+    --screenshot=docs/mockup-habits-review.png --window-size=1500,1320 --hide-scrollbars \
+    --force-device-scale-factor=2 docs/mockup-habits-review.html
+-->
+<style>
+  :root {
+    --page-bg: #eceeef; --bg: #fff; --card: #f7f7f8; --badge-bg: #ececee;
+    --border: #e2e2e5; --frame-border: #d7d7db; --muted: #9a9a9e; --muted-text: #6b6b70;
+    --text: #1c1c1e; --green: #34c759; --green-text: #1f7a35; --blue: #007aff;
+    --peach-bg: #fff0e0; --peach-text: #a44f00; --peach-bar: #f08a24;
+    --purple-bg: #f3eafd; --purple: #8944ab;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page-bg); color: var(--text); padding: 28px 24px;
+    font: 14px -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .frames { display: flex; gap: 24px; justify-content: center; align-items: flex-start; flex-wrap: wrap; }
+  .col { width: 342px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+  .caption { font-size: 13px; font-weight: 600; text-align: center; }
+  .caption small { display: block; font-weight: 400; color: var(--muted-text); margin-top: 2px; }
+  .phone { width: 100%; height: 1230px; background: var(--bg); border: 1px solid var(--frame-border);
+    border-radius: 34px; overflow: hidden; display: flex; flex-direction: column; }
+  .screen { flex: 1; padding: 22px 16px 0; display: flex; flex-direction: column; gap: 14px; overflow: hidden; }
+  .head-row { display: flex; justify-content: space-between; align-items: center; }
+  h2 { font-size: 21px; font-weight: 600; margin: 0; }
+  .link { color: var(--blue); font-size: 13px; }
+  .sub { font-size: 12px; color: var(--muted-text); margin-top: -8px; line-height: 1.4; }
+  .sec { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: -6px; text-transform: none; }
+
+  /* ---------- Habits ---------- */
+  .hcard { border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 9px; background: var(--card); }
+  .htop { display: flex; gap: 10px; align-items: center; }
+  .tile { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-size: 21px; flex-shrink: 0; }
+  .grow { flex: 1; min-width: 0; }
+  .hname { font-size: 15px; font-weight: 600; }
+  .hmeta { font-size: 11.5px; color: var(--muted-text); margin-top: 2px; }
+  .pill { font-size: 11.5px; font-weight: 700; border-radius: 9px; padding: 4px 8px; white-space: nowrap; }
+  .hfoot { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--muted-text); }
+  .stage { display: flex; align-items: center; gap: 6px; }
+  .stage .track { width: 64px; height: 5px; border-radius: 3px; background: #e5e5e7; overflow: hidden; }
+  .stage .track b { display: block; height: 5px; border-radius: 3px; }
+  .newbtn { border: 1.5px dashed #c7c7cc; border-radius: 14px; padding: 13px; text-align: center; color: var(--blue); font-size: 14px; font-weight: 600; }
+  .sheet { background: var(--card); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border: 1.5px solid var(--green); }
+  .emojis { display: flex; gap: 6px; flex-wrap: wrap; }
+  .emojis span { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: #fff; font-size: 18px; }
+  .emojis span.sel { background: #e3f7e8; outline: 2px solid var(--green); }
+  .input { background: #fff; border-radius: 10px; padding: 10px 12px; font-size: 14px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; }
+  .chip { font-size: 12px; color: #555; background: var(--badge-bg); border-radius: 8px; padding: 5px 9px; }
+  .chip.sel { background: var(--green); color: #fff; font-weight: 600; }
+  .btn { background: var(--green); color: #fff; border-radius: 10px; padding: 10px; font-size: 13.5px; font-weight: 600; text-align: center; }
+
+  /* ---------- Rückblick ---------- */
+  .seg { display: flex; background: var(--badge-bg); border-radius: 9px; padding: 2px; }
+  .seg span { flex: 1; text-align: center; font-size: 12.5px; padding: 6px; border-radius: 7px; color: var(--muted-text); }
+  .seg span.on { background: #fff; color: var(--text); font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+  .weeknav { display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; color: var(--muted-text); margin-top: -4px; }
+  .weeknav b { color: var(--text); font-weight: 600; }
+  .weeknav .arr { color: var(--blue); font-size: 16px; padding: 0 6px; }
+  .weeknav .arr.off { color: #d1d1d6; }
+  .hero { border-radius: 16px; padding: 16px; background: linear-gradient(135deg, #e3f7e8, #f2fbf4); display: flex; gap: 14px; align-items: center; }
+  .hero .num { font-size: 40px; font-weight: 800; color: var(--green-text); line-height: 1; }
+  .hero .unit { font-size: 13px; font-weight: 600; color: var(--green-text); }
+  .hero p { margin: 4px 0 0; font-size: 12.5px; color: #3c4a40; line-height: 1.4; }
+  .up { display: inline-block; font-size: 11px; font-weight: 700; color: var(--green-text); background: #fff; border-radius: 7px; padding: 2px 7px; margin-top: 6px; }
+  .wins { display: flex; flex-direction: column; gap: 6px; }
+  .win { display: flex; gap: 10px; align-items: center; background: var(--card); border-radius: 12px; padding: 10px 12px; font-size: 13px; line-height: 1.35; }
+  .win .em { font-size: 20px; width: 26px; text-align: center; }
+  .win small { display: block; font-size: 11px; color: var(--muted-text); }
+  .days { display: flex; justify-content: space-between; background: var(--card); border-radius: 14px; padding: 12px 10px; }
+  .dcol { display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 10.5px; color: var(--muted); flex: 1; }
+  .dcol.best { color: var(--green-text); font-weight: 700; }
+  .ring { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; }
+  .hrow { display: flex; align-items: center; gap: 10px; padding: 9px 0; }
+  .hrow + .hrow { border-top: 1px solid #ececef; }
+  .hlist { background: var(--card); border-radius: 14px; padding: 2px 12px; }
+  .dots { display: flex; gap: 3px; }
+  .dots i { width: 9px; height: 9px; border-radius: 50%; background: #e2e2e6; display: block; }
+  .count { font-size: 11.5px; color: var(--muted-text); width: 34px; text-align: right; }
+  .met { font-size: 10.5px; font-weight: 700; color: var(--green-text); background: #e3f7e8; border-radius: 6px; padding: 2px 6px; }
+  .tip { background: var(--peach-bg); border-radius: 14px; padding: 12px; font-size: 12.5px; color: #4a3a2c; line-height: 1.45; }
+  .tip b { display: block; color: var(--peach-text); font-size: 12px; margin-bottom: 4px; }
+  .tip .acts { display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px; font-size: 12px; }
+  .tip .go { background: #b25900; color: #fff; border-radius: 8px; padding: 5px 10px; font-weight: 600; }
+  .tip .later { color: var(--peach-text); padding: 5px 0; }
+
+  .cal { background: var(--card); border-radius: 14px; padding: 12px; }
+  .done-list { display: flex; flex-direction: column; gap: 6px; }
+  .done-item { display: flex; gap: 10px; align-items: center; border-radius: 12px; padding: 10px 12px; font-size: 13px; }
+  .done-item small { display: block; font-size: 11px; color: var(--muted-text); }
+  .chk { width: 20px; height: 20px; border-radius: 50%; background: var(--green); flex-shrink: 0; display: grid; place-items: center; }
+  .chk::after { content: ""; width: 8px; height: 4px; border-left: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(-45deg) translate(1px, -1px); }
+  .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .t { background: var(--card); border-radius: 12px; padding: 10px 6px; text-align: center; }
+  .t .e { font-size: 18px; }
+  .t b { display: block; font-size: 17px; font-weight: 700; margin-top: 2px; }
+  .t span { font-size: 10px; color: var(--muted-text); }
+  .badges { display: flex; gap: 8px; overflow: hidden; }
+  .bdg { width: 62px; flex-shrink: 0; text-align: center; font-size: 9.5px; color: var(--muted-text); line-height: 1.25; }
+  .bdg .m { width: 52px; height: 52px; margin: 0 auto 4px; border-radius: 50%; display: grid; place-items: center; font-size: 24px;
+    background: radial-gradient(circle at 35% 30%, #fff8e6, #ffd98a); box-shadow: inset 0 0 0 2px #f2c55c; }
+  .bdg.lock .m { background: #f0f0f2; box-shadow: inset 0 0 0 2px #e2e2e6; filter: grayscale(1); opacity: .55; }
+
+  .tabbar { display: flex; border-top: 1px solid var(--border); padding: 9px 4px 16px; background: var(--bg); }
+  .tab { flex: 1; text-align: center; color: var(--muted); font-size: 10px; }
+  .tab.on { color: var(--blue); font-weight: 600; }
+  .note { max-width: 1100px; margin: 26px auto 0; font-size: 12.5px; color: #444; line-height: 1.55; }
+  .note b { color: var(--text); }
+</style>
+</head>
+<body>
+<div class="frames">
+
+  <!-- ================= HABITS ================= -->
+  <div class="col">
+    <div class="caption">Habits<small>Emoji + Farbe pro Habit, Kennzahlen, Wachstumsstufe</small></div>
+    <div class="phone"><div class="screen">
+      <div class="head-row"><h2>Habits</h2><span class="link">Sortieren</span></div>
+      <div class="sub">5 Gewohnheiten · 412 Haken seit dem Start</div>
+
+      <!-- Lesen: daily, grün -->
+      <div class="hcard">
+        <div class="htop">
+          <div class="tile" style="background:#e3f7e8">📖</div>
+          <div class="grow"><div class="hname">Lesen</div><div class="hmeta">Täglich · 96× gemacht</div></div>
+          <span class="pill" style="background:#fff0e0;color:#b25900">🔥 12 Tage</span>
+        </div>
+        <div class="hfoot">
+          <span>Beste Serie: 21 Tage</span>
+          <span class="stage">🌳 Gefestigt <span class="track"><b style="width:100%;background:#34c759"></b></span></span>
+        </div>
+      </div>
+
+      <!-- Gym: 3x, blau -->
+      <div class="hcard">
+        <div class="htop">
+          <div class="tile" style="background:#e5f0ff">🏋️</div>
+          <div class="grow"><div class="hname">Gym</div><div class="hmeta">3× pro Woche · 2/3 diese Woche</div></div>
+          <span class="pill" style="background:#e5f0ff;color:#0058c4">🔥 6 Wochen</span>
+        </div>
+        <div class="hfoot">
+          <span>Wochenziel 6× in Folge erreicht</span>
+          <span class="stage">🌿 Wächst <span class="track"><b style="width:68%;background:#007aff"></b></span></span>
+        </div>
+      </div>
+
+      <!-- Meditation: daily, lila -->
+      <div class="hcard">
+        <div class="htop">
+          <div class="tile" style="background:#f3eafd">🧘</div>
+          <div class="grow"><div class="hname">Meditieren</div><div class="hmeta">Täglich · 31× gemacht</div></div>
+          <span class="pill" style="background:#f3eafd;color:#8944ab">Momentum 58</span>
+        </div>
+        <div class="hfoot">
+          <span>Noch im Fluss, auch nach der Pause</span>
+          <span class="stage">🌿 Wächst <span class="track"><b style="width:47%;background:#af52de"></b></span></span>
+        </div>
+      </div>
+
+      <!-- Neu: Sprache, peach, jung -->
+      <div class="hcard">
+        <div class="htop">
+          <div class="tile" style="background:#fff0e0">🇪🇸</div>
+          <div class="grow"><div class="hname">Spanisch</div><div class="hmeta">5× pro Woche · seit 9 Tagen</div></div>
+          <span class="pill" style="background:#fff0e0;color:#b25900">🔥 1 Woche</span>
+        </div>
+        <div class="hfoot">
+          <span>7× gemacht</span>
+          <span class="stage">🌱 Keimt <span class="track"><b style="width:70%;background:#f08a24"></b></span></span>
+        </div>
+      </div>
+
+      <div class="sheet">
+        <div style="font-size:13px;font-weight:600">Neuer Habit</div>
+        <div class="emojis">
+          <span class="sel">💧</span><span>🏃</span><span>🥗</span><span>✍️</span><span>🎸</span><span>😴</span><span>📵</span><span>🌿</span>
+        </div>
+        <div class="input">Wasser trinken</div>
+        <div class="chips">
+          <span class="chip sel">Täglich</span><span class="chip">1×</span><span class="chip">2×</span><span class="chip">3×</span><span class="chip">4×</span><span class="chip">5×</span><span class="chip">6×</span>
+        </div>
+        <div class="btn">Anlegen</div>
+      </div>
+    </div>
+    <div class="tabbar"><div class="tab">Heute</div><div class="tab on">Habits</div><div class="tab">Challenges</div><div class="tab">Träume</div><div class="tab">Rückblick</div></div>
+    </div>
+  </div>
+
+  <!-- ================= RÜCKBLICK: WOCHE ================= -->
+  <div class="col">
+    <div class="caption">Rückblick · Woche<small>Erfolge zuerst, keine roten Balken, ein freundlicher Tipp</small></div>
+    <div class="phone"><div class="screen">
+      <h2>Rückblick</h2>
+      <div class="seg"><span class="on">Woche</span><span>Monat</span></div>
+      <div class="weeknav"><span class="arr">‹</span><span><b>KW 41</b> · 5.–11. Oktober</span><span class="arr">›</span></div>
+
+      <div class="hero">
+        <div style="text-align:center"><div class="num">23</div><div class="unit">Haken</div></div>
+        <div>
+          <p><b>Starke Woche.</b> Du wirst zur Person, die an 6 von 7 Tagen etwas für sich tut.</p>
+          <span class="up">📈 +4 gegenüber KW 40</span>
+        </div>
+      </div>
+
+      <div class="sec">Deine Erfolge</div>
+      <div class="wins">
+        <div class="win"><span class="em">🎯</span><div><b>Gym: Wochenziel erreicht</b><small>3 von 3 · die 6. Woche in Folge</small></div></div>
+        <div class="win"><span class="em">🔥</span><div><b>Lesen: 12 Tage am Stück</b><small>Nächster Meilenstein: 30 Tage</small></div></div>
+        <div class="win"><span class="em">⭐</span><div><b>2 perfekte Tage</b><small>Montag und Mittwoch: alles erledigt</small></div></div>
+        <div class="win"><span class="em">✅</span><div><b>4 Wochen-Tasks erledigt</b><small>davon 1 Schritt zu 🏄 Surfen lernen</small></div></div>
+      </div>
+
+      <div class="sec">Deine Woche</div>
+      <div class="days" id="days"></div>
+
+      <div class="sec">Pro Gewohnheit</div>
+      <div class="hlist" id="hlist"></div>
+
+      <div class="tip">
+        <b>Ein Gedanke für nächste Woche</b>
+        Meditieren kam auf 2 Tage. Ein kleineres Ziel fühlt sich oft leichter an — 3× pro Woche wäre schon voll erreicht gewesen.
+        <div class="acts"><span class="later">Passt so</span><span class="go">Auf 3× ändern</span></div>
+      </div>
+    </div>
+    <div class="tabbar"><div class="tab">Heute</div><div class="tab">Habits</div><div class="tab">Challenges</div><div class="tab">Träume</div><div class="tab on">Rückblick</div></div>
+    </div>
+  </div>
+
+  <!-- ================= RÜCKBLICK: MONAT ================= -->
+  <div class="col">
+    <div class="caption">Rückblick · Monat<small>Welche Ziele erreicht wurden — keine Einzeltage</small></div>
+    <div class="phone" style="height:1400px"><div class="screen">
+      <h2>Rückblick</h2>
+      <div class="seg"><span>Woche</span><span class="on">Monat</span></div>
+      <div class="weeknav"><span class="arr">‹</span><span><b>September</b></span><span class="arr">›</span></div>
+
+      <div class="hero" style="background:linear-gradient(135deg,#fff0e0,#fff8ef)">
+        <div style="text-align:center"><div class="num" style="color:#a44f00">8</div><div class="unit" style="color:#a44f00">Ziele erreicht</div></div>
+        <div><p style="color:#4a3a2c"><b>Ein Monat, der zählt.</b> Challenge gemeistert, 2 Monatsziele geschafft und 3 Gewohnheiten fest auf Kurs.</p></div>
+      </div>
+
+      <div class="sec">Challenge</div>
+      <div class="done-item" style="background:var(--purple-bg)"><span class="chk" style="background:#8944ab"></span><div class="grow"><b>🎨 Ein Gedicht schreiben</b><small>Gemeistert · deine 4. Challenge</small></div></div>
+
+      <div class="sec">Monatsziele</div>
+      <div class="done-list">
+        <div class="done-item" style="background:var(--card)"><span class="chk"></span><div><b>Umzug organisieren</b></div></div>
+        <div class="done-item" style="background:var(--card)"><span class="chk"></span><div><b>Fahrrad reparieren</b></div></div>
+        <div class="done-item" style="background:var(--card);color:var(--muted-text)"><span class="chk" style="background:#d1d1d6"></span><div><span>Steuererklärung</span><small>in den Oktober mitgenommen</small></div></div>
+      </div>
+
+      <div class="sec">Träume &amp; Wochen-Tasks</div>
+      <div class="done-list">
+        <div class="done-item" style="background:var(--peach-bg)"><span style="font-size:20px">🏄</span><div><b>Surfen lernen ist jetzt „Erkundet“</b><small>3 Schritte gemacht · zuletzt: Surfcamps verglichen</small></div></div>
+        <div class="done-item" style="background:var(--card)"><span style="font-size:20px">✅</span><div><b>14 Wochen-Tasks erledigt</b><small>💪 5 · 🎨 2 · 🤝 4 · 🔨 3</small></div></div>
+      </div>
+
+      <div class="sec">Gewohnheiten</div>
+      <div class="hlist" id="mhabits"></div>
+
+      <div class="sec">Seit du dabei bist</div>
+      <div class="tiles">
+        <div class="t"><div class="e">✔️</div><b>412</b><span>Haken</span></div>
+        <div class="t"><div class="e">🎯</div><b>23</b><span>Wochenziele</span></div>
+        <div class="t"><div class="e">📌</div><b>9</b><span>Monatsziele</span></div>
+        <div class="t"><div class="e">🏆</div><b>4</b><span>Challenges</span></div>
+        <div class="t"><div class="e">🪜</div><b>18</b><span>Traum-Schritte</span></div>
+        <div class="t"><div class="e">✨</div><b>1</b><span>Traum erfüllt</span></div>
+      </div>
+
+      <div class="sec">Abzeichen</div>
+      <div class="badges">
+        <div class="bdg"><div class="m">🌱</div>Erste Woche</div>
+        <div class="bdg"><div class="m">🔥</div>30 Tage am Stück</div>
+        <div class="bdg"><div class="m">🌳</div>Erste feste Gewohnheit</div>
+        <div class="bdg"><div class="m">🎨</div>Kreativ-Challenge</div>
+        <div class="bdg lock"><div class="m">💯</div>100 Tage</div>
+      </div>
+    </div>
+    <div class="tabbar"><div class="tab">Heute</div><div class="tab">Habits</div><div class="tab">Challenges</div><div class="tab">Träume</div><div class="tab on">Rückblick</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="note">
+  <b>Datenquellen:</b> alles existiert schon — <code>habits.icon</code> (Spalte vorhanden, bisher ungenutzt), <code>logs</code>,
+  <code>tasks</code>, <code>monthly_goals</code>, <code>challenge_progress</code>, <code>dream_steps</code>, <code>dreams.fulfilled_at</code>.
+  Farbe pro Habit wird aus der Habit-ID abgeleitet (keine DB-Änderung). Wachstumsstufe nach Anzahl Haken:
+  🌱 Keimt (&lt;10) → 🌿 Wächst (10–65) → 🌳 Gefestigt (66+, angelehnt an die ~66 Tage aus der Gewohnheitsforschung).
+  Abzeichen werden aus der Historie berechnet, nicht gespeichert.
+</div>
+
+<script>
+  // Woche: Anteil erledigt pro Tag
+  const week = [['Mo',1],['Di',.8],['Mi',1],['Do',.6],['Fr',.8],['Sa',.4],['So',0.6]];
+  const days = document.getElementById('days');
+  week.forEach(([d, r]) => {
+    const col = document.createElement('div');
+    col.className = 'dcol' + (r === 1 ? ' best' : '');
+    const ring = document.createElement('div');
+    ring.className = 'ring';
+    const deg = r * 360;
+    ring.style.background = `conic-gradient(#34c759 ${deg}deg, #e5e5ea ${deg}deg)`;
+    ring.innerHTML = `<span style="width:22px;height:22px;border-radius:50%;background:#f7f7f8;display:grid;place-items:center;font-size:11px">${r === 1 ? '⭐' : ''}</span>`;
+    col.appendChild(ring);
+    col.appendChild(document.createTextNode(d));
+    days.appendChild(col);
+  });
+
+  // Pro Gewohnheit — sortiert: beste zuerst
+  const rows = [
+    ['📖','Lesen','#34c759','1111111','7/7',true],
+    ['🏋️','Gym','#007aff','1010100','3/3',true],
+    ['🇪🇸','Spanisch','#f08a24','1110110','5/5',true],
+    ['🥗','Kochen','#ff9500','0101001','3/4',false],
+    ['🧘','Meditieren','#af52de','1000100','2/7',false],
+  ];
+  const hl = document.getElementById('hlist');
+  rows.forEach(([e,n,c,bits,cnt,met]) => {
+    const r = document.createElement('div');
+    r.className = 'hrow';
+    r.innerHTML = `<span style="font-size:17px">${e}</span><span class="grow" style="font-size:13.5px">${n} ${met ? '<span class="met">✓ Ziel</span>' : ''}</span>
+      <span class="dots">${[...bits].map(b => `<i style="${b==='1' ? 'background:'+c : ''}"></i>`).join('')}</span><span class="count">${cnt}</span>`;
+    hl.appendChild(r);
+  });
+
+  // Monat: Wochenziel pro Gewohnheit in x von 4 Wochen erreicht (Wochen, keine Tage)
+  const mrows = [
+    ['📖','Lesen','#34c759',4],['🏋️','Gym','#007aff',4],['🇪🇸','Spanisch','#f08a24',4],
+    ['🥗','Kochen','#ff9500',3],['🧘','Meditieren','#af52de',1],
+  ];
+  const mh = document.getElementById('mhabits');
+  mrows.forEach(([e,n,c,w]) => {
+    const segs = [0,1,2,3].map(i => `<i style="width:16px;height:6px;border-radius:3px;display:block;background:${i < w ? c : '#e2e2e6'}"></i>`).join('');
+    mh.insertAdjacentHTML('beforeend', `<div class="hrow"><span style="font-size:17px">${e}</span><span class="grow" style="font-size:13.5px">${n} ${w === 4 ? '<span class="met">✓ jede Woche</span>' : ''}<br><small style="font-size:11px;color:#6b6b70">Wochenziel in ${w} von 4 Wochen</small></span><span style="display:flex;gap:3px">${segs}</span></div>`);
+  });
+</script>
+</body>
+</html>

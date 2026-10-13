@@ -9,11 +9,11 @@ export type LogEntry = { date: string; done: boolean };
 export const MILESTONES = [3, 7, 30, 100] as const;
 export type Milestone = (typeof MILESTONES)[number];
 
-function dateStr(d: Date): string {
+export function dateStr(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
 
-function addDays(d: Date, delta: number): Date {
+export function addDays(d: Date, delta: number): Date {
   const copy = new Date(d);
   copy.setUTCDate(copy.getUTCDate() + delta);
   return copy;
@@ -81,12 +81,12 @@ export function computeMomentum(
 }
 
 /** Montag (UTC) der ISO-Woche, in der `d` liegt — gleiche Wochen wie `isoWeekKey`. */
-function mondayOf(d: Date): Date {
+export function mondayOf(d: Date): Date {
   const day = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
   return addDays(day, -((day.getUTCDay() + 6) % 7));
 }
 
-function countInWeek(doneDates: Set<string>, monday: Date): number {
+export function countInWeek(doneDates: Set<string>, monday: Date): number {
   let count = 0;
   for (let i = 0; i < 7; i++) {
     if (doneDates.has(dateStr(addDays(monday, i)))) count += 1;
@@ -114,6 +114,44 @@ export function computeWeekStreak(doneDates: Set<string>, target: number, today:
     monday = addDays(monday, -7);
   }
   return streak;
+}
+
+/** Längster Lauf aufeinanderfolgender erledigter Tage in der ganzen Historie. */
+export function bestStreak(doneDates: Set<string>): number {
+  let best = 0;
+  for (const key of doneDates) {
+    // Nur am Anfang eines Laufs zählen, sonst wird jeder Lauf mehrfach durchlaufen.
+    if (doneDates.has(dateStr(addDays(new Date(key), -1)))) continue;
+    let length = 1;
+    while (doneDates.has(dateStr(addDays(new Date(key), length)))) length += 1;
+    best = Math.max(best, length);
+  }
+  return best;
+}
+
+/** Montage aller Wochen von der ersten mit einem Haken bis zur laufenden. */
+function weeksSinceFirst(doneDates: Set<string>, today: Date): Date[] {
+  if (doneDates.size === 0) return [];
+  const first = [...doneDates].sort()[0];
+  const weeks: Date[] = [];
+  for (let monday = mondayOf(new Date(first)); monday <= today; monday = addDays(monday, 7)) weeks.push(monday);
+  return weeks;
+}
+
+/** Längster Lauf von Wochen mit erreichtem Wochenziel. */
+export function bestWeekStreak(doneDates: Set<string>, target: number, today: Date = new Date()): number {
+  let best = 0;
+  let run = 0;
+  for (const monday of weeksSinceFirst(doneDates, today)) {
+    run = countInWeek(doneDates, monday) >= target ? run + 1 : 0;
+    best = Math.max(best, run);
+  }
+  return best;
+}
+
+/** In wie vielen Wochen insgesamt das Wochenziel erreicht wurde. */
+export function weeksMet(doneDates: Set<string>, target: number, today: Date = new Date()): number {
+  return weeksSinceFirst(doneDates, today).filter((monday) => countInWeek(doneDates, monday) >= target).length;
 }
 
 const WEEK_MOMENTUM_GAIN = 30;
@@ -334,4 +372,23 @@ const STAGE_UP_LINES: Record<'explored' | 'planned' | 'committed' | 'fulfilled',
 
 export function stageUpLine(stage: 'explored' | 'planned' | 'committed' | 'fulfilled', seed: string): string {
   return pickForDay(STAGE_UP_LINES[stage], seed);
+}
+
+/** Kopfzeile im Wochen-Rückblick: Identität statt Quote, keine Schuld bei leeren Wochen. */
+export function weekHeadline(activeDays: number, elapsedDays: number, isCurrent: boolean): { title: string; text: string } {
+  if (activeDays === 0) {
+    return isCurrent
+      ? { title: 'Die Woche ist noch jung.', text: 'Der erste Haken landet hier.' }
+      : { title: 'Eine ruhige Woche.', text: 'Jede neue Woche fängt frisch an — ohne Schuld.' };
+  }
+  const ratio = activeDays / Math.max(1, elapsedDays);
+  const title = ratio >= 0.8 ? 'Starke Woche.' : ratio >= 0.5 ? 'Gute Woche.' : 'Drangeblieben.';
+  const days = isCurrent && elapsedDays < 7 ? `${elapsedDays} bisherigen Tagen` : '7 Tagen';
+  return { title, text: `Du wirst zur Person, die an ${activeDays} von ${days} etwas für sich tut.` };
+}
+
+/** "A, B und C" */
+export function joinGerman(parts: string[]): string {
+  if (parts.length <= 1) return parts.join('');
+  return `${parts.slice(0, -1).join(', ')} und ${parts[parts.length - 1]}`;
 }

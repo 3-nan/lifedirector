@@ -1,3 +1,4 @@
+import { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { ACCENT, TEXT } from '../constants/theme';
 
@@ -8,7 +9,11 @@ const TRACK = '#e5e5ea';
  * neuer Build). Zwei Halbkreis-Ausschnitte, in denen je ein halber Ring
  * passend gedreht wird.
  */
-export function DayRing({ done, total, size = 64, width = 7 }: { done: number; total: number; size?: number; width?: number }) {
+export function DayRing({ done, total, size = 64, width = 7, children }: {
+  done: number; total: number; size?: number; width?: number;
+  /** Ersetzt die Beschriftung "done/total" in der Mitte. */
+  children?: ReactNode;
+}) {
   const angle = total > 0 ? Math.min(done / total, 1) * 360 : 0;
   const half = size / 2;
 
@@ -48,7 +53,7 @@ export function DayRing({ done, total, size = 64, width = 7 }: { done: number; t
         </View>
       )}
       <View style={[StyleSheet.absoluteFill, styles.center]}>
-        <Text style={styles.label}>{done}/{total}</Text>
+        {children ?? <Text style={styles.label}>{done}/{total}</Text>}
       </View>
     </View>
   );
