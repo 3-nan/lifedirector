@@ -162,6 +162,9 @@ lebt die gemeinsame Challenge (Social)?
   (2026-10-09) und **Home-Screen-Widgets** in 4 Größen mit Fotos.
 - **Styling-Konstanten** zentral in `constants/theme.ts` (2026-10-09, PR #8).
 - **EAS Update** (2026-10-09): JS-Änderungen ohne neuen Build aufs Handy.
+- **Unit-Tests** (2026-10-15): Vitest für die reine Logik in `lib/`
+  (`period`, `motivation`, `review`), Start mit `npx vitest run`. "Heute"
+  ist überall der Kalendertag des Geräts (`localToday()`), nicht UTC.
 
 ## Habits & Rückblick (umgesetzt 2026-10-13)
 Mockup: `docs/mockup-habits-review.html` (abgestimmt; Raster in den
@@ -721,6 +724,10 @@ beantragen.
 - Abhängige Pakete aktuell halten (`npx expo install --check` meldete
   2026-10-09 Patch-Rückstände bei `expo-linking`, `expo-notifications`,
   `expo-router`) — beim nächsten nativen Build mitnehmen.
+- Beim nächsten nativen Build: `"test": "vitest run"` und
+  `"test:watch": "vitest"` in `package.json` ergänzen (2026-10-15 bewusst
+  weggelassen — npm-Scripts zählen zum Expo-Fingerprint und hätten die
+  `runtimeVersion` geändert; bis dahin `npx vitest run`).
 
 ## Entscheidungen, die schon getroffen wurden
 - ~~Kein Auth, kein Multi-User~~ → revidiert 2026-10-05: Multi-User mit
