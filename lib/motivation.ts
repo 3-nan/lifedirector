@@ -2,6 +2,7 @@
 // Phase 2: Fortschritt sichtbar & emotional belohnend machen, statt stummem
 // Abhaken. Siehe ROADMAP.md.
 
+import { localToday } from './period';
 import type { ChallengeSize } from '../types/challenge';
 
 export type LogEntry = { date: string; done: boolean };
@@ -24,7 +25,7 @@ export function addDays(d: Date, delta: number): Date {
  * "Heute" zählt nur mit, wenn es schon abgehakt ist — ist es das nicht,
  * bricht das den Streak noch nicht (der Tag ist ja noch nicht vorbei).
  */
-export function computeStreak(doneDates: Set<string>, today: Date = new Date()): number {
+export function computeStreak(doneDates: Set<string>, today: Date = localToday()): number {
   const todayKey = dateStr(today);
   let cursor = doneDates.has(todayKey) ? today : addDays(today, -1);
   let streak = 0;
@@ -55,7 +56,7 @@ const MOMENTUM_CAP = 100;
 export function computeMomentum(
   doneDates: Set<string>,
   habitCreatedAt: Date,
-  today: Date = new Date()
+  today: Date = localToday()
 ): number {
   const windowStart = addDays(today, -MOMENTUM_WINDOW_DAYS);
   const start = habitCreatedAt > windowStart ? habitCreatedAt : windowStart;
@@ -95,7 +96,7 @@ export function countInWeek(doneDates: Set<string>, monday: Date): number {
 }
 
 /** Wie oft der Habit in der laufenden Woche (Mo–So) schon erledigt wurde. */
-export function doneThisWeek(doneDates: Set<string>, today: Date = new Date()): number {
+export function doneThisWeek(doneDates: Set<string>, today: Date = localToday()): number {
   return countInWeek(doneDates, mondayOf(today));
 }
 
@@ -105,7 +106,7 @@ export function doneThisWeek(doneDates: Set<string>, today: Date = new Date()): 
  * mit, wenn das Ziel schon erreicht ist — sonst bricht sie den Streak noch
  * nicht (die Woche ist ja noch nicht vorbei).
  */
-export function computeWeekStreak(doneDates: Set<string>, target: number, today: Date = new Date()): number {
+export function computeWeekStreak(doneDates: Set<string>, target: number, today: Date = localToday()): number {
   let monday = mondayOf(today);
   if (countInWeek(doneDates, monday) < target) monday = addDays(monday, -7);
   let streak = 0;
@@ -139,7 +140,7 @@ function weeksSinceFirst(doneDates: Set<string>, today: Date): Date[] {
 }
 
 /** Längster Lauf von Wochen mit erreichtem Wochenziel. */
-export function bestWeekStreak(doneDates: Set<string>, target: number, today: Date = new Date()): number {
+export function bestWeekStreak(doneDates: Set<string>, target: number, today: Date = localToday()): number {
   let best = 0;
   let run = 0;
   for (const monday of weeksSinceFirst(doneDates, today)) {
@@ -150,7 +151,7 @@ export function bestWeekStreak(doneDates: Set<string>, target: number, today: Da
 }
 
 /** In wie vielen Wochen insgesamt das Wochenziel erreicht wurde. */
-export function weeksMet(doneDates: Set<string>, target: number, today: Date = new Date()): number {
+export function weeksMet(doneDates: Set<string>, target: number, today: Date = localToday()): number {
   return weeksSinceFirst(doneDates, today).filter((monday) => countInWeek(doneDates, monday) >= target).length;
 }
 
@@ -165,7 +166,7 @@ export function computeWeekMomentum(
   doneDates: Set<string>,
   target: number,
   habitCreatedAt: Date,
-  today: Date = new Date()
+  today: Date = localToday()
 ): number {
   const windowStart = addDays(today, -MOMENTUM_WINDOW_DAYS);
   const thisWeek = mondayOf(today);

@@ -11,7 +11,7 @@ import {
   MILESTONES, addDays, bestStreak, computeStreak, computeWeekStreak, countInWeek, dateStr, joinGerman, mondayOf,
   weekHeadline, weeksMet,
 } from './motivation';
-import { isoWeekKey, monthKey } from './period';
+import { isoWeekKey, localToday, monthKey, todayStr } from './period';
 import { Challenge } from '../types/challenge';
 import { Dream, DreamStep } from '../types/dream';
 import { Habit } from '../types/habit';
@@ -51,7 +51,7 @@ function datesOf(data: ReviewData, habit: Habit): Set<string> {
 
 /** Frühester Tag mit Daten — davor lässt sich nicht zurückblättern. */
 export function earliestDate(data: ReviewData): Date {
-  let earliest = dateStr(new Date());
+  let earliest = todayStr();
   for (const h of data.habits) if (createdKey(h) < earliest) earliest = createdKey(h);
   for (const set of Object.values(data.doneDates)) for (const d of set) if (d < earliest) earliest = d;
   return new Date(earliest);
@@ -80,12 +80,12 @@ export type WeekReview = {
 };
 
 /** Mo/Di zeigt der Rückblick die letzte, fertige Woche — sonst die laufende. */
-export function defaultWeekOffset(today: Date = new Date()): number {
+export function defaultWeekOffset(today: Date = localToday()): number {
   const day = today.getUTCDay();
   return day === 1 || day === 2 ? 1 : 0;
 }
 
-export function maxWeekOffset(earliest: Date, today: Date = new Date()): number {
+export function maxWeekOffset(earliest: Date, today: Date = localToday()): number {
   return Math.max(0, Math.round((mondayOf(today).getTime() - mondayOf(earliest).getTime()) / (7 * 24 * 3600 * 1000)));
 }
 
@@ -101,7 +101,7 @@ function weekRange(monday: Date): string {
   return `${a}. ${MONTHS[monday.getUTCMonth()]} – ${b}. ${MONTHS[sunday.getUTCMonth()]}`;
 }
 
-export function weekReview(data: ReviewData, offset: number, isFirstWeek: boolean, today: Date = new Date()): WeekReview {
+export function weekReview(data: ReviewData, offset: number, isFirstWeek: boolean, today: Date = localToday()): WeekReview {
   const monday = addDays(mondayOf(today), -7 * offset);
   const sunday = addDays(monday, 6);
   const dates = WEEKDAYS.map((_, i) => dateStr(addDays(monday, i)));
@@ -262,11 +262,11 @@ export type MonthReview = {
 };
 
 /** In den ersten Tagen eines Monats zeigt der Rückblick den Vormonat. */
-export function defaultMonthOffset(today: Date = new Date()): number {
+export function defaultMonthOffset(today: Date = localToday()): number {
   return today.getDate() <= 5 ? 1 : 0;
 }
 
-export function maxMonthOffset(earliest: Date, today: Date = new Date()): number {
+export function maxMonthOffset(earliest: Date, today: Date = localToday()): number {
   return Math.max(0, (today.getFullYear() - earliest.getFullYear()) * 12 + today.getMonth() - earliest.getMonth());
 }
 
@@ -280,7 +280,7 @@ function weeksOfMonth(year: number, month: number): Date[] {
   return mondays;
 }
 
-export function monthReview(data: ReviewData, offset: number, today: Date = new Date()): MonthReview {
+export function monthReview(data: ReviewData, offset: number, today: Date = localToday()): MonthReview {
   const first = new Date(today.getFullYear(), today.getMonth() - offset, 1);
   const key = monthKey(first);
   const isCurrent = offset === 0;
@@ -387,7 +387,7 @@ export type AllTime = {
   badges: Badge[];
 };
 
-export function allTime(data: ReviewData, today: Date = new Date()): AllTime {
+export function allTime(data: ReviewData, today: Date = localToday()): AllTime {
   const checkOffs = Object.values(data.doneDates).reduce((sum, d) => sum + d.size, 0);
   const weekGoals = data.habits.reduce((sum, h) => sum + weeksMet(datesOf(data, h), targetOf(h), today), 0);
   const longest = Math.max(0, ...data.habits.filter((h) => isDaily(targetOf(h))).map((h) => bestStreak(datesOf(data, h))));

@@ -9,7 +9,7 @@ import { CATEGORY_EMOJI } from '../../lib/challenges';
 import { DoneLog, doneDatesByHabit, fetchDoneLogs, frequencyChipLabel, habitColor, habitEmoji, isDaily, targetOf } from '../../lib/habits';
 import { firstWeekMessage } from '../../lib/motivation';
 import { cached } from '../../lib/offline';
-import { todayStr } from '../../lib/period';
+import { localToday, todayStr } from '../../lib/period';
 import {
   CompletedChallenge, DoneStep, DoneTask, DreamRef, ReviewData, Win, allTime, defaultMonthOffset, defaultWeekOffset,
   earliestDate, maxMonthOffset, maxWeekOffset, monthReview, weekReview,
@@ -128,7 +128,7 @@ export default function ReviewScreen() {
 
   if (loading || !data) return <ActivityIndicator style={styles.center} />;
 
-  const today = new Date();
+  const today = localToday();
   const earliest = earliestDate(data);
   const maxWeek = maxWeekOffset(earliest, today);
   const maxMonth = maxMonthOffset(earliest, today);
