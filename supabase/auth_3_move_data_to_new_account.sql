@@ -33,11 +33,12 @@ begin
     raise exception 'Quelle und Ziel sind derselbe Account.';
   end if;
 
-  -- Fortschritt, den der neue Account evtl. schon angelegt hat, weicht dem
-  -- übertragenen (sonst kollidiert der Unique-Key user_id + challenge_id).
+  -- Laufende Challenges, die der neue Account evtl. schon gestartet hat,
+  -- weichen den übertragenen (höchstens ein aktiver Durchgang pro Challenge).
   delete from public.challenge_progress
-    where user_id = to_user
-      and challenge_id in (select challenge_id from public.challenge_progress where user_id = from_user);
+    where user_id = to_user and status = 'active'
+      and challenge_id in (select challenge_id from public.challenge_progress
+                           where user_id = from_user and status = 'active');
 
   update public.habits set user_id = to_user where user_id = from_user;
   update public.logs set user_id = to_user where user_id = from_user;

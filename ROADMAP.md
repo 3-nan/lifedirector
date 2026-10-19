@@ -152,7 +152,16 @@ lebt die gemeinsame Challenge (Social)?
   steht, und `Review`/Push-Quote messen gegen das Ziel statt gegen 7/7.
   `supabase/habit_frequency.sql` ist ausgeführt.
 - **Challenges-Tab** (`app/(tabs)/challenges.tsx`), Seed-Daten in
-  `supabase/challenges.sql` (Tabellen in `supabase/schema.sql`).
+  `supabase/challenges.sql` (Tabellen in `supabase/schema.sql`), 49
+  Challenges, ohne Ortsbezug (Katalog ist für alle Nutzer gleich).
+- **Challenges wiederholbar** (2026-10-19): jede Challenge lässt sich
+  beliebig oft machen — `challenge_progress` hat eine Zeile pro Durchgang
+  (`active` läuft, `done` geschafft, `open` abgebrochen), höchstens ein
+  aktiver Durchgang pro Challenge. Liste zeigt "✓ n× geschafft" statt
+  durchgestrichen; Antippen startet bzw. schafft, lange drücken bricht ab.
+  "Challenge ziehen" lost gleichmäßig unter allen nicht laufenden
+  Challenges (auch geschafften). Rückblick zählt jeden Durchgang.
+  Migration `supabase/challenge_repeat.sql`.
 - **Wochen-Tasks** (`Today`, Abschnitt "Diese Woche") + **Monatsziele**
   (`Challenges`, Abschnitt "Monatsziele"), nach Mockup umgesetzt.
 - **Motivational Core** (Streak/Momentum/Celebration/Encouragement).

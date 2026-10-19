@@ -8,23 +8,25 @@ import {
     CATEGORY_LABEL,
     currentMonthCategory,
     drawChallenge,
-    nextStatus,
-    setChallengeStatus,
+    finishChallenge,
     SIZE_LABEL,
     SIZE_ORDER,
+    startChallenge,
 } from '../../lib/challenges';
 import { monthKey } from '../../lib/period';
 import { supabase } from '../../lib/supabase';
-import { Challenge, ChallengeStatus } from '../../types/challenge';
+import { Challenge } from '../../types/challenge';
 import { MonthlyGoal } from '../../types/monthlyGoal';
 import { ACCENT, BLUE, CARD_BG, MUTED } from '../../constants/theme';
 
-const STATUS_ICON: Record<ChallengeStatus, keyof typeof Ionicons.glyphMap> = {
+// 'done' = gerade nicht aktiv, aber schon mindestens einmal geschafft.
+type CardState = 'open' | 'active' | 'done';
+const STATUS_ICON: Record<CardState, keyof typeof Ionicons.glyphMap> = {
   open: 'ellipse-outline',
   active: 'play-circle',
   done: 'checkmark-circle',
 };
-const STATUS_COLOR: Record<ChallengeStatus, string> = {
+const STATUS_COLOR: Record<CardState, string> = {
   open: '#c7c7cc',
   active: BLUE,
   done: ACCENT,
@@ -32,7 +34,8 @@ const STATUS_COLOR: Record<ChallengeStatus, string> = {
 
 export default function ChallengesScreen() {
   const [challenges, setChallenges] = useState<Challenge[]>([]);
-  const [statusMap, setStatusMap] = useState<Record<string, ChallengeStatus>>({});
+  const [activeIds, setActiveIds] = useState<Set<string>>(new Set());
+  const [doneCounts, setDoneCounts] = useState<Record<string, number>>({});
   const [goals, setGoals] = useState<MonthlyGoal[]>([]);
   const [newGoalTitle, setNewGoalTitle] = useState('');
   const [addingGoal, setAddingGoal] = useState(false);
@@ -47,38 +50,61 @@ export default function ChallengesScreen() {
     const { data: goalData } = await supabase
       .from('monthly_goals').select('*').eq('month_key', monthKey()).order('created_at', { ascending: true });
 
-    const map: Record<string, ChallengeStatus> = {};
-    progressData?.forEach((p) => { map[p.challenge_id] = p.status as ChallengeStatus; });
+    // Eine Zeile pro Durchgang: aktive merken, geschaffte zählen.
+    const active = new Set<string>();
+    const counts: Record<string, number> = {};
+    progressData?.forEach((p) => {
+      if (p.status === 'active') active.add(p.challenge_id);
+      if (p.status === 'done') counts[p.challenge_id] = (counts[p.challenge_id] ?? 0) + 1;
+    });
 
     setChallenges(challengeData ?? []);
-    setStatusMap(map);
+    setActiveIds(active);
+    setDoneCounts(counts);
     setGoals(goalData ?? []);
     setLoading(false);
   }, []);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
 
-  const statusOf = useCallback((id: string) => statusMap[id] ?? 'open', [statusMap]);
+  const isActive = useCallback((id: string) => activeIds.has(id), [activeIds]);
 
-  async function setStatus(challenge: Challenge, status: ChallengeStatus) {
-    setStatusMap((prev) => ({ ...prev, [challenge.id]: status }));
-    await setChallengeStatus(challenge.id, status);
+  async function start(challenge: Challenge) {
+    setActiveIds((prev) => new Set(prev).add(challenge.id));
+    const { error } = await startChallenge(challenge.id);
+    if (error) { Alert.alert('Fehler', error.message); load(); }
+  }
+
+  async function finish(challenge: Challenge, status: 'done' | 'open') {
+    setActiveIds((prev) => { const next = new Set(prev); next.delete(challenge.id); return next; });
+    if (status === 'done') setDoneCounts((prev) => ({ ...prev, [challenge.id]: (prev[challenge.id] ?? 0) + 1 }));
+    const { error } = await finishChallenge(challenge.id, status);
+    if (error) { Alert.alert('Fehler', error.message); load(); }
+  }
+
+  function confirmCancel(challenge: Challenge) {
+    Alert.alert('Challenge abbrechen?', challenge.title, [
+      { text: 'Weiterlaufen lassen', style: 'cancel' },
+      { text: 'Abbrechen', style: 'destructive', onPress: () => finish(challenge, 'open') },
+    ]);
   }
 
   const monthCategory = useMemo(() => currentMonthCategory(), []);
 
   function handleDraw() {
-    const picked = drawChallenge(challenges, statusOf, monthCategory);
+    const picked = drawChallenge(challenges, isActive, monthCategory);
     if (!picked) {
-      Alert.alert('Alles erledigt! 🎉', 'Du hast gerade keine offenen Challenges mehr übrig.');
+      Alert.alert('Alles läuft schon 🎉', 'Gerade sind alle Challenges aktiv.');
       return;
     }
+    const times = doneCounts[picked.id] ?? 0;
     Alert.alert(
       `${CATEGORY_EMOJI[picked.category]} ${picked.title}`,
-      picked.description ?? 'Los geht\'s?',
+      [picked.description, times > 0 ? `Schon ${times}× geschafft – nochmal?` : null]
+        .filter(Boolean).join('\n\n') || 'Los geht\'s?',
       [
         { text: 'Später', style: 'cancel' },
-        { text: "Los geht's", onPress: () => setStatus(picked, 'active') },
+        { text: "Los geht's", onPress: () => start(picked) },
       ]
     );
   }
@@ -103,8 +129,9 @@ export default function ChallengesScreen() {
     load();
   }
 
-  const doneCount = challenges.filter((c) => statusOf(c.id) === 'done').length;
-  const activeCount = challenges.filter((c) => statusOf(c.id) === 'active').length;
+  // Jeder Durchgang zählt, auch wiederholte Challenges.
+  const doneCount = Object.values(doneCounts).reduce((sum, n) => sum + n, 0);
+  const activeCount = challenges.filter((c) => isActive(c.id)).length;
 
   if (loading) return <ActivityIndicator style={styles.center} />;
 
@@ -189,17 +216,20 @@ export default function ChallengesScreen() {
               <Text style={styles.sectionTitle}>{SIZE_LABEL[size]}</Text>
               <View style={{ gap: 8, marginBottom: 12 }}>
                 {items.map((item) => {
-                  const status = statusOf(item.id);
+                  const active = isActive(item.id);
+                  const times = doneCounts[item.id] ?? 0;
+                  const status: CardState = active ? 'active' : times > 0 ? 'done' : 'open';
                   return (
                     <TouchableOpacity
                       key={item.id}
                       style={styles.card}
                       activeOpacity={0.7}
-                      onPress={() => setStatus(item, nextStatus(status))}
+                      onPress={() => (active ? finish(item, 'done') : start(item))}
+                      onLongPress={active ? () => confirmCancel(item) : undefined}
                     >
                       <Ionicons name={STATUS_ICON[status]} size={22} color={STATUS_COLOR[status]} />
                       <View style={{ flex: 1 }}>
-                        <Text style={[styles.cardTitle, status === 'done' && styles.cardTitleDone]}>
+                        <Text style={styles.cardTitle}>
                           {CATEGORY_EMOJI[item.category]} {item.title}
                         </Text>
                         {item.description && (
@@ -208,6 +238,7 @@ export default function ChallengesScreen() {
                         <View style={styles.badgeRow}>
                           <Text style={styles.badge}>{CATEGORY_LABEL[item.category]}</Text>
                           {item.friend_friendly && <Text style={styles.badge}>👥 mit Freund</Text>}
+                          {times > 0 && <Text style={[styles.badge, styles.doneBadge]}>✓ {times}× geschafft</Text>}
                         </View>
                       </View>
                     </TouchableOpacity>
@@ -244,6 +275,7 @@ const styles = StyleSheet.create({
   cardDescription: { fontSize: 12, color: '#666', lineHeight: 17, marginBottom: 6 },
   badgeRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
   badge: { fontSize: 11, color: MUTED, backgroundColor: '#ececee', borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 },
+  doneBadge: { color: ACCENT, backgroundColor: '#e8f8ec' },
   empty: { color: MUTED, marginTop: 20, lineHeight: 20 },
   tintedSection: { backgroundColor: '#eef6ef', borderRadius: 12, padding: 14, marginBottom: 20 },
   goalCard: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: '#fff', borderRadius: 10, paddingVertical: 14, paddingHorizontal: 14 },

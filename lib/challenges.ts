@@ -33,39 +33,45 @@ export function currentMonthCategory(date: Date = new Date()): ChallengeCategory
   return CATEGORY_ROTATION[date.getMonth() % CATEGORY_ROTATION.length];
 }
 
-/** Zyklus open -> active -> done -> open, für den manuellen Status-Toggle in der Liste. */
-export function nextStatus(current: ChallengeStatus): ChallengeStatus {
-  if (current === 'open') return 'active';
-  if (current === 'active') return 'done';
-  return 'open';
-}
+// Challenges lassen sich beliebig oft machen: `challenge_progress` hat eine Zeile
+// pro Durchgang ('active' läuft, 'done' geschafft, 'open' abgebrochen).
 
-/** Schreibt den Status einer Challenge in `challenge_progress` (ein Row pro Nutzer und Challenge). */
-export async function setChallengeStatus(challengeId: string, status: ChallengeStatus) {
+/** Startet einen neuen Durchgang. */
+export async function startChallenge(challengeId: string) {
   const { data: { session } } = await supabase.auth.getSession();
-  const patch: Record<string, unknown> = {
+  const now = new Date().toISOString();
+  return supabase.from('challenge_progress').insert({
     user_id: session?.user.id,
     challenge_id: challengeId,
-    status,
-    updated_at: new Date().toISOString(),
-    started_at: status === 'active' ? new Date().toISOString() : status === 'open' ? null : undefined,
-    completed_at: status === 'done' ? new Date().toISOString() : status === 'open' ? null : undefined,
-  };
-  return supabase.from('challenge_progress').upsert(patch, { onConflict: 'user_id,challenge_id' });
+    status: 'active' satisfies ChallengeStatus,
+    started_at: now,
+    updated_at: now,
+  });
+}
+
+/** Schließt den laufenden Durchgang ab ('done') oder bricht ihn ab ('open'). */
+export async function finishChallenge(challengeId: string, status: Exclude<ChallengeStatus, 'active'>) {
+  const now = new Date().toISOString();
+  return supabase
+    .from('challenge_progress')
+    .update({ status, updated_at: now, completed_at: status === 'done' ? now : null })
+    .eq('challenge_id', challengeId)
+    .eq('status', 'active');
 }
 
 /**
- * Wählt zufällig eine offene Challenge aus der übergebenen Kategorie.
- * Fällt auf alle offenen Challenges zurück, falls die Kategorie leer ist.
+ * Wählt zufällig eine Challenge aus der übergebenen Kategorie, die gerade nicht
+ * läuft — schon geschaffte sind genauso im Topf wie neue. Fällt auf alle
+ * Kategorien zurück, falls in der Kategorie nichts frei ist.
  */
 export function drawChallenge(
   challenges: Challenge[],
-  statusOf: (id: string) => ChallengeStatus,
+  isActive: (id: string) => boolean,
   category: ChallengeCategory
 ): Challenge | null {
-  const open = (list: Challenge[]) => list.filter((c) => statusOf(c.id) === 'open');
-  const inCategory = open(challenges.filter((c) => c.category === category));
-  const pool = inCategory.length > 0 ? inCategory : open(challenges);
+  const free = (list: Challenge[]) => list.filter((c) => !isActive(c.id));
+  const inCategory = free(challenges.filter((c) => c.category === category));
+  const pool = inCategory.length > 0 ? inCategory : free(challenges);
   if (pool.length === 0) return null;
   return pool[Math.floor(Math.random() * pool.length)];
 }

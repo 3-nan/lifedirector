@@ -9,7 +9,7 @@ import { KeyboardAwareScroll } from '../../components/keyboard-aware';
 import { OfflineBanner } from '../../components/offline-banner';
 import { isSecured } from '../../lib/account';
 import { dreamColor, nextStepToWeeklyTask, pickDreamOfWeek, updateDream } from '../../lib/dreams';
-import { CATEGORY_EMOJI, CATEGORY_LABEL, CATEGORY_ROTATION, setChallengeStatus } from '../../lib/challenges';
+import { CATEGORY_EMOJI, CATEGORY_LABEL, CATEGORY_ROTATION, finishChallenge } from '../../lib/challenges';
 import {
   celebrationLine,
   challengeCompleteLine,
@@ -31,7 +31,7 @@ import { refreshDreamWidgets } from '../../lib/widget-bridge';
 import { daysAgoStr, isoWeekKey, todayStr } from '../../lib/period';
 import { cached, pendingHabitDone, pendingTaskDone, setHabitDone, setTaskDone, syncPending } from '../../lib/offline';
 import { supabase } from '../../lib/supabase';
-import { Challenge, ChallengeCategory, ChallengeStatus } from '../../types/challenge';
+import { Challenge, ChallengeCategory } from '../../types/challenge';
 import { Dream } from '../../types/dream';
 import { Habit } from '../../types/habit';
 import { Task } from '../../types/task';
@@ -336,7 +336,7 @@ export default function TodayScreen() {
       line: `${challenge.title}: ${challengeCompleteLine(challenge.size, challenge.id)}`,
       durationMs: 4000,
     });
-    const { error } = await setChallengeStatus(challenge.id, 'done' satisfies ChallengeStatus);
+    const { error } = await finishChallenge(challenge.id, 'done');
     if (error) {
       setCelebration(null);
       setActiveChallenges((prev) => [...prev, challenge]);
