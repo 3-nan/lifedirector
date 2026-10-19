@@ -23,6 +23,7 @@ ist vorbereitet, aber noch nicht entschieden.
 | `Today` entschlackt (Wochenkarte, Challenge-Karte, Tagesring) | umgesetzt, Test auf dem Handy | Fokus statt Überladung |
 | Wochenplanung / Top 3 pro Woche | verworfen (2026-10-12) | Fokus statt Überladung |
 | Habits-Tab aufgewertet + `Rückblick` (Woche/Monat) | umgesetzt, Test auf dem Handy | Habits & Rückblick |
+| Aufgaben (Erledigen: Alltag & Papierkram) | Mockup abgestimmt, Plan steht | Aufgaben |
 | Fokus-Wochen | Konzept | Fokus-Wochen |
 | Social: gemeinsame Challenges (Duo) | Konzept | Social |
 | Play-Store-Release | vorbereitet, nicht entschieden | Play-Store-Release |
@@ -40,7 +41,8 @@ ist vorbereitet, aber noch nicht entschieden.
 4. **Gezogene Challenge als eigene Karte/State statt `Alert.alert`** — v.a.
    relevant, falls die Challenge länger "aktiv" bleibt (ongoing-Kategorie)
    und man sie wiederfinden will, ohne erneut zu ziehen.
-5. Danach: Fokus-Wochen *oder* Social (je nach Ergebnis von 1), Play-Store
+5. **Aufgaben (Erledigen)** umsetzen, v1 per EAS Update (siehe "Aufgaben").
+6. Danach: Fokus-Wochen *oder* Social (je nach Ergebnis von 1), Play-Store
    nur, falls der Release entschieden wird.
 
 ## Grundsatz: Fokus statt Überladung (Gedanke 2026-10-07)
@@ -208,6 +210,84 @@ Habit-Karten und Kalender im Monat bewusst verworfen — zu viel).
 Später/offen: Emoji auch auf `Today` in der Habit-Liste; unerledigte
 Monatsziele in den nächsten Monat mitnehmen ("Kein Schuld-Stapel" Punkt 4);
 Haptik beim Freischalten eines Abzeichens.
+
+## Aufgaben: erledigen statt verschieben (Konzept 2026-10-19)
+Problem: Alltags- und Papierkram-Aufgaben ("Versicherung kündigen",
+"Zahnarzt anrufen") landen auf Listen, werden verschoben und am Ende nie
+gemacht. Grundsatz: **jede Aufgabe endet mit einer Entscheidung** —
+erledigt, losgelassen oder ein neuer, konkreter Zeitpunkt. "Irgendwo auf der
+Liste" ist kein Zustand. Gleicher Geist wie "Kein Schuld-Stapel".
+
+Mockup abgestimmt (Canvas "Aufgaben erledigen", 6 Screens):
+1. **`Today`: blaue Karte "Erledigen · Heute" ganz oben** (über der
+   Wochenkarte): nur fällige Aufgaben (heute + überfällig), je mit "Später";
+   überfällig nur orange "seit Fr offen", kein Rot. Unten "Aufgabe
+   notieren", "Alle n ›" und **"+ n diese Woche" zum Aufklappen** (Tasks der
+   Woche bleiben standardmäßig verborgen, ausgeklappt mit "Heute"-Knopf).
+2. **Schnell notieren** (Sheet): Titel, "Wann?" Heute / Morgen / Diese Woche
+   / Datum … / Irgendwann, optional Erinnerungszeit. "Irgendwann" landet im
+   Speicher und nie auf `Today`.
+3. **Aufgaben-Screen** (eigener Screen wie `settings`, kein 6. Tab): Heute /
+   Diese Woche / Demnächst / Irgendwann (eingeklappt), Einstieg in den
+   Wochen-Check, unten "x erledigt · y bewusst losgelassen".
+4. **Beim 3. Verschieben** (entschieden: genau ab dem dritten Mal) statt
+   still weiterzuschieben ein Sheet: **Kleiner machen** (erster
+   5-Minuten-Schritt wird die Aufgabe für heute, die große bleibt als
+   "Schritt zu: …" darüber), **Fester Termin** (Wenn-dann: Tag + Anlass,
+   mit Erinnerung), **Loslassen**; klein "Trotzdem auf morgen schieben".
+5. **Wochen-Check** (optional, Sonntag, ~2 Min): eine Karte pro Aufgabe, die
+   eine Entscheidung braucht → Mitnehmen / Schon erledigt / Später … /
+   Loslassen; Abschluss "Alles entschieden".
+6. **Erinnerungen:** pro Aufgabe zur gewählten Zeit mit Aktionen Erledigt /
+   In 1 Std. / Morgen; dazu höchstens eine Wochen-Check-Push (So 18:00),
+   nur wenn etwas wartet.
+
+Entschieden (2026-10-19): Aufgaben sind vorerst Alltag/Papierkram, **keine
+Unteraufgaben/Projekte** (nur der eine Schritt aus "Kleiner machen");
+Karte ganz oben auf `Today`; Wochen-Aufgaben eingeklappt; Frage ab dem
+3. Verschieben.
+
+### Plan
+**Datenmodell — eigene Tabelle `chores`** statt `tasks` zu erweitern:
+`tasks` speist Wochenkarte ("x von y"), Kategorien im Rückblick und den
+Traum-Schritt-Trigger; Alltagsaufgaben dort einzumischen hieße überall
+filtern. `supabase/chores.sql`, `user_id` + RLS von Anfang an:
+- `title` · `status` open / done / let_go · `done_at` / `let_go_at`
+- Fälligkeit: `due_date` (Tag) **oder** `due_week` (ISO-Woche, "Diese
+  Woche"), beides leer = Irgendwann
+- `remind_at` (timestamptz, optional) · `postponed_count` (jede
+  Verschiebung nach hinten zählt, auch "Mitnehmen" in die nächste Woche)
+- `parent_id` (nur für "Kleiner machen"; die große Aufgabe bleibt offen,
+  ohne Fälligkeit, solange ihr Schritt offen ist)
+- `last_decided_at` (Wochen-Check) · `created_at` / `updated_at`
+
+**Logik `lib/chores.ts`** (rein, mit Vitest-Tests wie `lib/review.ts`):
+Einordnung Heute/Diese Woche/Demnächst/Irgendwann aus `localToday()`,
+`postpone()` (morgen, `postponed_count + 1`, ab 2 → Sheet statt
+Verschieben), "braucht Entscheidung" für den Wochen-Check (offen aus
+vergangener Woche, ≥ 3× verschoben, Irgendwann länger als 4 Wochen
+unberührt), Zähler für den Rückblick.
+
+**v1 — nur JS, per EAS Update:**
+1. Migration `supabase/chores.sql` (`user_id … on delete cascade`, dann
+   löscht `delete_my_account` sie mit); `chores` in der Löschübersicht
+   (`app/settings.tsx`) und im Umzugs-Skript
+   `auth_3_move_data_to_new_account.sql` ergänzen.
+2. `lib/chores.ts` + Tests.
+3. `Today`: Erledigen-Karte oben, Notieren-Sheet, Verschieben-Sheet.
+4. Screen `app/chores.tsx` (Liste) + Wochen-Check.
+5. Erinnerungen über `expo-notifications` (ist schon im Build): bei jedem
+   Laden alle kommenden `remind_at` neu planen (wie `lib/notifications.ts`),
+   Aktionen per Notification-Kategorie. Zu prüfen: Aktionen ohne App-Öffnen
+   bräuchten einen Hintergrund-Task (`expo-task-manager`, neuer Build) —
+   für v1 öffnet eine Aktion die App und führt sie dort aus.
+6. Rückblick: "n Aufgaben erledigt, m bewusst losgelassen" in "Deine
+   Erfolge" (Woche) und im Monat.
+7. Offline abhaken wie bei Habits/Wochen-Tasks (`lib/offline.ts`).
+
+**v2 — braucht einen neuen nativen Build:** Home-Screen-Widget "+" zum
+Notieren, Android "Teilen" → Aufgabe, Notieren auch offline,
+Erinnerungs-Aktionen ohne App-Öffnen.
 
 ## Offline (2026-10-11)
 Anlass: ohne Internet startete die App nicht. Ursache: nach ~1 Std. ist das
