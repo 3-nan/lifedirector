@@ -1,6 +1,6 @@
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, ScrollViewProps } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, ScrollViewProps, ViewStyle } from 'react-native';
 
 // Seit SDK 54 laufen Android-Apps edge-to-edge — dann schiebt das System den
 // Inhalt bei geöffneter Tastatur nicht mehr hoch, Eingabefelder unten werden
@@ -48,4 +48,16 @@ export function KeyboardAwareScroll({ bottomOffset = 24, children, ...props }: S
       </ScrollView>
     </KeyboardAvoidingView>
   );
+}
+
+/**
+ * Hebt Inhalt am unteren Rand (z.B. ein Sheet) über die Tastatur. Mit dem
+ * nativen Modul auch edge-to-edge zuverlässig, sonst wie oben der Fallback.
+ */
+export function KeyboardAvoidingBottom({ children, style }: { children: ReactNode; style?: ViewStyle }) {
+  if (controller) {
+    const { KeyboardAvoidingView: ControllerAvoidingView } = controller;
+    return <ControllerAvoidingView behavior="padding" style={style}>{children}</ControllerAvoidingView>;
+  }
+  return <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={style}>{children}</KeyboardAvoidingView>;
 }

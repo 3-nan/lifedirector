@@ -11,7 +11,7 @@ import { firstWeekMessage } from '../../lib/motivation';
 import { cached } from '../../lib/offline';
 import { localToday, todayStr } from '../../lib/period';
 import {
-  CompletedChallenge, DoneStep, DoneTask, DreamRef, ReviewData, Win, allTime, defaultMonthOffset, defaultWeekOffset,
+  ClosedChore, CompletedChallenge, DoneStep, DoneTask, DreamRef, ReviewData, Win, allTime, defaultMonthOffset, defaultWeekOffset,
   earliestDate, maxMonthOffset, maxWeekOffset, monthReview, weekReview,
 } from '../../lib/review';
 import { supabase } from '../../lib/supabase';
@@ -90,7 +90,7 @@ export default function ReviewScreen() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [habits, logs, tasks, goals, challenges, steps, dreams, dismissed] = await Promise.all([
+    const [habits, logs, tasks, goals, challenges, steps, dreams, chores, dismissed] = await Promise.all([
       cached<Habit[]>('review:habits', () =>
         supabase.from('habits').select('*').eq('active', true).order('sort_order', { ascending: true })),
       cached<DoneLog[]>('review:doneLogs', fetchDoneLogs),
@@ -108,6 +108,8 @@ export default function ReviewScreen() {
       cached<DoneStep[]>('review:steps', () =>
         supabase.from('dream_steps').select('id, dream_id, title, done_at').not('done_at', 'is', null)),
       cached<DreamRef[]>('review:dreams', () => supabase.from('dreams').select('id, title, emoji, fulfilled_at')),
+      cached<ClosedChore[]>('review:chores', () =>
+        supabase.from('chores').select('status, done_at, let_go_at').neq('status', 'open')),
       AsyncStorage.getItem(DISMISSED_TIPS_KEY).catch(() => null),
     ]);
     setData({
@@ -119,6 +121,7 @@ export default function ReviewScreen() {
       challenges: ((challenges ?? []) as unknown as CompletedChallenge[]).filter((c) => c.challenge),
       steps: steps ?? [],
       dreams: dreams ?? [],
+      chores: chores ?? [],
     });
     setDismissedTips(dismissed ? JSON.parse(dismissed) : []);
     setLoading(false);
@@ -246,7 +249,7 @@ export default function ReviewScreen() {
   function renderMonth() {
     const m = monthReview(data!, mOffset, today);
     const total = allTime(data!, today);
-    const hasGoals = m.challenges.length + m.goals.length + m.dreams.length + m.tasks.count + m.habits.length > 0;
+    const hasGoals = m.challenges.length + m.goals.length + m.dreams.length + m.tasks.count + m.chores.done + m.habits.length > 0;
     return (
       <>
         <PeriodNav
@@ -324,6 +327,21 @@ export default function ReviewScreen() {
                   </View>
                 </View>
               )}
+            </View>
+          </>
+        )}
+
+        {m.chores.done + m.chores.letGo > 0 && (
+          <>
+            <Text style={styles.section}>Aufgaben</Text>
+            <View style={styles.list}>
+              <View style={styles.item}>
+                <Text style={styles.itemEmoji}>📋</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.itemTitle}>{m.chores.done === 1 ? '1 Aufgabe' : `${m.chores.done} Aufgaben`} erledigt</Text>
+                  {m.chores.letGo > 0 && <Text style={styles.itemSub}>und {m.chores.letGo} bewusst losgelassen</Text>}
+                </View>
+              </View>
             </View>
           </>
         )}

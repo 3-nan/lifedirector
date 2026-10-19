@@ -45,6 +45,7 @@ begin
   update public.tasks set user_id = to_user where user_id = from_user;
   update public.monthly_goals set user_id = to_user where user_id = from_user;
   update public.challenge_progress set user_id = to_user where user_id = from_user;
+  update public.chores set user_id = to_user where user_id = from_user;
 
   raise notice 'Daten von % nach % übertragen.', from_user, to_user;
 end $$;

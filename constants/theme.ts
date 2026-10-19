@@ -85,3 +85,14 @@ export const PEACH = {
 
 /** Challenge-Karte auf `Today`. */
 export const PURPLE = { bg: '#f3eafd', accent: '#8944ab' };
+
+/** Aufgaben (Erledigen) auf `Today` und im Aufgaben-Screen. */
+export const SKY = {
+  bg: '#e8f1ff',
+  /** Labels und Links auf `bg`. */
+  text: '#0058b8',
+  ring: '#9fbfe8',
+  /** Buttons mit weißer Schrift. */
+  button: '#0062cc',
+  soft: '#f2f2f4',
+};

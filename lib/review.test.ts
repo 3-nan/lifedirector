@@ -24,6 +24,7 @@ function data(habits: Habit[], doneDates: Record<string, string[]>, extra: Parti
     challenges: [],
     steps: [],
     dreams: [],
+    chores: [],
     ...extra,
   };
 }

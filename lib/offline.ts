@@ -4,7 +4,7 @@
 // 1. Zwischenspeicher: `cached()` führt eine Supabase-Abfrage aus und legt das
 //    Ergebnis auf dem Gerät ab. Scheitert sie (kein Netz, keine Session),
 //    kommt der zuletzt gespeicherte Stand zurück und die App gilt als offline.
-// 2. Abhaken: `setHabitDone` / `setTaskDone` schreiben direkt; ohne Netz wird
+// 2. Abhaken: `setHabitDone` / `setTaskDone` / `setChoreDone` schreiben direkt; ohne Netz wird
 //    der Wunsch auf dem Gerät gemerkt und später übertragen. Regel: abgehakt
 //    gewinnt — was irgendwo abgehakt wurde, gilt als erledigt. Offline
 //    zurückgenommene Haken werden deshalb nur lokal angezeigt und nie
@@ -89,11 +89,13 @@ export async function readCache<T>(key: string): Promise<T | null> {
 
 type PendingEntry =
   | { kind: 'log'; habitId: string; date: string; done: boolean; at: string }
-  | { kind: 'task'; taskId: string; done: boolean; at: string };
+  | { kind: 'task'; taskId: string; done: boolean; at: string }
+  | { kind: 'chore'; choreId: string; done: boolean; at: string };
 type Pending = Record<string, PendingEntry>;
 
 const logKey = (habitId: string, date: string) => `log:${habitId}:${date}`;
 const taskKey = (taskId: string) => `task:${taskId}`;
+const choreKey = (choreId: string) => `chore:${choreId}`;
 
 async function readPending(): Promise<Pending> {
   try {
@@ -153,6 +155,26 @@ export async function setTaskDone(taskId: string, done: boolean) {
   await putPending(key, { kind: 'task', taskId, done, at });
 }
 
+/** Aufgabe abhaken bzw. zurücknehmen — offline wird es gemerkt. */
+export async function setChoreDone(choreId: string, done: boolean) {
+  const key = choreKey(choreId);
+  const at = new Date().toISOString();
+  try {
+    const { error } = await supabase
+      .from('chores')
+      .update({ status: done ? 'done' : 'open', done_at: done ? at : null, updated_at: at })
+      .eq('id', choreId);
+    if (!error) {
+      await putPending(key, null);
+      return;
+    }
+  } catch {
+    // offline
+  }
+  setOffline(true);
+  await putPending(key, { kind: 'chore', choreId, done, at });
+}
+
 /** Offline gemerkte Haken auf geladene Daten legen (für die Anzeige). */
 export async function pendingHabitDone(): Promise<{ habitId: string; date: string; done: boolean }[]> {
   const pending = await readPending();
@@ -164,6 +186,15 @@ export async function pendingTaskDone(): Promise<Record<string, boolean>> {
   const out: Record<string, boolean> = {};
   Object.values(pending).forEach((e) => {
     if (e.kind === 'task') out[e.taskId] = e.done;
+  });
+  return out;
+}
+
+export async function pendingChoreDone(): Promise<Record<string, { done: boolean; at: string }>> {
+  const pending = await readPending();
+  const out: Record<string, { done: boolean; at: string }> = {};
+  Object.values(pending).forEach((e) => {
+    if (e.kind === 'chore') out[e.choreId] = { done: e.done, at: e.at };
   });
   return out;
 }
@@ -201,11 +232,17 @@ async function doSync(): Promise<boolean> {
             ? await supabase
                 .from('logs')
                 .upsert({ habit_id: entry.habitId, date: entry.date, done: true }, { onConflict: 'habit_id,date' })
-            : await supabase
-                .from('tasks')
-                .update({ done: true, completed_at: entry.at })
-                .eq('id', entry.taskId)
-                .eq('done', false);
+            : entry.kind === 'task'
+              ? await supabase
+                  .from('tasks')
+                  .update({ done: true, completed_at: entry.at })
+                  .eq('id', entry.taskId)
+                  .eq('done', false)
+              : await supabase
+                  .from('chores')
+                  .update({ status: 'done', done_at: entry.at, updated_at: entry.at })
+                  .eq('id', entry.choreId)
+                  .eq('status', 'open');
         if (error) return false;
       } catch {
         return false;

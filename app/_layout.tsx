@@ -5,6 +5,7 @@ import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'rea
 import 'react-native-reanimated';
 import { KeyboardAwareProvider } from '../components/keyboard-aware';
 import { fetchMissingDreamImages } from '../lib/dream-image';
+import { listenToNotificationActions } from '../lib/notifications';
 import { syncPending } from '../lib/offline';
 import { ensureSession } from '../lib/supabase';
 import { refreshDreamWidgets } from '../lib/widget-bridge';
@@ -32,6 +33,9 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => { connect(); }, [connect]);
+
+  // Knöpfe in Aufgaben-Erinnerungen (Erledigt / In 1 Std. / Morgen) — erst mit Session.
+  useEffect(() => (ready ? listenToNotificationActions() : undefined), [ready]);
 
   function retry() {
     setError(null);
@@ -68,6 +72,8 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ headerShown: false }} />
+        <Stack.Screen name="chores" options={{ headerShown: false }} />
+        <Stack.Screen name="chores-review" options={{ headerShown: false, presentation: 'modal' }} />
         <Stack.Screen name="dream/new" options={{ headerShown: false, presentation: 'modal' }} />
         <Stack.Screen name="dream/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="dream/memories" options={{ headerShown: false }} />

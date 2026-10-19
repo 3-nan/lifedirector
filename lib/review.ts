@@ -6,6 +6,7 @@
 // Tage sind wie in lib/motivation.ts UTC-Datums-Strings (YYYY-MM-DD).
 
 import { CATEGORY_EMOJI, CATEGORY_ROTATION } from './challenges';
+import { choreCounts } from './chores';
 import { STAGE_FIRM, frequencyLabel, isDaily, targetOf } from './habits';
 import {
   MILESTONES, addDays, bestStreak, computeStreak, computeWeekStreak, countInWeek, dateStr, joinGerman, mondayOf,
@@ -13,6 +14,7 @@ import {
 } from './motivation';
 import { isoWeekKey, localToday, monthKey, todayStr } from './period';
 import { Challenge } from '../types/challenge';
+import { Chore } from '../types/chore';
 import { Dream, DreamStep } from '../types/dream';
 import { Habit } from '../types/habit';
 import { MonthlyGoal } from '../types/monthlyGoal';
@@ -22,6 +24,7 @@ export type DoneTask = Pick<Task, 'id' | 'category' | 'dream_id' | 'week_key' | 
 export type CompletedChallenge = { completed_at: string; challenge: Pick<Challenge, 'id' | 'title' | 'category'> };
 export type DoneStep = Pick<DreamStep, 'id' | 'dream_id' | 'title' | 'done_at'>;
 export type DreamRef = Pick<Dream, 'id' | 'title' | 'emoji' | 'fulfilled_at'>;
+export type ClosedChore = Pick<Chore, 'status' | 'done_at' | 'let_go_at'>;
 
 export type ReviewData = {
   /** Aktive Habits. */
@@ -36,6 +39,8 @@ export type ReviewData = {
   /** Nur erledigte Traum-Schritte. */
   steps: DoneStep[];
   dreams: DreamRef[];
+  /** Erledigte und losgelassene Aufgaben. */
+  chores: ClosedChore[];
 };
 
 const MONTHS = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
@@ -191,6 +196,16 @@ export function weekReview(data: ReviewData, offset: number, isFirstWeek: boolea
         : dreamTasks.length > 0 ? `davon ${plural(dreamTasks.length, 'Traum-Schritt', 'Traum-Schritte')}` : undefined,
     });
   }
+  const chores = choreCounts(data.chores, dates[0], dates[6]);
+  if (chores.done > 0) {
+    wins.push({
+      emoji: '📋',
+      title: `${plural(chores.done, 'Aufgabe', 'Aufgaben')} erledigt`,
+      sub: chores.letGo > 0 ? `und ${chores.letGo} bewusst losgelassen` : undefined,
+    });
+  } else if (chores.letGo > 0) {
+    wins.push({ emoji: '🍃', title: `${plural(chores.letGo, 'Aufgabe', 'Aufgaben')} bewusst losgelassen` });
+  }
   const inWeek = (ts: string | null) => !!ts && dateStr(new Date(ts)) >= dates[0] && dateStr(new Date(ts)) <= dates[6];
   for (const c of data.challenges.filter((c) => inWeek(c.completed_at))) {
     wins.push({ emoji: '🏆', title: `Challenge gemeistert: ${c.challenge.title}` });
@@ -258,6 +273,7 @@ export type MonthReview = {
   goals: MonthlyGoal[];
   dreams: MonthDream[];
   tasks: { count: number; breakdown: string | null };
+  chores: { done: number; letGo: number };
   habits: MonthHabitRow[];
 };
 
@@ -369,6 +385,7 @@ export function monthReview(data: ReviewData, offset: number, today: Date = loca
     goals,
     dreams,
     tasks: { count: tasks.length, breakdown: breakdown || null },
+    chores: choreCounts(data.chores, `${key}-01`, `${key}-31`),
     habits,
   };
 }

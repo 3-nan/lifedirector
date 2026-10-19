@@ -23,7 +23,7 @@ ist vorbereitet, aber noch nicht entschieden.
 | `Today` entschlackt (Wochenkarte, Challenge-Karte, Tagesring) | umgesetzt, Test auf dem Handy | Fokus statt Überladung |
 | Wochenplanung / Top 3 pro Woche | verworfen (2026-10-12) | Fokus statt Überladung |
 | Habits-Tab aufgewertet + `Rückblick` (Woche/Monat) | umgesetzt, Test auf dem Handy | Habits & Rückblick |
-| Aufgaben (Erledigen: Alltag & Papierkram) | Mockup abgestimmt, Plan steht | Aufgaben |
+| Aufgaben (Erledigen: Alltag & Papierkram) | v1 umgesetzt, Test auf dem Handy | Aufgaben |
 | Fokus-Wochen | Konzept | Fokus-Wochen |
 | Social: gemeinsame Challenges (Duo) | Konzept | Social |
 | Play-Store-Release | vorbereitet, nicht entschieden | Play-Store-Release |
@@ -41,7 +41,8 @@ ist vorbereitet, aber noch nicht entschieden.
 4. **Gezogene Challenge als eigene Karte/State statt `Alert.alert`** — v.a.
    relevant, falls die Challenge länger "aktiv" bleibt (ongoing-Kategorie)
    und man sie wiederfinden will, ohne erneut zu ziehen.
-5. **Aufgaben (Erledigen)** umsetzen, v1 per EAS Update (siehe "Aufgaben").
+5. **Aufgaben (Erledigen)** v1 auf dem Handy testen (umgesetzt 2026-10-19,
+   siehe "Aufgaben"); danach v2 mit dem nächsten nativen Build.
 6. Danach: Fokus-Wochen *oder* Social (je nach Ergebnis von 1), Play-Store
    nur, falls der Release entschieden wird.
 
@@ -246,6 +247,18 @@ Entschieden (2026-10-19): Aufgaben sind vorerst Alltag/Papierkram, **keine
 Unteraufgaben/Projekte** (nur der eine Schritt aus "Kleiner machen");
 Karte ganz oben auf `Today`; Wochen-Aufgaben eingeklappt; Frage ab dem
 3. Verschieben.
+
+**Umgesetzt (v1, 2026-10-19):** `supabase/chores.sql`, Logik
+`lib/chores.ts` (+ Tests), gemeinsamer Hook `lib/use-chores.ts`, Karte
+`components/chores-card.tsx`, Sheets `components/chore-sheets.tsx`
+(eigene Overlays statt `Modal`, damit die Tastatur-Hilfe greift), Screens
+`app/chores.tsx` + `app/chores-review.tsx`, Erinnerungen/Aktionen in
+`lib/notifications.ts` (feste IDs: die tägliche Erinnerung räumt
+Aufgaben-Erinnerungen nicht mehr weg), offline abhaken in `lib/offline.ts`,
+Rückblick (Woche: Erfolg "n Aufgaben erledigt", Monat: Abschnitt
+"Aufgaben"). Datum und Uhrzeit über Chips (nächste 14 Tage, 5 Uhrzeiten)
+statt nativem Picker — kein neuer Build. "Später …" im Wochen-Check =
+in zwei Wochen oder Irgendwann.
 
 ### Plan
 **Datenmodell — eigene Tabelle `chores`** statt `tasks` zu erweitern:

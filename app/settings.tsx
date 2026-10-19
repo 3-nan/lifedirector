@@ -170,6 +170,7 @@ export default function SettingsScreen() {
     const tables: { table: string; label: string }[] = [
       { table: 'habits', label: 'Habits mit Verlauf' },
       { table: 'tasks', label: 'Wochen-Tasks' },
+      { table: 'chores', label: 'Aufgaben' },
       { table: 'monthly_goals', label: 'Monatsziele' },
       { table: 'challenge_progress', label: 'Challenge-Fortschritt' },
     ];

@@ -4,6 +4,8 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { CelebrationOverlay, CelebrationPayload } from '../../components/celebration';
+import { CaptureSheet, PostponeSheet } from '../../components/chore-sheets';
+import { ChoresCard } from '../../components/chores-card';
 import { DayRing } from '../../components/day-ring';
 import { KeyboardAwareScroll } from '../../components/keyboard-aware';
 import { OfflineBanner } from '../../components/offline-banner';
@@ -26,7 +28,8 @@ import {
   weekGoalLine,
 } from '../../lib/motivation';
 import { isDaily, targetOf } from '../../lib/habits';
-import { setupDailyReminder } from '../../lib/notifications';
+import { refreshChoreReminders, setupDailyReminder } from '../../lib/notifications';
+import { useChores } from '../../lib/use-chores';
 import { refreshDreamWidgets } from '../../lib/widget-bridge';
 import { daysAgoStr, isoWeekKey, todayStr } from '../../lib/period';
 import { cached, pendingHabitDone, pendingTaskDone, setHabitDone, setTaskDone, syncPending } from '../../lib/offline';
@@ -189,6 +192,9 @@ export default function TodayScreen() {
   const [loading, setLoading] = useState(true);
   const [celebration, setCelebration] = useState<CelebrationPayload | null>(null);
   const [showSecureNudge, setShowSecureNudge] = useState(false);
+  const [capturing, setCapturing] = useState(false);
+  const choresApi = useChores();
+  const loadChores = choresApi.load;
   const router = useRouter();
   const celebrationKey = useRef(0);
 
@@ -197,6 +203,7 @@ export default function TodayScreen() {
     // Erst offline Abgehaktes übertragen, dann laden. Ohne Netz kommt überall
     // der zuletzt gespeicherte Stand (lib/offline.ts).
     await syncPending();
+    const choresLoaded = loadChores();
     const today = todayStr();
     const habitsData = await cached<Habit[]>('today:habits', () =>
       supabase.from('habits').select('*').eq('active', true).order('sort_order', { ascending: true }));
@@ -241,13 +248,15 @@ export default function TodayScreen() {
     setDreams(dreamsData ?? []);
     setActiveChallenges(active);
     setShowSecureNudge(await shouldShowSecureNudge(habitsData ?? []));
+    await choresLoaded;
     setLoading(false);
-  }, []);
+  }, [loadChores]);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
 
   useEffect(() => {
     setupDailyReminder();
+    refreshChoreReminders();
   }, []);
 
   function dismissSecureNudge() {
@@ -415,6 +424,15 @@ export default function TodayScreen() {
         </View>
         <Text style={styles.encouragement}>{encouragement}</Text>
         <OfflineBanner canCheckOff />
+
+        <ChoresCard
+          chores={choresApi.chores}
+          onToggle={choresApi.toggle}
+          onPostpone={(c) => choresApi.postpone(c)}
+          onToToday={choresApi.toToday}
+          onAdd={() => setCapturing(true)}
+          onOpenAll={() => router.push('/chores')}
+        />
 
         {showSecureNudge && (
           <View style={styles.nudgeCard}>
@@ -601,6 +619,8 @@ export default function TodayScreen() {
         )}
       </KeyboardAwareScroll>
 
+      <CaptureSheet visible={capturing} onClose={() => setCapturing(false)} onSave={choresApi.capture} />
+      <PostponeSheet chore={choresApi.asking} onClose={() => choresApi.setAsking(null)} onChoose={choresApi.choose} />
       <CelebrationOverlay payload={celebration} onDismiss={() => setCelebration(null)} />
     </View>
   );
