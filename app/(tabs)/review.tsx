@@ -192,7 +192,9 @@ export default function ReviewScreen() {
               {w.days.map((d) => (
                 <View key={d.date} style={[styles.dayCol, d.future && { opacity: 0.4 }]}>
                   <DayRing done={Math.round(d.rate * 100)} total={100} size={32} width={4}>
-                    {d.perfect ? <Text style={styles.star}>⭐</Text> : null}
+                    {d.perfect ? <Text style={styles.star}>⭐</Text>
+                      : d.rate > 0 && !d.future ? <Text style={styles.ringPct}>{Math.round(d.rate * 100)}%</Text>
+                        : <View />}
                   </DayRing>
                   <Text style={[styles.dayLabel, d.perfect && styles.dayLabelPerfect]}>{d.label}</Text>
                 </View>
@@ -471,6 +473,7 @@ const styles = StyleSheet.create({
   days: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: CARD_BG, borderRadius: 14, paddingVertical: 12, paddingHorizontal: 8 },
   dayCol: { flex: 1, alignItems: 'center', gap: 5 },
   star: { fontSize: 12 },
+  ringPct: { fontSize: 8, fontWeight: '700', color: '#4a4a4f' },
   dayLabel: { fontSize: 11, color: MUTED },
   dayLabelPerfect: { color: GREEN_TEXT, fontWeight: '700' },
   habitList: { backgroundColor: CARD_BG, borderRadius: 14, paddingHorizontal: 12 },
